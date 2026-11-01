@@ -115,7 +115,7 @@ export const ParseSelectView = ({
                     <Text text={`No routes found in ${folderInfo?.displayName ?? 'that folder'}`} />
                     <Text text="This looks for video routes (.epm, .rlv, .xml files), including in sub-folders. To add GPX routes, use 'Add a route' or drop the files onto the Routes page." />
                 </Body>
-                <ButtonBar justify="center">
+                <ButtonBar justify="flex-end">
                     <Button text="Choose another folder" primary onClick={cancel} />
                     <Button text="Close" onClick={onClose} />
                 </ButtonBar>
@@ -186,7 +186,7 @@ export const ParseSelectView = ({
             </TableArea>
 
             <FixedHeight>
-                <ButtonBar justify="center">
+                <ButtonBar justify="flex-end">
                     <Button text="Cancel" onClick={cancel} />
                     <Button
                         text={`Import ${selectedCount} routes`}

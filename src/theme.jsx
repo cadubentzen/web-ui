@@ -332,6 +332,7 @@ export const kitTokens = (theme) => ({
     hairline: theme?.hud?.hairline ?? newUITheme.hud.hairline,
     ok: theme?.colors?.ok ?? newUITheme.colors.ok,
     pillSelectedText: theme?.hud?.text ?? newUITheme.hud.text,
+    text: theme?.hud?.text ?? newUITheme.hud.text,
     danger: theme?.colors?.danger ?? newUITheme.colors.danger,
     accent: theme?.colors?.accent ?? newUITheme.colors.accent,
     accentText: theme?.colors?.accentText ?? newUITheme.colors.accentText,

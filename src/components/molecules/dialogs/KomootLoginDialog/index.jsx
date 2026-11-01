@@ -245,7 +245,7 @@ export class KomootLoginDialog extends Component {
                     </ContentArea>
 
 
-                    <ButtonBar justify='center'>
+                    <ButtonBar justify='flex-end'>
                         
                             <Button primary={true} disabled={valid===false || error || loading} text='OK' onClick={()=>this.onOK()} />
                             <Button primary={false}  text='Cancel' onClick={()=>this.onCancel()} />

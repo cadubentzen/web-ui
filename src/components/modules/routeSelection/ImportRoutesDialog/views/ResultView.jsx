@@ -35,7 +35,7 @@ export const ResultView = ({ error, failure, onPickAnotherFile, onClose }) => {
             <Body>
                 <ErrorText text={getImportErrorText(failure)} size="2vh" />
             </Body>
-            <ButtonBar justify="center">
+            <ButtonBar justify="flex-end">
                 <Button text="Pick another file" primary onClick={onPickAnotherFile} />
                 <Button text="Close" onClick={onClose} />
             </ButtonBar>

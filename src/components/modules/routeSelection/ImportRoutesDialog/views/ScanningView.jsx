@@ -42,7 +42,7 @@ export const ScanningView = ({ displayProps, folderInfo, cancel }) => {
                     />
                 )}
             </Body>
-            <ButtonBar justify="center">
+            <ButtonBar justify="flex-end">
                 <Button text="Cancel" onClick={cancel} />
             </ButtonBar>
         </>

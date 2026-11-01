@@ -26,7 +26,7 @@ const Toggle = styled.button`
         width: 1.8vh;
         height: 1.8vh;
         border-radius: 50%;
-        background: ${props => props.$on ? kitTokens(props.theme).accentText : 'white'};
+        background: ${props => props.$on ? kitTokens(props.theme).accentText : kitTokens(props.theme).text};
         transition: left 0.15s;
     }
 `
@@ -43,7 +43,7 @@ const Status = styled.div`
     padding-top: 0.8vh;
     border-top: 1px solid ${props => kitTokens(props.theme).hairline};
     font-size: 1.8vh;
-    color: white;
+    color: ${props => kitTokens(props.theme).text};
 `
 
 const State = styled.span`

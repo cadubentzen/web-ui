@@ -11,7 +11,7 @@ export const Tile = styled(Panel)`
     min-width: 0;
     height: 25vh;
     padding: 1.6vh 1.1vw 1.4vh;
-    color: white;
+    color: ${props => kitTokens(props.theme).text};
     cursor: pointer;
     opacity: ${props => props.$muted ? 0.6 : 1};
     transition: background 0.2s, border-color 0.2s;

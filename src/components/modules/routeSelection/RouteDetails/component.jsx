@@ -547,7 +547,7 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
                 </Row>
                 
             </ContentArea>
-            <ButtonBar justify='center'>
+            <ButtonBar justify='flex-end'>
                 <Button text='Cancel' primary={!canStart && !isOnline} onClick = { onCancelClicked}/>
             </ButtonBar>
 

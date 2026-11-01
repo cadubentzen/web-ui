@@ -119,7 +119,7 @@ export const LandingView = ({ onAddRoute, onSelectFolder, onClose }) => {
                 </TileWrapper>
             </TilesArea>
             <HintText>…or drop route files anywhere on the Routes page</HintText>
-            <ButtonBar justify="center">
+            <ButtonBar justify="flex-end">
                 <Button text="Close" onClick={onClose} />
             </ButtonBar>
         </>

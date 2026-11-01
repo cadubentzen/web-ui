@@ -39,7 +39,7 @@ export const IngestingView = ({ displayProps, cancel }) => {
                 <ProgressBar completed={pct} height="1.5vh" width="60%" />
                 <Text text="You can keep using Incyclist — this runs in the background." />
             </Body>
-            <ButtonBar justify="center">
+            <ButtonBar justify="flex-end">
                 <Button text="Stop" onClick={() => setConfirmStop(true)} />
             </ButtonBar>
 

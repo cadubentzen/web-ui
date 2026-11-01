@@ -53,7 +53,7 @@ export const CompleteView = ({ displayProps, folderInfo, onClose }) => {
                     <Text text={`The videos stay where they are. Keep ${folderInfo.displayName} connected to ride them.`} />
                 )}
             </Body>
-            <ButtonBar justify="center">
+            <ButtonBar justify="flex-end">
                 <Button text="Done" primary onClick={onClose} />
             </ButtonBar>
         </>

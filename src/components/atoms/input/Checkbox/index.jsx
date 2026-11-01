@@ -30,7 +30,7 @@ const Track = styled.button`
         width: 0.76em;
         height: 0.76em;
         border-radius: 50%;
-        background: ${ props => props.$on ? kitTokens(props.theme).accentText : 'white'};
+        background: ${ props => props.$on ? kitTokens(props.theme).accentText : kitTokens(props.theme).text};
         transition: left 0.15s;
     }
 `

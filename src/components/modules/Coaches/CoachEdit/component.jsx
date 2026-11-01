@@ -121,7 +121,7 @@ export const CoachEdit = ({name,type,power,speed,lead,onOK, onCancel}) => {
 
                 </ContentArea>
 
-                <ButtonBar justify='center'>
+                <ButtonBar justify='flex-end'>
                     <Button text='OK' primary={isComplete} onClick={onOKHandler} disabled={!isComplete}> </Button>
                     <Button text='Cancel' onClick={onCancel}></Button>
                 </ButtonBar>

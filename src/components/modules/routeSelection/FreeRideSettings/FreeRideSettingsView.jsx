@@ -111,7 +111,7 @@ export const FreeRideSettingsView = ({
                             </Column>
                         </TabContentArea>
 
-                        <ButtonBar justify="center" className="button-bar">
+                        <ButtonBar justify="flex-end" className="button-bar">
                             {onCancel ? <Button text={'Cancel'} variant='text' onClick={handleBack} /> : null}
 
                             {options?.length > 0

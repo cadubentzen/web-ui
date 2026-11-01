@@ -52,7 +52,7 @@ export const SettingsDialogView = ({onOK, onCoachesChanged, onSettingsChanged, n
                 <SupportArea label='Support' />                 
             </Tabs>
 
-            <ButtonBar justify='center'>
+            <ButtonBar justify='flex-end'>
                 <Button height={'5vh'} primary={true} text='OK' onClick={onOK} />
             </ButtonBar> 
         </Dialog>

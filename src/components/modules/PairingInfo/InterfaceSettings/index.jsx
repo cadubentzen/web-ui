@@ -146,7 +146,7 @@ export default class InterfaceSettings extends PureComponent {
                     </SettingsArea>
                      
                 </ContentArea>
-                <ButtonBar justify='center'>                    
+                <ButtonBar justify='flex-end'>                    
                     <Button primary={true} text='OK' onClick={()=>this.onOK()} />                    
                 </ButtonBar>
 

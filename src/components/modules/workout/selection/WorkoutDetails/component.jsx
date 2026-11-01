@@ -156,7 +156,7 @@ export const WorkoutDetails = ({title,workout,ftp, ftpRequired, useErgMode, dura
                     <WorkoutGraph workout={workout} ftp={state.ftp??200} />
                 </ChartFrame>
             </ContentArea>
-            <ButtonBar justify='center'>
+            <ButtonBar justify='flex-end'>
                 {canStart ? 
                     <Button primary={true} text='Start' onClick = { onStartClicked}/> : 
                     <Button primary={true} text='Select' onClick = { onSelectClicked}/>
