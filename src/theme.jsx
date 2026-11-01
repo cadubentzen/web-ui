@@ -260,7 +260,7 @@ export const newUITheme = {
     url: {
         color: 'cyan'
     },
-    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203', danger: '#ff6b6b' },
+    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203', danger: '#ff6b6b', ok: '#8dc100' },
     page: {
         background: 'radial-gradient(120% 90% at 85% -10%, #4a1240 0%, transparent 55%), linear-gradient(160deg, #24081f 0%, #160a3c 100%)',
     },
@@ -328,6 +328,8 @@ export const kitTokens = (theme) => ({
     navTile: theme?.navbar?.selected?.background ?? newUITheme.navbar.selected.background,
     navTileText: theme?.navbar?.selected?.text ?? newUITheme.navbar.selected.text,
     navTileRadius: theme?.navbar?.radius ?? newUITheme.navbar.radius,
+    hairline: theme?.hud?.hairline ?? newUITheme.hud.hairline,
+    ok: theme?.colors?.ok ?? newUITheme.colors.ok,
     pillSelectedText: theme?.hud?.text ?? newUITheme.hud.text,
     danger: theme?.colors?.danger ?? newUITheme.colors.danger,
     accent: theme?.colors?.accent ?? newUITheme.colors.accent,

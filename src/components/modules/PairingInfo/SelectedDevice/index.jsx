@@ -1,84 +1,57 @@
 import React from 'react';
 import styled from 'styled-components';
-import AppTheme from '../../../../theme';
-import { ContainerTitle } from '../../../atoms/Title';
+import { Panel } from '../../../atoms/Panel';
+import { kitTokens } from '../../../../theme';
 import { ConnectionStatus } from '../ConnectionStatus';
 
-const style  = AppTheme.get().devices;
-
-const Container = styled.div`
+export const Tile = styled(Panel)`
     display: flex;
-    position:relative;
     flex-direction: column;
-    background: ${props => props.background}; 
-    width: 20vw;
-    min-width: 20vw;
-    max-width: 20vw;
+    gap: 0.6vh;
+    min-width: 0;
     height: 25vh;
-    min-height: 25vh;
-    max-height: 25vh;
-
-    top:0;
-    left:0;
-    bottom:0;
-    right:0;
-    padding: 0;
-    margin: 0;
-    overflow: none;
-    transition: all 0.2s;
-    &:hover {
-        border-style: solid;
-        border-width: 5px;
-        border-color: white;
-
-        box-shadow: 0px 15px 10px 0px rgba(0, 0, 0, 1)
-    }
-
-`
-const DeviceName = styled.div`
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    font-size: 3vh;
-    
-    width: 100%;
-    height: 60%;
-    top: 0;
-    left:0;
+    padding: 1.6vh 1.1vw 1.4vh;
     color: white;
+    cursor: pointer;
+    opacity: ${props => props.$muted ? 0.6 : 1};
+    transition: background 0.2s, border-color 0.2s;
+    &:hover {
+        background: ${props => kitTokens(props.theme).pillHover};
+        border-color: ${props => kitTokens(props.theme).pillOutline};
+    }
+`
+
+export const Capability = styled.div`
+    font-size: 1.5vh;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: ${props => kitTokens(props.theme).accent};
+`
+
+const DeviceName = styled.div`
+    font-size: 2.4vh;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
 
 const Info = styled.div`
-    position: absolute;
-    height: 33%;
-    min-heigt: 33%
     display: flex;
-    flex-direction: row;
-    font-size: 3vh;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-
-    width: 100%;
-    top: 47%;
-    left:0;
-    color: white;
+    align-items: baseline;
+    min-height: 5vh;
+    font-size: 5vh;
+    font-weight: 700;
+    line-height: 1;
 `
 
-const Unit = styled.div`
+const Unit = styled.span`
     font-size: 2vh;
-    color: white;
-    margin-left: 0.5vw;
+    font-weight: 500;
+    margin-left: 0.4vw;
+    color: ${props => kitTokens(props.theme).muted};
 `
-
-const Value = styled.div`
-    font-size: 3vh;
-    color: white;
-`
-
 
 export const SelectedDevice = ( {title, capability, value, unit, deviceName, imageUrl, connectState, disabled, footer, onClick,onUnselect, onUse }) => {
 
@@ -86,12 +59,10 @@ export const SelectedDevice = ( {title, capability, value, unit, deviceName, ima
         if (onClick)
             onClick(capability)
     }
-
     const onUnselectClicked = (e) =>{
         if (onUnselect)
             onUnselect(capability)
     }
-
     const onUseClicked = (e) =>{
         if (onUse)
             onUse(capability)
@@ -99,22 +70,16 @@ export const SelectedDevice = ( {title, capability, value, unit, deviceName, ima
 
     // T16: switched off by the rider, but the device is still remembered - shown muted, with no
     // value, and the toggle in the off position (onUse turns it back on, with no new scan)
-    const failed = connectState==='failed'
-    const background = disabled ? style.searching.background : failed ? style.failed.background : style.selected.background
+    const hasValue = !disabled && value!==undefined && value!==null && !isNaN(value)
 
     return (
-        <Container background={background} onClick={ onContainerClicked}>
-            <ContainerTitle size='2.5vh'  bold={true}>{title??capability} </ContainerTitle>
+        <Tile $muted={disabled} onClick={ onContainerClicked}>
+            <Capability>{title??capability}</Capability>
             <DeviceName>{deviceName}</DeviceName>
-            {!disabled && value!==undefined && value!==null && !isNaN(value)?
             <Info>
-                <Value>{value}</Value>
-                <Unit>{unit}</Unit>
+                {hasValue ? <>{value}<Unit>{unit}</Unit></> : null}
             </Info>
-            : null}
-
-
             <ConnectionStatus state={connectState} disabled={disabled} footer={footer} onUnselect={onUnselectClicked} onUse={onUseClicked} />
-        </Container>
+        </Tile>
     )
 }

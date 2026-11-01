@@ -4,56 +4,71 @@ import styled from "styled-components";
 import Loader from "react-spinners/BounceLoader";
 import { CheckIcon, XCircleFillIcon } from "@primer/octicons-react";
 
-// on/off colours match the mobile toggle
+import { kitTokens } from "../../../../theme";
+
+// switch: accent when on, white 20 % track when off (same look as the kit CheckBox switch)
 const Toggle = styled.button`
-    position: absolute;
-    right: 1vw;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3.9vh;
-    height: 2.2vh;
+    position: relative;
+    flex: none;
+    width: 4.4vh;
+    height: 2.4vh;
     padding: 0;
     border: none;
-    border-radius: 1.1vh;
+    border-radius: 999px;
     cursor: pointer;
-    background: ${props => props.$on ? 'lightgreen' : '#767577'};
+    background: ${props => props.$on ? kitTokens(props.theme).accent : kitTokens(props.theme).switchOff};
+    transition: background 0.15s;
     &::after {
         content: '';
         position: absolute;
-        top: 0.25vh;
-        left: ${props => props.$on ? 'calc(100% - 1.95vh)' : '0.25vh'};
-        width: 1.7vh;
-        height: 1.7vh;
+        top: 0.3vh;
+        left: ${props => props.$on ? 'calc(100% - 2.1vh)' : '0.3vh'};
+        width: 1.8vh;
+        height: 1.8vh;
         border-radius: 50%;
-        background: ${props => props.$on ? 'green' : '#f4f3f4'};
+        background: ${props => props.$on ? kitTokens(props.theme).accentText : 'white'};
         transition: left 0.15s;
     }
 `
 
-// the right padding keeps the centred icon and state text clear of the toggle on narrow tiles
+// footer row of a tile: status dot + text on the left, switch on the right, above a hairline
 const Status = styled.div`
-    position: absolute;
     box-sizing: border-box;
-    padding-right: calc(3.9vh + 2vw);
-    background: black;
-    height: 20%;
-    min-heigt: 20%;
     display: flex;
     flex-direction: row;
-    font-size: 2vh;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
-
-    width: 100%;
-    top: 80%;
-    left:0;
+    gap: 1vw;
+    margin-top: auto;
+    padding-top: 0.8vh;
+    border-top: 1px solid ${props => kitTokens(props.theme).hairline};
+    font-size: 1.8vh;
     color: white;
 `
 
-const Text = styled.div`
-    text-transform: uppercase;
-    margin-left: 0.2vw;
+const State = styled.span`
+    display: flex;
+    align-items: center;
+    gap: 0.6vw;
+    min-width: 0;
+`
+
+const Dot = styled.span`
+    flex: none;
+    width: 1.1vh;
+    height: 1.1vh;
+    border-radius: 50%;
+    background: ${props => {
+        const kit = kitTokens(props.theme)
+        return props.$state==='connected' ? kit.ok : props.$state==='failed' ? kit.danger : kit.accent
+    }};
+`
+
+const Text = styled.span`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-transform: capitalize;
 `
 
 export const LaunchStatusIcon = ( {status}) => {
@@ -89,8 +104,10 @@ export const ConnectionStatus = ({state,disabled,footer,onUnselect,onUse})=>{
 
     return (
         <Status>
-            {!disabled && <LaunchStatusIcon status={state}/>}
-            <Text>{disabled ? (footer ?? 'Not used') : state}</Text>
+            <State>
+                {!disabled && <Dot $state={state} data-testid='status-dot'/>}
+                <Text>{disabled ? (footer ?? 'Not used') : state}</Text>
+            </State>
             <Toggle
                 type="button"
                 role="switch"

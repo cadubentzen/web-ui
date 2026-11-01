@@ -1,6 +1,8 @@
 import React from 'react'
 import { describe, test, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { ThemeProvider } from 'styled-components'
+import { newUITheme } from '../../theme'
 import { PairingScreen } from './screen'
 
 const tile = (overrides = {}) => ({
@@ -90,5 +92,55 @@ describe('PairingScreen', () => {
         const hint = container.querySelector('.bottom').getAttribute('data-nav-down')
         expect(container.querySelector(hint)?.textContent).toBe('OK')
         expect(container.querySelector('.top').hasAttribute('data-nav-down')).toBe(false)
+    })
+
+    test('a device tile shows capability, name, value with unit, status dot and a switch', () => {
+        render(<PairingScreen capabilities={{ top: [tile({ title: 'Power', deviceName: 'Tacx Neo', connectState: 'connected', value: 212, unit: 'W' })], bottom: [] }} />)
+
+        expect(screen.getByText('Power')).toBeTruthy()
+        expect(screen.getByText('Tacx Neo')).toBeTruthy()
+        expect(screen.getByText('212')).toBeTruthy()
+        expect(screen.getByText('W')).toBeTruthy()
+        expect(screen.getByTestId('status-dot')).toBeTruthy()
+        expect(screen.getByRole('switch')).toBeTruthy()
+    })
+
+    test('the capability label is drawn in the accent colour', () => {
+        render(<ThemeProvider theme={newUITheme}><PairingScreen capabilities={{ top: [tile({ title: 'Power', deviceName: 'Tacx Neo', connectState: 'connected' })], bottom: [] }} /></ThemeProvider>)
+
+        expect(getComputedStyle(screen.getByText('Power')).color).toBe('rgb(228, 161, 60)')
+    })
+
+    test('interface buttons are pills: green outline when enabled, muted otherwise', () => {
+        render(<ThemeProvider theme={newUITheme}><PairingScreen capabilities={{ top: [], bottom: [] }} interfaces={[
+            { name: 'ble', enabled: true, state: 'connected' }, { name: 'ant', enabled: false, state: 'idle' }]} /></ThemeProvider>)
+
+        const on = getComputedStyle(screen.getByText('BLE').closest('button'))
+        const off = getComputedStyle(screen.getByText('Ant+').closest('button'))
+        expect(on.boxShadow).toContain('#8dc100')
+        expect(off.boxShadow).not.toContain('#8dc100')
+        expect(on.borderRadius).toBe('999px')
+    })
+
+    test('bottom buttons size to their label instead of a fixed width', () => {
+        render(<PairingScreen capabilities={{ top: [], bottom: [] }} buttons={[{ label: 'Simulate', primary: true }]} />)
+
+        const btn = screen.getByText('Simulate').closest('button')
+        expect(getComputedStyle(btn).minWidth).not.toBe('8vw')
+        expect(getComputedStyle(btn).width).not.toBe('8vw')
+    })
+
+    test('interface pill outline shows the interface state', () => {
+        render(<ThemeProvider theme={newUITheme}><PairingScreen capabilities={{ top: [], bottom: [] }} interfaces={[
+            { name: 'ble', enabled: true, state: 'disconnected' },
+            { name: 'ant', enabled: true, state: 'connecting' },
+            { name: 'serial', enabled: false, state: 'disconnected' },
+            { name: 'tcpip', enabled: true, state: 'unavailable' }]} /></ThemeProvider>)
+
+        const shadow = (t) => getComputedStyle(screen.getByText(t).closest('button')).boxShadow
+        expect(shadow('BLE')).toContain('#ff6b6b')
+        expect(shadow('Ant+')).toContain('#e4a13c')
+        expect(shadow('Serial')).not.toMatch(/#ff6b6b|#e4a13c|#8dc100/)
+        expect(shadow('TCP')).not.toMatch(/#ff6b6b|#e4a13c|#8dc100/)
     })
 })
