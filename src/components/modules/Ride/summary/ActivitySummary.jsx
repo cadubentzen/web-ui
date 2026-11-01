@@ -165,6 +165,7 @@ export const ActivitySummaryView = ( {activity,position,preview, units, xScale,
                     text='This will permanently delete this ride. Are you sure?'
                     defaultButton='No'
                     center
+                    destructive
                     onYes={onDeleteConfirm}
                     onNo={onDeleteCancel}
                 />,

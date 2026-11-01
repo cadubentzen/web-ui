@@ -1,6 +1,7 @@
 import React from 'react';
 import {EventLogger} from 'gd-eventlog'
 import {CyclingModeProperyType} from 'incyclist-services'
+import { CheckBox } from '../../../atoms/input/Checkbox'
 
 const DEFAULT_UPDATE_TIMEOUT = 5000
 
@@ -176,7 +177,7 @@ export class Setting extends React.Component {
                 );    
             case CyclingModeProperyType.Boolean:
                 return (
-                    <input type="checkbox" disabled={disabled} checked={value} onChange={(e)=>this.onBooleanChange(property, e.target.checked)}/>
+                    <CheckBox disabled={disabled} checked={!!value} noLog id={`setting-${property.key}`} aria-label={property.key} onValueChange={(checked)=>this.onBooleanChange(property, checked)}/>
                 )
             case CyclingModeProperyType.Integer:
                 return (

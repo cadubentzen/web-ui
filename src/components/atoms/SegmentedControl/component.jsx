@@ -2,6 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { EventLogger } from "gd-eventlog"
 import { Row } from "../layout"
+import { kitTokens } from "../../../theme"
 import { Label } from "../input/base/EditField"
 
 const Container = styled(Row)`
@@ -22,21 +23,29 @@ const Options = styled.div`
 const Option = styled.button`
     border: none;
     cursor: ${props => props.disabled ? 'default' : 'pointer'};
-    border-radius: 16px;
-    padding: 0.4vh 1.2ch 0.4vh 1.2ch;
+    border-radius: 999px;
+    padding: 0.3em 1.2ch;
     min-width: 3ch;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: ${props => props.$fontSize || '1.3vh'};
     font-family: inherit;
     line-height: 1.4;
-    background: ${props => props.$selected ? '#dd9933' : 'rgba(255,255,255,0.1)'};
-    color: ${props => props.$selected ? 'white' : '#EEEEEE'};
+    opacity: ${props => props.disabled ? 0.5 : 1};
+    background: ${props => props.$selected ? kitTokens(props.theme).pillSelected : 'transparent'};
+    color: ${props => props.$selected ? 'white' : kitTokens(props.theme).muted};
+
+    &:hover:not(:disabled) {
+        background: ${props => props.$selected ? kitTokens(props.theme).pillSelected : kitTokens(props.theme).pillHover};
+    }
 `
 
 /**
  * A single row of mutually exclusive options, rendered as chips.
  *
- * Styled to match the Pill atom (16px radius, translucent white when unselected, #dd9933 with
- * white text when selected) so that both read as one family.
+ * Rendered as kit pills: muted text, unframed, with the pill-selected fill (white 14 %) on the chosen one.
  *
  * Options are given as `[{value, label}]` or as bare values; `value` identifies the selected one.
  */

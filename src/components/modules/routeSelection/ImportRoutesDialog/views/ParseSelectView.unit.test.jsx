@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { Observer } from 'incyclist-services'
 
 vi.mock('../../../../../hooks', async (importOriginal) => {
@@ -112,13 +112,13 @@ describe('ParseSelectView', () => {
         render(<ParseSelectView displayProps={displayProps} {...props} />)
 
         // turn off "hide already imported" - r2 appears, selection callbacks untouched
-        screen.getByLabelText(/Hide already imported/).click()
+        fireEvent.click(screen.getByLabelText(/Hide already imported/))
         expect(screen.getByTestId('row-r2')).toBeInTheDocument()
         expect(props.toggleSelected).not.toHaveBeenCalled()
         expect(props.selectAll).not.toHaveBeenCalled()
 
         // "only show problems" narrows to r3 alone
-        screen.getByLabelText(/Only show problems/).click()
+        fireEvent.click(screen.getByLabelText(/Only show problems/))
         expect(screen.queryByTestId('row-r1')).not.toBeInTheDocument()
         expect(screen.getByTestId('row-r3')).toBeInTheDocument()
         expect(props.toggleSelected).not.toHaveBeenCalled()
@@ -133,7 +133,7 @@ describe('ParseSelectView', () => {
         render(<ParseSelectView displayProps={displayProps} {...baseProps()} />)
 
         expect(screen.getByLabelText('Only show problems (1)')).toBeInTheDocument()
-        screen.getByLabelText(/Only show problems/).click()
+        fireEvent.click(screen.getByLabelText(/Only show problems/))
         expect(screen.getByTestId('row-r1')).toBeInTheDocument()
         expect(screen.queryByTestId('row-r2')).not.toBeInTheDocument()
     })

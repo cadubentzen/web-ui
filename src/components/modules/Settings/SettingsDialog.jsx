@@ -43,7 +43,7 @@ export const SettingsDialogView = ({onOK, onCoachesChanged, onSettingsChanged, n
 
     return (
         <AppThemeProvider>
-        <Dialog id='Settings' className='dialog settings' level={1}  onESC={onOK}>
+        <Dialog id='Settings' title='Settings' className='dialog settings' level={1}  onESC={onOK}>
             
             <Tabs zIndex={10} activeTab={active} onChangeTab={onAreaChanged} buttonBar={true}>
                 {showGear ?  <GearSettings label='Gear' />:null}                

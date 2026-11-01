@@ -4,6 +4,7 @@ import { EventLogger } from "gd-eventlog"
 import { Column, Row } from "../../layout/View"
 import { ErrorText } from "../../ErrorText";
 import { copyPropsExcluding } from "../../../../utils/props";
+import { kitTokens } from "../../../../theme";
 
 export const innerMargin = (position,{labelPosition,innerMargin='0.4vw'}) => {
     
@@ -26,6 +27,12 @@ const Input = styled.input`
     text-align: ${props => props.align};
     width:${ props=>props.fontSize};
     height:${ props=>props.fontSize};
+    color: inherit;
+    background: ${props => kitTokens(props.theme).field.fill};
+    border: ${props => props.$invalid ? `1px solid ${kitTokens(props.theme).danger}` : kitTokens(props.theme).field.border};
+    border-radius: ${props => kitTokens(props.theme).field.radius};
+    padding: 0.3em 0.6em;
+    &:disabled { opacity: 0.5; }
 `
 //     margin-left: 1vw
 export const Label = styled.label`
@@ -34,6 +41,7 @@ export const Label = styled.label`
     width: ${props=>props.labelWidth};
     margin-right: ${ props=> innerMargin('right',props)};
     margin-left: ${ props=> innerMargin('left',props)};
+    ${props => props.$muted ? `color: ${kitTokens(props.theme).muted};` : ''}
 `
 
 const Container = styled(Row)`
@@ -131,12 +139,12 @@ const EditField = ( props) => {
             <Container {...childProps}> 
             { (labelPosition ==='before') ? <Label labelPosition={labelPosition} labelWidth={labelWidth} innerMargin={innerMargin} htmlFor={id} >{label}</Label>:null }
     
-            <Input type={type} align={align} disabled={disabled} size={maxLength} value={value} 
+            <Input type={type} $invalid={!!errorText} aria-invalid={errorText ? true : undefined} align={align} disabled={disabled} size={maxLength} value={value} 
                 onBlur={ (e)=> { onChangeHandler( e.target.value, true) }} 
                 onChange={(e)=> { onChangeHandler( e.target.value, false) }} />
 
             { (labelPosition ==='after') ? <Label labelPosition={labelPosition} labelWidth={labelWidth} innerMargin={innerMargin}  htmlFor={id} >{label}</Label>:null }
-            { unit ? <Label labelPosition='after' innerMargin={innerMargin}  htmlFor={id} >{unit}</Label>:null }
+            { unit ? <Label $muted labelPosition='after' innerMargin={innerMargin}  htmlFor={id} >{unit}</Label>:null }
 
             </Container>
 

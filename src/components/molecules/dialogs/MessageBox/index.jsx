@@ -8,32 +8,14 @@ const Text = styled.div`
     
 
 `
-const Header = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    height: 3vh;
-    text-align: center;
-    vertical-align: middle;
-    background-color: SlateBlue;
-`
-
-const HeaderText = styled.span`
-    color: white;
-    text-align:center;
-    vertical-align: middle;
-`
-
 const Body = styled.div`
     display: flex;
     flex-direction: column;
     margin:auto;
-    padding: 0.5vh 0.5vw 0.5vw 0.5vw;    
+    padding: 0.5vh 1.4vw;
     top:0;
     left:0;
-    height: calc(100% - 11.7vh);
-    background: ${props => props.theme.title.background??props.background?? 'white'};
+    height: calc(100% - 7.7vh);
     justify-content:${props => props.$verticallyCentered ? 'center' : undefined};
     text-align: ${props => props.$horizontallyCentered ? 'center' : 'left'};
 
@@ -41,7 +23,7 @@ const Body = styled.div`
 
 export const MessageBox = (props) => {
 
-    const { yes='Yes', no='No', defaultButton='Yes', text, children, width, height='25vh',level=12, onYes , onNo, title,id, noYes, noNo, center} = props
+    const { yes='Yes', no='No', defaultButton='Yes', text, children, width, height='25vh',level=12, onYes , onNo, title,id, noYes, noNo, center, destructive} = props
 
     const onOKHandler = () => {
         if (onYes)
@@ -54,10 +36,7 @@ export const MessageBox = (props) => {
     }
 
     return( 
-        <Dialog id={id??title??'MessageBox'} width={width} height={height} level={level} onESC={onCancelHandler}>
-            <Header className='message-header'>
-                <HeaderText>{title}</HeaderText>
-            </Header>
+        <Dialog id={id??title??'MessageBox'} width={width} height={height} level={level} title={title} onESC={onCancelHandler} noClose={noNo && noYes}>
 
             <Body className='message-body' 
                 $verticallyCentered={children===undefined || center }
@@ -66,11 +45,11 @@ export const MessageBox = (props) => {
                 {children}
             </Body>
 
-            <ButtonBar className='message-buttons' justify='center' background='white'>
-                
-                    {noYes ? null : <Button text={yes} default={defaultButton===yes} onClick={onOKHandler}/>}
-                    {noNo  ? null : <Button text={no} default={defaultButton===no} onClick={onCancelHandler}/>}
-                
+            <ButtonBar className='message-buttons' justify='flex-end'>
+
+                    {noYes ? null : <Button text={yes} default={defaultButton===yes} data-nav-default={defaultButton===yes ? '' : undefined} variant={destructive ? 'danger' : undefined} margin={destructive ? '0 auto 0 1.4vw' : undefined} onClick={onOKHandler}/>}
+                    {noNo  ? null : <Button text={no} default={defaultButton===no} data-nav-default={defaultButton===no ? '' : undefined} margin='0 1.4vw 0 1vw' onClick={onCancelHandler}/>}
+
             </ButtonBar>
         </Dialog>
     )

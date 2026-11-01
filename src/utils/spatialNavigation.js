@@ -4,7 +4,7 @@
 
 const INTERACTIVE = [
     'button', 'a[href]', 'input:not([type=hidden])', 'select', 'textarea',
-    '[role=button]', '[role=tab]', '[role=menuitem]', '[role=option]', '[role=checkbox]',
+    '[role=button]', '[role=tab]', '[role=menuitem]', '[role=option]', '[role=checkbox]', '[role=switch]', '[role=radio]',
     '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
@@ -167,7 +167,8 @@ const label = (el) => (el.innerText ?? el.textContent ?? '').trim()
 /**
  * The element the focus should start on when a screen or dialog opens: one marked with
  * `data-nav-default`, else the most likely action (Start, Select, Continue, Yes, OK - the
- * top-most one if there are several), else the first card of a list, else the top-left element.
+ * top-most one if there are several), else the first card of a list, else the top-left element
+ * other than a dialog's close button.
  */
 export const pickDefault = (candidates) => {
     const list = candidates ?? []
@@ -180,5 +181,7 @@ export const pickDefault = (candidates) => {
             return [...matches].sort((a, b) => a.rect.top - b.rect.top)[0]
     }
 
-    return pickFirst(list.filter(c => c.el.tagName === 'ARTICLE')) ?? pickFirst(list)
+    // a dialog's close button (✕) sits top-right of the title: never start there unless it is all there is
+    const rest = list.filter(c => !c.el.hasAttribute?.('data-nav-close'))
+    return pickFirst(rest.filter(c => c.el.tagName === 'ARTICLE')) ?? pickFirst(rest) ?? pickFirst(list)
 }

@@ -1,6 +1,8 @@
 import React from 'react'
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
+import { ThemeProvider } from 'styled-components'
+import { newUITheme } from '../../../../theme'
 import { RouteListToolbar, SEARCH_TIMEOUT } from './index'
 
 const SORT_OPTIONS = [
@@ -132,5 +134,12 @@ describe('RouteListToolbar', () => {
 
         fireEvent.click(group.querySelector('#tiles'))
         expect(onDisplayTypeSelected).toHaveBeenCalledWith('tiles')
+    })
+
+    test('active filter chips use the pill-selected fill', () => {
+        const chips = [{key:'contentType',label:'Video'}]
+        const { container } = render(<ThemeProvider theme={newUITheme}><RouteListToolbar chips={chips} sortOptions={SORT_OPTIONS} /></ThemeProvider>)
+
+        expect(getComputedStyle(container.querySelector('.filter-chip')).backgroundColor).toBe('rgba(255, 255, 255, 0.14)')
     })
 })

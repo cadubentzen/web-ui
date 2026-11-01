@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { kitTokens } from "../../../theme";
 
 export const MainArea = styled.div`
     position: absolute;
@@ -11,6 +12,5 @@ export const MainArea = styled.div`
     margin: 0;
     height: 100%;
     width:100%;
-    background-image: url("images/background.jpg");
-    background-size: cover;
+    background: ${props => kitTokens(props.theme).pageBackground};
 `;

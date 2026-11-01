@@ -1,18 +1,18 @@
 import React,{ PureComponent } from 'react';
 import { Center, Loader } from '../../components/atoms';
-import ImageBackground from '../../components/atoms/ImageBackground';
+import PageBackground from '../../components/atoms/PageBackground';
 
 
 
 export class AppLoadingPage extends PureComponent {
     render() {
-        return <ImageBackground>
+        return <PageBackground>
             <Center>
                 <Loader size='15vh' color='white' type='clipped' />
             </Center>
             
             
-        </ImageBackground>
+        </PageBackground>
     }
 }
 

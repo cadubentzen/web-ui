@@ -65,12 +65,28 @@ export const ControllerNavigation = () => {
         let current = null
         const suppressedKeyUps = new Set()
 
+        // React rewrites `className` when the element's styled-components class changes with its
+        // state (switch toggled, pill selected) and thereby drops the mark: put it back
+        const keepMark = typeof MutationObserver !== 'undefined' ? new MutationObserver(() => {
+            if (current && markShown && !current.classList.contains(FOCUS_CLASS))
+                current.classList.add(FOCUS_CLASS)
+        }) : null
+        let markShown = false
+
+        const removeMark = () => {
+            markShown = false
+            current?.classList?.remove(FOCUS_CLASS)
+        }
+
         const setFocus = (el) => {
             if (current && current !== el)
-                current.classList?.remove(FOCUS_CLASS)
+                removeMark()
             current = el
+            keepMark?.disconnect()
             if (!el) return
             el.classList.add(FOCUS_CLASS)
+            markShown = true
+            keepMark?.observe(el, { attributes: true, attributeFilter: ['class'] })
             if (typeof el.focus === 'function')
                 el.focus({ preventScroll: true })
             el.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
@@ -171,7 +187,7 @@ export const ControllerNavigation = () => {
         }
 
         // a mouse user doesn't need the keyboard focus highlight
-        const onMouseDown = () => current?.classList?.remove(FOCUS_CLASS)
+        const onMouseDown = () => removeMark()
 
         window.addEventListener('keydown', onKeyDown, true)
         window.addEventListener('keyup', onKeyUp, true)
@@ -183,7 +199,8 @@ export const ControllerNavigation = () => {
             observer?.disconnect()
             clearTimeout(autoFocusTimer)
             refMode.current.scheduleAutoFocus = null
-            current?.classList?.remove(FOCUS_CLASS)
+            keepMark?.disconnect()
+            removeMark()
         }
     }, [])
 

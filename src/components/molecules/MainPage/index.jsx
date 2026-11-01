@@ -1,28 +1,28 @@
 import React from 'react';
-import ImageBackground from '../../atoms/ImageBackground';
 import FullScreenContentArea from '../../atoms/FullScreenContentArea';
 import styled from 'styled-components';
-import { useWindowDimensions } from '../../../hooks';
+import { kitTokens } from '../../../theme';
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: start;
     overflow: hidden;
-    width: ${props => props.width ||'100%'};
-    height:100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: ${props => kitTokens(props.theme).pageBackground};
 
 `
 
 
 export const MainPage = ({children}) => {
-
-
-    const {  width } = useWindowDimensions()
-    
     return (
-        <Container width={width} >
-            <ImageBackground className='main-page' zIndex={0}/>
+        <Container>
             <FullScreenContentArea zIndex={1}>
                 {children}
             </FullScreenContentArea>

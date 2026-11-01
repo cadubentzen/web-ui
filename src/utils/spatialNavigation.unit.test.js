@@ -124,6 +124,12 @@ describe('spatialNavigation', () => {
             expect(pickDefault([nav, card, details])).toBe(card)
             expect(pickDefault([details, nav])).toBe(nav)
         })
+
+        test("a dialog's close button is only picked when nothing else can take the focus", () => {
+            const close = c(el('button', '✕', { 'aria-label': 'Close', 'data-nav-close': '' }), 66, 1236), map = c(el('div', 'map'), 145, 93), cancel = c(el('button', 'Cancel'), 928, 469)
+            expect(pickDefault([close, map, cancel])).toBe(map)
+            expect(pickDefault([close])).toBe(close)
+        })
     })
 
     describe('DOM helpers', () => {

@@ -7,6 +7,7 @@ import { useActivityRide } from 'incyclist-services';
 import { DynamicActivitySummary } from '../summary/wrapper';
 import { AppsSettings,UserSettings,SupportArea, GearSettings, RideSettings, WorkoutSettings } from '../../Settings';
 import { EventLogger } from 'gd-eventlog';
+import { getCloseHandler } from './closeHandler';
 
 
 
@@ -164,7 +165,7 @@ export class ActiveRideSettings extends React.Component {
 
         return (
             <AppThemeProvider>
-            <Dialog id='RideOptions' scrollbar='large' className='dialog rideOptions' level={1}  onESC={this.props.onOK}>
+            <Dialog id='RideOptions' title='Paused' scrollbar='large' className='dialog rideOptions' level={1}  onESC={getCloseHandler(this.props)}>
                 
                     <Tabs zIndex={10} activeTab={area} onChangeTab={(tab)=>this.onAreaSelected(tab)} buttonBar={true}>
                         

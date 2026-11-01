@@ -2,6 +2,7 @@ import React, { forwardRef } from "react"
 import styled from "styled-components"
 import { ChevronDownIcon, ChevronUpIcon, FilterIcon, XIcon } from "@primer/octicons-react"
 import { EventLogger } from "gd-eventlog"
+import { kitTokens } from "../../../../theme"
 import { SearchBox } from "./SearchBox"
 import { DisplayTypeSelection } from "../../../molecules/Lists/DisplayTypeSelection"
 
@@ -68,7 +69,7 @@ const Chip = styled.span`
     gap: 0.4ch;
     border-radius: 16px;
     padding: 0.3vh 0.6ch 0.3vh 1.2ch;
-    background: #dd9933;
+    background: ${props => kitTokens(props.theme).pillSelected};
     color: white;
     font-size: 1.5vh;
     white-space: nowrap;

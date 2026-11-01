@@ -4,7 +4,7 @@ import {EventLogger} from 'gd-eventlog'
 import { getCoachesService, useRideDisplay, useRouteList, useUserSettings } from 'incyclist-services';
 
 import { AppThemeProvider } from '../../../../theme';
-import { EditNumber,Button, Row, CheckBox, EditText, Column,Text} from '../../../atoms';
+import { EditNumber,Button,SegmentedControl, Row, CheckBox, EditText, Column} from '../../../atoms';
 import { DynamicCoachList,DynamicCoachEdit } from '../../Coaches';
 import { RIDE_MODES, RIDEVIEW } from './consts';
 import { isValidGoogleMapsKeyFormat } from './validations';
@@ -34,10 +34,6 @@ export const ContentArea = styled.div`
 export const Header = styled.h2`
     font-size: 2vh;
 `
-
-export const Radio = props => (
-    <input type="radio" {...props} />
-)
 
 export const Input = styled.input`
     height: 1.5vh;
@@ -79,8 +75,6 @@ export class RideSettings extends React.Component {
     }
 
     onRideViewSelected(value) {
-        this.logger.logEvent( {message: 'radio clicked',radio:'Ride view preference',value, eventSource:'user'})
-
         this.settings.set('preferences.rideView',value)
         this.setState({rideView:value},()=>{
             this.updateSettings();
@@ -237,31 +231,14 @@ export const RideSettingsView = ( props)=> {
                    || (rideMode==='Free-Ride' || rideMode==='GPX')
                    || !isRide  ? 
                 <Row>
-                    <Column width="15ch">
-                    <Text>View Preference</Text>
-                    </Column>
-                    <Column>
-                    <div>
-                        <Radio 
-                            checked= { rideView===RIDEVIEW.STREETVIEW}
-                            name='streetview' 
-                            value={RIDEVIEW.STREETVIEW} onChange={ (event) => onRideViewSelected( event.target.value)}
-                        />
-                        <label htmlFor='streetview'>Street View</label>
-                        <Radio 
-                            checked= { rideView===RIDEVIEW.SATTELITE}
-                            name='satelite' 
-                            value={RIDEVIEW.SATTELITE} onChange={ (event) => onRideViewSelected( event.target.value)}
-                        />
-                        <label htmlFor='streetview'>Satelite View</label>
-                        <Radio 
-                            checked= { rideView===RIDEVIEW.MAP}
-                            name='satelite' 
-                            value={RIDEVIEW.MAP} onChange={ (event) => onRideViewSelected( event.target.value)}
-                        />
-                        <label htmlFor='streetview'>Map</label>
-                    </div>
-                    </Column>
+                    <SegmentedControl label='View Preference' labelWidth='15ch' fontSize='1.8vh' value={rideView}
+                        options={[
+                            {value:RIDEVIEW.STREETVIEW, label:'Street View'},
+                            {value:RIDEVIEW.SATTELITE, label:'Satellite'},
+                            {value:RIDEVIEW.MAP, label:'Map'},
+                        ]}
+                        onValueChange={onRideViewSelected}
+                    />
                 </Row> : null 
                 }
                 { !isRide  ? 

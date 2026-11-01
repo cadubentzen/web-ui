@@ -13,6 +13,7 @@ const View = styled(Button)`
     height:${props=> props.height};
     display:flex;
     justify-content: center;    
+    ${props=>props.$radius ? `border-radius: ${props.$radius};` : ''}
     margin: ${props=>props.margin};
     padding: ${props=>props.padding};
     &:hover {
@@ -35,7 +36,7 @@ const Label = styled(Text)`
 `
 
 
-export const Icon = ( {image,size,imageFormat='svg',color,margin,padding, label, id,backgroundHover, width,height, background,children,onClick, raw,logContext})=>{
+export const Icon = ( {image,size,imageFormat='svg',color,margin,padding, label, id,backgroundHover, width,height, background,children,onClick, raw,logContext,radius})=>{
 
     const src = `${image}`
     const widthStr = width ? (typeof width ==='number' ? `${width}px`: width) : undefined
@@ -91,7 +92,7 @@ export const Icon = ( {image,size,imageFormat='svg',color,margin,padding, label,
     return (        
 
         <AppThemeProvider>
-            <View onClick={onClick} id={id??label} no3D={true} backgroundHover={backgroundHover} width={widthStr} height={heightStr} background={background} margin={margin} padding={padding} logContext={logContext}>
+            <View onClick={onClick} id={id??label} no3D={true} backgroundHover={backgroundHover} width={widthStr} height={heightStr} background={background} margin={margin} padding={padding} $radius={radius} logContext={logContext}>
                 {children? 
                     renderChildren() : 
                     <Svg src={src} fill={color} width={imageSize} height={imageSize} /> 

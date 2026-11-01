@@ -1,7 +1,10 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, cleanup, act } from '@testing-library/react'
+import { render, cleanup, act, screen } from '@testing-library/react'
 import { EventEmitter } from 'events'
+import { useState } from 'react'
 import { ControllerNavigation, FOCUS_CLASS } from './ControllerNavigation'
+import { Dialog } from '../../molecules/Dialog'
+import { CheckBox } from '../../atoms/input/Checkbox'
 
 const { location, adapters } = vi.hoisted(() => ({ location: { pathname: '/routes' }, adapters: [] }))
 
@@ -12,7 +15,12 @@ vi.mock('incyclist-services', () => ({
     useDeviceRide: () => ({ getAllAdapters: () => adapters }),
 }))
 vi.mock('gd-eventlog', () => ({
-    EventLogger: class { logEvent() {} },
+    EventLogger: class { logEvent() {} set() {} },
+}))
+// the hooks index drags in the whole app bindings - the Dialog only needs these two
+vi.mock('../../../hooks', async () => ({
+    useKey: (await import('../../../hooks/ui/useKey')).useKey,
+    useUnmountEffect: () => {},
 }))
 
 const rect = (left, top, width = 100, height = 40) => ({ left, top, width, height, right: left + width, bottom: top + height, x: left, y: top })
@@ -33,6 +41,7 @@ const key = (k, target = document.activeElement ?? document.body) => {
     })
 }
 const focused = () => document.querySelector(`.${FOCUS_CLASS}`)?.id
+const anyFocused = () => document.querySelector(`.${FOCUS_CLASS}`)
 
 describe('ControllerNavigation', () => {
     let clicks
@@ -67,6 +76,59 @@ describe('ControllerNavigation', () => {
         key('ArrowLeft')
         key('ArrowDown')
         expect(focused()).toBe('c')
+    })
+
+    test('the focus mark survives the focused element getting a different className', async () => {
+        mount()
+        key('ArrowDown')
+        const a = document.getElementById('a')
+        expect(a.classList.contains(FOCUS_CLASS)).toBe(true)
+        // what React does when a styled-components class changes with state
+        a.className = 'sc-other'
+        await act(async () => { await Promise.resolve() })
+        expect(a.classList.contains(FOCUS_CLASS)).toBe(true)
+    })
+
+    test('Escape closes a dialog after Enter toggled a switch inside it', async () => {
+        const onESC = vi.fn()
+        const Page = () => {
+            const [on, setOn] = useState(false)
+            return <Dialog id='Test' title='Test' onESC={onESC} noClose>
+                <CheckBox checked={on} label='opt' onChange={e => setOn(e.target.checked)} />
+                <button id='ok'>OK</button>
+            </Dialog>
+        }
+        document.body.innerHTML = ''
+        render(<><ControllerNavigation /><Page /></>)
+        const sw = document.querySelector('[role=switch]')
+        for (const el of document.body.querySelectorAll('*')) {
+            el.getBoundingClientRect = () => el === sw ? rect(0, 0) : el.id === 'ok' ? rect(0, 100) : rect(0, 0, 1000, 1000)
+            el.scrollIntoView = () => {}
+        }
+        key('ArrowDown')
+        expect(document.activeElement).toBe(sw)
+        key('Enter')
+        await act(async () => { await Promise.resolve() })
+        expect(sw.getAttribute('aria-checked')).toBe('true')
+        expect(sw.classList.contains(FOCUS_CLASS)).toBe(true)
+        // a real keyboard event carries the legacy keyCode the Dialog matches on
+        act(() => { sw.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', keyCode: 27, bubbles: true })) })
+        expect(onESC).toHaveBeenCalled()
+    })
+
+    test('the dialog close button is reachable and Enter closes the dialog', () => {
+        const onESC = vi.fn()
+        document.body.innerHTML = ''
+        render(<><ControllerNavigation /><Dialog id='Test' title='Test' onESC={onESC}><button id='ok'>OK</button></Dialog></>)
+        const close = screen.getByRole('button', { name: 'Close' })
+        for (const el of document.body.querySelectorAll('*')) {
+            el.getBoundingClientRect = () => el === close ? rect(500, 0) : el.id === 'ok' ? rect(0, 100) : rect(0, 0, 1000, 1000)
+            el.scrollIntoView = () => {}
+        }
+        key('ArrowDown')
+        expect(document.activeElement).toBe(close)
+        key('Enter')
+        expect(onESC).toHaveBeenCalled()
     })
 
     test('Enter activates the focused element', () => {

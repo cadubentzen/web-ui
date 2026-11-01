@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import { WorkoutSettings } from './WorkoutSettings'
 
 const { mockWorkoutListService, mockRideService, mockUserSettings } = vi.hoisted(() => ({
@@ -62,7 +62,7 @@ describe('WorkoutSettings', () => {
 
         const { container } = render(<WorkoutSettings />)
 
-        const audioCheckbox = container.querySelector('input[name="step-change-audio-signal"]')
+        const audioCheckbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         expect(audioCheckbox).toBeChecked()
     })
 
@@ -72,7 +72,7 @@ describe('WorkoutSettings', () => {
 
         const { container } = render(<WorkoutSettings />)
 
-        const audioCheckbox = container.querySelector('input[name="step-change-audio-signal"]')
+        const audioCheckbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         expect(audioCheckbox).not.toBeChecked()
     })
 
@@ -82,7 +82,7 @@ describe('WorkoutSettings', () => {
 
         const { container } = render(<WorkoutSettings />)
 
-        const audioCheckbox = container.querySelector('input[name="step-change-audio-signal"]')
+        const audioCheckbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         fireEvent.click(audioCheckbox)
 
         expect(mockUserSettings.set).toHaveBeenCalledWith('preferences.workouts.stepChangeAudioSignal', false)

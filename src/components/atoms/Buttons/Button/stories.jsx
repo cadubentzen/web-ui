@@ -54,3 +54,22 @@ ResponsiveSmallPill.args = {
     size: 'small',
     shape: 'pill',
 };
+
+
+export const Danger = Template.bind({});
+Danger.args = {
+    text:'Delete',
+    variant: 'danger'
+};
+
+export const TextOnly = Template.bind({});
+TextOnly.args = {
+    text:'Skip',
+    variant: 'text'
+};
+
+export const LongLabel = Template.bind({});
+LongLabel.args = {
+    text:'Start with workout and download',
+    primary: true
+};

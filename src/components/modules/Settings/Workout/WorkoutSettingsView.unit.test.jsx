@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, test, expect, vi, afterEach } from 'vitest'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import { WorkoutSettingsView } from './WorkoutSettingsView'
 
 // WorkoutGraph pulls in react-vis/Autosize, which needs real layout that jsdom doesn't
@@ -27,8 +27,8 @@ describe('WorkoutSettingsView', () => {
     // The Audio Step-Change Signal checkbox follows the same raw `<input type="checkbox">`
     // pattern as the existing "Use ERG Mode" one (no id/htmlFor label association), so it's
     // queried by its `name` attribute rather than accessible name/role.
-    const getAudioCheckbox = (container) => container.querySelector('input[name="step-change-audio-signal"]')
-    const getErgCheckbox = (container) => container.querySelector('input[name="erg-mode"]')
+    const getAudioCheckbox = (container) => screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
+    const getErgCheckbox = (container) => screen.getByRole('switch', { name: 'Use ERG Mode' })
 
     test('renders the Audio Step-Change Signal checkbox checked, reflecting the current setting value', () => {
         const { container } = render(<WorkoutSettingsView {...baseProps} stepChangeAudioSignal={true} />)

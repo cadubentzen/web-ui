@@ -1,7 +1,7 @@
 import React from 'react';
 import {TrashIcon } from '@primer/octicons-react'
 import styled from 'styled-components';
-import { Button, ErrorBoundary, Row, SingleSelect } from '../../../atoms';
+import { Button, CheckBox, ErrorBoundary, Row, SingleSelect } from '../../../atoms';
 import { Dropzone,WorkoutGraph } from '../../../molecules';
 import { AppThemeProvider } from '../../../../theme';
 
@@ -107,16 +107,14 @@ export const WorkoutSettingsView = ( {workout,workouts,settings,error,width,heig
                 {workout ?
                     <>
                     <SettingsAreaUpper style={{height:'2vh'}}>
-                        <input type="checkbox" checked={stepChangeAudioSignal}
-                            onChange={ (event) => {onHandleChangeStepChangeAudioSignal(event.target.checked)} }
-                            name= 'step-change-audio-signal'/>
-                        <label style={{fontSize:'1.5vh'}}>Audio Step-Change Signal</label>
+                        <CheckBox checked={!!stepChangeAudioSignal} fontSize='1.5vh'
+                            onValueChange={ onHandleChangeStepChangeAudioSignal }
+                            name= 'step-change-audio-signal' label='Audio Step-Change Signal'/>
                     </SettingsAreaUpper>
                     <SettingsArea style={{height:'2vh'}}>
-                        <input type="checkbox" checked={useErgMode}
-                            onChange={ (event) => {onHandleChangeErgMode(event.target.checked)} }
-                            name= 'erg-mode'/>
-                        <label style={{fontSize:'1.5vh'}}>Use ERG Mode</label>
+                        <CheckBox checked={!!useErgMode} fontSize='1.5vh'
+                            onValueChange={ onHandleChangeErgMode }
+                            name= 'erg-mode' label='Use ERG Mode'/>
                     </SettingsArea>
                     </>
                 :null}

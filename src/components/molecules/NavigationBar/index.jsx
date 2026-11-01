@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import styled, { withTheme } from "styled-components";
 import {Icon,Column,RouteIcon,Row, WorkoutIcon,UserIcon,ExitIcon, SettingsIcon, ActivityIcon, Autosize } from '../../atoms'
 import { useKey } from "../../../hooks";
-import { AppThemeProvider } from "../../../theme";
+import AppTheme, { AppThemeProvider, kitTokens } from "../../../theme";
 import { DialogLauncher } from "../dialogs";
 import { UserSettingsDialog,SettingsDialog } from "../../modules/Settings";
 import { useNavigate } from "react-router";
@@ -15,7 +15,8 @@ const Container = styled(Column)`
     position:relative;
     height: 100%;
     overflow: hidden;
-    background: rgba(0,0,0,0.2);
+    background: ${props=>kitTokens(props.theme).navRail};
+    border-radius: ${props=>kitTokens(props.theme).navRailRadius};
     padding:0;
     margin:0;
 `
@@ -23,12 +24,14 @@ const Container = styled(Column)`
 const PageIcon = withTheme((props) => {
     const childProps = {...props}
     const {selected} = props;
-    const theme = props.theme?.navbar;
+    const theme = props.theme?.navbar ?? AppTheme.get().navbar;
 
     delete childProps.selected
     
-    childProps.color = selected ? theme?.selected.text : theme?.normal.text
-    childProps.background = selected ? theme?.selected.background : theme?.normal.background
+    const kit = kitTokens(props.theme)
+    childProps.color = selected ? kit.navTileText : kit.muted
+    childProps.background = selected ? kit.navTile : theme?.normal.background
+    childProps.radius = kit.navTileRadius
     return         <Icon {...childProps}/>
 })
 
@@ -47,6 +50,7 @@ export const NavigationBarComponent = ( {hidden,height,width, selected, hotkeysD
     const appState = useAppState()
     
     const ui = useAppUI()
+    const {muted,navTileRadius:tileRadius} = kitTokens(AppTheme.get())
 
     const onToggleFullScreen = (key)=>{
         // only the bare letter - e.g. Ctrl+F is used by pages as a shortcut
@@ -119,7 +123,7 @@ export const NavigationBarComponent = ( {hidden,height,width, selected, hotkeysD
         <AppThemeProvider>
             <Container width={width||'150px'}>
                 <Row height={rh} width={width||'150px'}   justify='center' padding='10px 0 10px' >
-                    <Icon label='User' color='white' width={100} height={h}  class='route'  
+                    <Icon label='User' color={muted} radius={tileRadius} width={100} height={h}  class='route'  
                           onClick={()=>{onIconSelected('user')}}> 
                         <UserIcon/>
                     </Icon>
@@ -129,7 +133,7 @@ export const NavigationBarComponent = ( {hidden,height,width, selected, hotkeysD
                     
                     <Column>
                         <Row padding='10px 0 10px' >
-                            <Icon label='Settings' color='white' width={100} height={h}  className='settings' 
+                            <Icon label='Settings' color={muted} radius={tileRadius} width={100} height={h}  className='settings' 
                                 onClick={()=>{onIconSelected('settings')}}> 
                                 <SettingsIcon/>
                             </Icon>
@@ -167,7 +171,7 @@ export const NavigationBarComponent = ( {hidden,height,width, selected, hotkeysD
                 </Row>
                 <Row height={rh} width={width||'150px'} justify='center' padding='10px 0 10px'>
                     
-                    <Icon label='Exit' color='white' width={100} height={h}  class='route' 
+                    <Icon label='Exit' color={muted} radius={tileRadius} width={100} height={h}  class='route' 
                         onClick={()=>{onIconSelected('exit')}}> 
                         <ExitIcon/>
                     </Icon>

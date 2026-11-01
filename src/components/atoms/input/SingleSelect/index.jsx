@@ -4,6 +4,7 @@ import { Row } from "../../layout"
 import { Label } from "../base/EditField"
 import { EventLogger } from "gd-eventlog"
 import { copyPropsExcluding } from "../../../../utils/props"
+import { kitTokens } from "../../../../theme"
 
 const View = styled(Row)`
     padding-bottom: 1vh;    
@@ -11,6 +12,13 @@ const View = styled(Row)`
 
 const Select = styled.select`
     width:${props => props.width || '10vw'};
+    color: inherit;
+    color-scheme: dark;
+    background: ${props => kitTokens(props.theme).field.fill};
+    border: ${props => kitTokens(props.theme).field.border};
+    border-radius: ${props => kitTokens(props.theme).field.radius};
+    padding: 0.3em 0.6em;
+    &:disabled { opacity: 0.5; }
 `
 
 export const SingleSelect = (props) => {

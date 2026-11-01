@@ -51,7 +51,7 @@ describe('WorkoutDetails (pre-ride dialog)', () => {
     test('renders the Audio Step-Change Signal checkbox checked when userSettings has it enabled (or unset, default true)', () => {
         render(<WorkoutDetails {...baseProps} />)
 
-        const checkbox = screen.getByRole('checkbox', { name: 'Audio Step-Change Signal' })
+        const checkbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         expect(checkbox).toBeChecked()
     })
 
@@ -61,7 +61,7 @@ describe('WorkoutDetails (pre-ride dialog)', () => {
 
         render(<WorkoutDetails {...baseProps} />)
 
-        const checkbox = screen.getByRole('checkbox', { name: 'Audio Step-Change Signal' })
+        const checkbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         expect(checkbox).not.toBeChecked()
     })
 
@@ -74,7 +74,7 @@ describe('WorkoutDetails (pre-ride dialog)', () => {
     test('calls userSettings.set with the right key/value when the checkbox is toggled, and updates local state', () => {
         render(<WorkoutDetails {...baseProps} />)
 
-        const checkbox = screen.getByRole('checkbox', { name: 'Audio Step-Change Signal' })
+        const checkbox = screen.getByRole('switch', { name: 'Audio Step-Change Signal' })
         expect(checkbox).toBeChecked()
 
         fireEvent.click(checkbox)
@@ -87,7 +87,7 @@ describe('WorkoutDetails (pre-ride dialog)', () => {
         const onStart = vi.fn()
         render(<WorkoutDetails {...baseProps} onStart={onStart} />)
 
-        fireEvent.click(screen.getByRole('checkbox', { name: 'Audio Step-Change Signal' }))
+        fireEvent.click(screen.getByRole('switch', { name: 'Audio Step-Change Signal' }))
         fireEvent.click(screen.getByText('Start'))
 
         expect(onStart).toHaveBeenCalledWith({ ftp: 200, useErgMode: true })

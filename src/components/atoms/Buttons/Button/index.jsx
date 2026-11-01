@@ -2,20 +2,33 @@ import React, { useEffect, useRef } from "react"
 
 import styled, { css } from 'styled-components';
 import { EventLogger } from 'gd-eventlog';
-import AppTheme from "../../../../theme";
+import AppTheme, {kitTokens} from "../../../../theme";
 import {copyPropsExcluding} from "../../../../utils/props"
 const buttonTheme  = AppTheme.get().button;
 
-const getButtonColor = ( props) => {
-    const theme = props.theme?.button ?? buttonTheme
-    //if (props.disabled) 
-    //    return buttonTheme.disabled.background;
-    if (props.background)
-        return props.background
+// Pill look (kit): primary = accent fill, secondary/default = outline, text = no frame, danger = red outline.
+// Existing props map first (`primary`, `secondary`); `variant` adds 'text' and 'danger'.
+const getVariant = (props) => {
+    if (props.$variant) return props.$variant
+    if (props.primary==='true') return 'primary'
+    if (props.secondary==='true') return 'secondary'
+    return 'normal'
+}
 
-    if (props.primary==='true') return theme.primary.background
-    if (props.secondary==='true') return theme.secondary.background
-    return theme.normal.background;
+const pillStyle = (props) => {
+    const kit = kitTokens(props.theme)
+    const variant = getVariant(props)
+    const frame = (color) => `border: 1.5px solid ${color}; border-color: ${color};`
+    switch (variant) {
+        case 'primary':
+            return css`background: ${kit.accent}; color: ${kit.accentText}; border: 1.5px solid ${kit.accent};`
+        case 'danger':
+            return css`background: transparent; color: ${kit.danger}; ${frame(kit.danger)}`
+        case 'text':
+            return css`background: transparent; border: none; border-style: none;`
+        default: // secondary, and plain buttons without a variant
+            return css`background: transparent; ${frame(kit.pillOutline)}`
+    }
 }
 
 const getTextColor = ( props) => {
@@ -78,12 +91,11 @@ const outlineStyle = css`
 `
 
 const Btn = styled.button`
-    background: ${props => getButtonColor(props)} ;
     position: relative;
     float: left;
     display: ${props => props.hidden ? 'hidden' : 'inline-block'};
     margin-bottom: 0;
-    font-weight: normal;
+    font-weight: 600;
     text-align: center;
     vertical-align: middle;
     -ms-touch-action: manipulation;
@@ -91,14 +103,16 @@ const Btn = styled.button`
     cursor: pointer;
     width: ${props => props.width ? props.width : undefined};
     min-width: ${props => props.width ? props.width : undefined};
-    max-width: ${props => props.width ? props.width : undefined};
+    max-width: ${props => props.width ? props.width : '100%'};
     background-image: ${props => props.img ? props.img : undefined};
     border: ${props => props.noBorder ? undefined: '1px solid transparent'};
     border-style: ${props => props.noBorder ? 'none': undefined};
-    border-color: #2c3e50;
-    border-radius: 4px;
+    border-radius: ${props => props.$label ? '999px' : '8px'};
     white-space: nowrap;
-    padding: ${props => props.padding!==undefined ? props.padding : undefined};
+    overflow: ${props => props.$label ? 'hidden' : undefined};
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    padding: ${props => props.padding!==undefined ? props.padding : !props.$label ? '0.3em' : props.width ? '0 0.6em' : '0 1.2em'};
     font-size: ${props => getFontSize(props)};
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -110,14 +124,13 @@ const Btn = styled.button`
     opacity: ${props => props.disabled ? '0.5' : '1'};
     transition: all 0.2s;
 
+    ${props => pillStyle(props)}
+    ${props => props.background ? css`background: ${props.background};` : ''}
+    ${props => props.textColor ? css`color: ${props.textColor};` : ''}
+    ${props => props.noBorder ? css`border: none;` : ''}
+
     &:hover {
-        background: ${props => (props.disabled ? getButtonColor(props) : props.theme?.button?.hover?.background ?? buttonTheme.hover.background)};
-        border-style: ${props => !props.no3D ? 'solid':undefined};
-        border-width: ${props => !props.no3D ? '3px':undefined};
-        border-color: ${props => !props.no3D ? 'white':undefined};
-
-        box-shadow: ${props => !props.no3D ? '0px 15px 10px 0px rgba(0, 0, 0, 1)' : undefined}
-
+        ${props => props.disabled ? '' : getVariant(props)==='primary' ? 'filter: brightness(1.15);' : css`background-image: linear-gradient(${kitTokens(props.theme).pillHover}, ${kitTokens(props.theme).pillHover});`}
     }
 
     ${props => props.outline ? outlineStyle : ''}
@@ -126,6 +139,7 @@ const Btn = styled.button`
         float: none;
         align-items: center;
         justify-content: center;
+        min-width: 0;
         gap: 10px;
         box-sizing: border-box;
         height: ${props.size === 'small' ? '32px' : '38px'};
@@ -139,6 +153,17 @@ const Btn = styled.button`
         &:hover { border-width: 1px; border-color: transparent; box-shadow: none; }
         &:focus-visible { outline: 3px solid ${props.theme?.button?.hover?.background ?? buttonTheme.hover.background}; outline-offset: 2px; }
     `}
+`
+
+// true when the node tree contains text (a string/number leaf), i.e. the button is not icon-only
+const hasTextContent = (node) => React.Children.toArray(node).some( c =>
+    typeof c==='string' || typeof c==='number' || (React.isValidElement(c) && hasTextContent(c.props?.children)))
+
+const LabelText = styled.span`
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
 
 export const Button = ( props )=>{ 
@@ -222,9 +247,10 @@ export const Button = ( props )=>{
     },[])
     
     
-    const reserved = ['type','className','style','onClick','text','children','longPressDelay','primary','secondary','responsive','shape'];
+    const reserved = ['type','className','style','onClick','text','children','longPressDelay','primary','secondary','responsive','shape','variant'];
     const filtered = copyPropsExcluding( props, reserved)
 
+    const hasLabel = text!==undefined || hasTextContent(children)
     const primary = (props.primary??false).toString()
     const secondary = (props.secondary??false).toString()
     const elementProps = {...filtered,primary,secondary}
@@ -240,9 +266,12 @@ export const Button = ( props )=>{
             no3D={no3D}
             $responsive={props.responsive}
             $shape={props.shape}
+            $variant={props.variant}
+            $label={hasLabel}
+            aria-disabled={props.disabled ? true : undefined}
             {...elementProps}
             >
-            {text}
+            {props.responsive && text ? <LabelText>{text}</LabelText> : text}
             {children}
         </Btn>
 

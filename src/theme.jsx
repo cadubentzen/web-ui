@@ -241,13 +241,16 @@ export const newUITheme = {
     },
     navbar: {
         selected: {
-            background: 'white',
-            text: 'black',
+            background: '#ffffff',
+            text: '#1c0b2a',
         },
         normal: {
             background: 'none',
-            text: 'white',
-        }
+            text: 'rgba(255,255,255,0.7)',
+        },
+        rail: 'rgba(0,0,0,0.22)',
+        radius: '0.7em',
+        railRadius: '1em',
     },
 
     rider: {
@@ -257,7 +260,26 @@ export const newUITheme = {
     url: {
         color: 'cyan'
     },
-    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203' },
+    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203', danger: '#ff6b6b' },
+    page: {
+        background: 'radial-gradient(120% 90% at 85% -10%, #4a1240 0%, transparent 55%), linear-gradient(160deg, #24081f 0%, #160a3c 100%)',
+    },
+    panel: {
+        fill: 'rgba(255,255,255,0.06)',
+        borderColor: 'rgba(255,255,255,0.14)',
+        radius: '0.9em',
+    },
+    field: {
+        fill: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.14)',
+        radius: '0.55em',
+    },
+    pill: {
+        selected: 'rgba(255,255,255,0.14)',
+        outline: 'rgba(255,255,255,0.3)',
+        hover: 'rgba(255,255,255,0.08)',
+        track: 'rgba(255,255,255,0.2)',
+    },
     hud: {
         panel: 'linear-gradient(rgba(56,1,31,0.72), rgba(26,4,86,0.72))',
         border: 'rgba(255,255,255,0.16)',
@@ -282,6 +304,38 @@ export const hudTokens = (theme) => ({
     accent: theme?.colors?.accent ?? newUITheme.colors.accent,
     accentText: theme?.colors?.accentText ?? newUITheme.colors.accentText,
 })
+
+/**
+ * The kit design tokens shared by all screens (page background, glass panel, field, pill, danger colour):
+ * the theme's values merged over the newUI defaults, so that components still render correctly under
+ * themes that do not define them.
+ *
+ * @param {object} [theme] the styled-components theme
+ */
+const withBorder = (t) => ({ ...t, border: `1px solid ${t.borderColor}` })
+
+export const kitTokens = (theme) => ({
+    pageBackground: theme?.page?.background ?? newUITheme.page.background,
+    panel: withBorder({ ...newUITheme.panel, ...(theme?.panel ?? {}) }),
+    field: withBorder({ ...newUITheme.field, ...(theme?.field ?? {}) }),
+    pillSelected: theme?.pill?.selected ?? newUITheme.pill.selected,
+    pillHover: theme?.pill?.hover ?? newUITheme.pill.hover,
+    pillOutline: theme?.pill?.outline ?? newUITheme.pill.outline,
+    switchOff: theme?.pill?.track ?? newUITheme.pill.track,
+    muted: theme?.hud?.muted ?? newUITheme.hud.muted,
+    navRail: theme?.navbar?.rail ?? newUITheme.navbar.rail,
+    navRailRadius: theme?.navbar?.railRadius ?? newUITheme.navbar.railRadius,
+    navTile: theme?.navbar?.selected?.background ?? newUITheme.navbar.selected.background,
+    navTileText: theme?.navbar?.selected?.text ?? newUITheme.navbar.selected.text,
+    navTileRadius: theme?.navbar?.radius ?? newUITheme.navbar.radius,
+    pillSelectedText: theme?.hud?.text ?? newUITheme.hud.text,
+    danger: theme?.colors?.danger ?? newUITheme.colors.danger,
+    accent: theme?.colors?.accent ?? newUITheme.colors.accent,
+    accentText: theme?.colors?.accentText ?? newUITheme.colors.accentText,
+})
+
+/** kitTokens() for the theme of the current styled-components context */
+export const useKitTokens = () => kitTokens(useTheme())
 
 /** hudTokens() for the theme of the current styled-components context */
 export const useHudTokens = () => hudTokens(useTheme())

@@ -9,12 +9,15 @@ const TabContainer = styled.div`
   height: ${props => props.buttonBar ? 'calc(100% - 7.7vh)' : '100%'};
 `
 
-const List = styled.ol`
-    padding-left: 0;
+const List = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
     height: 6.66vh; // 11/12 of 80%;
     padding:0;
     margin:0;
-    border-bottom: 1px solid;
 `
 
 const Content = styled.div`
@@ -58,7 +61,7 @@ export class Tabs extends Component {
 
     return (
       <TabContainer className="tabs" {...containerProps} buttonBar={buttonBar}>
-        <List className="tab-list">
+        <List className="tab-list" role="tablist">
           {children.map((child) => {
             if (!child) return null;
             const { label } = child.props;

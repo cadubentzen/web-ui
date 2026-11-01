@@ -23,7 +23,7 @@ describe('ImportRow', () => {
         const route = buildRoute()
         render(<ImportRow route={route} outsideFold={false} selected={false} onToggle={() => {}} />)
 
-        expect(screen.getByRole('checkbox', { name: route.label })).toBeEnabled()
+        expect(screen.getByRole('switch', { name: route.label })).toBeEnabled()
         expect(screen.getByText('Alpe du Grand Serre')).toBeInTheDocument()
         expect(screen.getByText('RLV/Alps')).toBeInTheDocument()
         expect(screen.getByText('RLV')).toBeInTheDocument()
@@ -40,7 +40,7 @@ describe('ImportRow', () => {
         })
         render(<ImportRow route={route} outsideFold={false} selected={false} onToggle={() => {}} />)
 
-        expect(screen.getByRole('checkbox', { name: route.label })).toBeDisabled()
+        expect(screen.getByRole('switch', { name: route.label })).toBeDisabled()
         expect(screen.getByTestId('import-row-r1-distance').textContent).toBe("This file couldn't be read")
         expect(screen.getByTestId('import-row-r1-status').textContent).toBe("Can't import")
     })
@@ -49,7 +49,7 @@ describe('ImportRow', () => {
         const route = buildRoute({ alreadyImported: true })
         render(<ImportRow route={route} outsideFold={false} selected={false} onToggle={() => {}} />)
 
-        expect(screen.getByRole('checkbox', { name: route.label })).toBeEnabled()
+        expect(screen.getByRole('switch', { name: route.label })).toBeEnabled()
         expect(screen.getByTestId('import-row-r1-status').textContent).toBe('Already in library')
     })
 
@@ -57,7 +57,7 @@ describe('ImportRow', () => {
         const route = buildRoute({ parseState: 'waiting', importable: false, distance: undefined })
         render(<ImportRow route={route} outsideFold={false} selected={false} onToggle={() => {}} />)
 
-        expect(screen.getByRole('checkbox', { name: route.label })).toBeDisabled()
+        expect(screen.getByRole('switch', { name: route.label })).toBeDisabled()
         expect(screen.getByTestId('import-row-r1-distance').textContent).toBe('')
     })
 
@@ -65,7 +65,7 @@ describe('ImportRow', () => {
         const route = buildRoute()
         render(<ImportRow route={route} outsideFold selected={false} onToggle={() => {}} />)
 
-        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument()
         expect(screen.getByTestId('import-row-r1')).toBeInTheDocument()
     })
 
@@ -74,7 +74,7 @@ describe('ImportRow', () => {
         const onToggle = vi.fn()
         render(<ImportRow route={route} outsideFold={false} selected={false} onToggle={onToggle} />)
 
-        screen.getByRole('checkbox', { name: route.label }).click()
+        screen.getByRole('switch', { name: route.label }).click()
         expect(onToggle).toHaveBeenCalled()
     })
 
@@ -119,6 +119,6 @@ describe('ImportRow', () => {
 
         expect(screen.getByTestId('import-row-route.xml-status').textContent).toBe('Duplicate')
         expect(screen.getByTestId('import-row-route.xml-distance').textContent).toBe('Duplicate of Alpe du Grand Serre')
-        expect(screen.getByRole('checkbox', { name: route.label })).toBeDisabled()
+        expect(screen.getByRole('switch', { name: route.label })).toBeDisabled()
     })
 })

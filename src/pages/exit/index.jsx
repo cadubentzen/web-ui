@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import ImageBackground from "../../components/atoms/ImageBackground"
+import PageBackground from "../../components/atoms/PageBackground"
 import { Loader } from "../../components/atoms"
 import NativeUiService from "../../bindings/native-ui"
 import { useUserSettings } from "incyclist-services"
@@ -25,9 +25,9 @@ export const ExitPage =  () => {
     })
 
     return (
-    <ImageBackground>
+    <PageBackground>
         <Loader size='5vh' color='white' type='clipped' />    
-    </ImageBackground>
+    </PageBackground>
     )
 
 }

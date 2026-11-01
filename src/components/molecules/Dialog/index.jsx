@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { AppThemeProvider } from '../../../theme';
+import { AppThemeProvider, kitTokens } from '../../../theme';
 import { scrollbarVars } from '../../../utils/scrollbar';
 import { useKey } from '../../../hooks';
 import { EventLogger } from 'gd-eventlog';
@@ -43,15 +43,18 @@ const ModalDialog = styled.div`
 `;
 
 export const TitleBar = styled.div`
-    text-align: center ;
-    text-transform: uppercase;
-    font-family: "Roboto", "Arial", sans-serif, bold;
-    font-size:  3vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    box-sizing: border-box;
     width: 100%;
     height: 6.66vh;     // 1/12 of 80%
-    background-color: ${props => props.theme.title.background};
-    color: ${props=>props.theme.title.text};
-    display: inline-table;
+    padding: 0 1.4vw;
+    text-align: left;
+    font-size:  3vh;
+    font-weight: 600;
+    color: ${props=>props.theme.dialog.text};
 `;
 
 const ContainerArea = styled.div`
@@ -61,13 +64,47 @@ const ContainerArea = styled.div`
 `;
 
 const Text = styled.span`
-    margin: 0;
-    position: relative;
-    top: 1.83vh;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
+const CloseButton = styled.button`
+    flex: none;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 4vh;
+    height: 4vh;
+    padding: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 2.2vh;
+    line-height: 1;
+    cursor: pointer;
+    border: 1.5px solid ${props => kitTokens(props.theme).pillOutline};
+    &:hover {
+        background: ${props => kitTokens(props.theme).pillHover};
+    }
+`;
+
+const Header = ({ title, onClose, className, dialog }) => {
+    const onCloseClicked = () => {
+        new EventLogger('Incyclist').logEvent({ message: 'button clicked', button: 'Close', dialog, eventSource: 'user' })
+        onClose()
+    }
+    return (
+        <TitleBar className={className}>
+            <Text>{title}</Text>
+            {onClose ? <CloseButton type='button' aria-label='Close' data-nav-close onClick={onCloseClicked}>{'\u2715'}</CloseButton> : null}
+        </TitleBar>
+    )
+}
+
 export function Title(props) {
-    return <TitleBar><Text>{props.title}</Text></TitleBar>
+    return <Header title={props.title} />
 } 
 
 const ESC=27
@@ -84,6 +121,11 @@ export const Dialog = (props) => {
         if (onOutsideClicked)            
             onOutsideClicked()
     }
+
+    // the close button calls the dialog's existing close/cancel handler
+    const onClose = props.noClose ? undefined : (props.onClose ?? props.onCancel ?? props.onESC)
+
+    const hasHeader = Boolean(props.title) || Boolean(onClose)
 
     const onEscapePressed = () => {
         const {onESC} = props
@@ -147,9 +189,9 @@ export const Dialog = (props) => {
                 <ModalDialog className='dialog'  onClick={(e)=>e.stopPropagation()}
                     width={width} height={height} $scrollbar={scrollbarVariant}>
     
-                    {props.title && <TitleBar  className='title-bar'><Text>{props.title}</Text></TitleBar>}
+                    {hasHeader && <Header className='title-bar' title={props.title} onClose={onClose} dialog={props.id??props.title}/>}
                     
-                    <ContainerArea $fullsize={props.fullsize || !props.title} className='dialog-content'>
+                    <ContainerArea $fullsize={props.fullsize || !hasHeader} className='dialog-content'>
                         {props.children}
                     </ContainerArea>
                 </ModalDialog>
@@ -164,8 +206,8 @@ export const Dialog = (props) => {
                 <ModalDialog  className='dialog flex' onClick={(e)=>e.stopPropagation()}
                     width={width} height={height} $scrollbar={scrollbarVariant}>
                 
-                    <ContainerArea  $fullsize={!props.title} className='dialog-content'>
-                        {props.title && <TitleBar><Text>{props.title}</Text></TitleBar>}
+                    <ContainerArea  $fullsize={!hasHeader} className='dialog-content'>
+                        {hasHeader && <Header className='title-bar' title={props.title} onClose={onClose} dialog={props.id??props.title}/>}
                         {props.children}
                     </ContainerArea>
                 </ModalDialog>                
