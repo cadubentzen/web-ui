@@ -1,59 +1,39 @@
 import React from 'react';
-import { Container, ImageContainer, ButtonContainer, DataContainer, Title } from '../base/atoms';
-import { Button,Column,Row} from '../../../../atoms';
+import { AppThemeProvider } from '../../../../../theme';
+import { Container, DataContainer, Title } from '../base/atoms';
 import styled from 'styled-components';
 import { Dropzone } from '../../../../molecules';
+
+const FileDrop = styled(Dropzone)`
+    box-sizing: border-box;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+`
 
 const DEFAULT_TITLE = 'Import Workout'
 const DEFAULT_FILTERS = [
     { name: 'Workouts', extensions: ['zwo'] }
-]                             
+]
 
-
-const FileDrop = styled(Dropzone)`
-    color: white;
-    margin:10px;
-`
-
-export const UploadSummary = ( { id, title=DEFAULT_TITLE, filters=DEFAULT_FILTERS, ready,visible,
-                                width='20vw',height='30vh',onMoreInfo,onOK }) => {
-
+export const UploadSummary = ( { id, title=DEFAULT_TITLE, filters=DEFAULT_FILTERS, onOK }) => {
 
     const onDrop = async (...args)=>{
         if (onOK) {
             await onOK(...args)
-            return null;
         }
         return null;
     }
 
-    
-
     return (
-        <Container width={width} height={height} >
-            
-            <ImageContainer>
-                <FileDrop height='90%' filters={filters} onDrop={onDrop}>
-                   
-                </FileDrop>
-
-            </ImageContainer>
-
-
-            <DataContainer width={width} height={height}>
-                <Row> 
-                    <Column width='80%'> <Title bold={true}>{title} </Title></Column>                    
-                </Row>
-
+        <AppThemeProvider>
+        <Container className='workout-card'>
+            <DataContainer>
+                <Title title={title}>{title}</Title>
+                <FileDrop glass height='100%' filters={filters} onDrop={onDrop} />
             </DataContainer>
-
-            <ButtonContainer>
-                <Button hidden={true} text='More Info' secondary={true} textColor='white '  logInfo={ title} onClick={onMoreInfo}/>
-                    
-                
-            </ButtonContainer>
-
-            
         </Container>
+        </AppThemeProvider>
     )
 }

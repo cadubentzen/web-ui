@@ -1,8 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { copyPropsExcluding } from '../../../../../utils/props'
-import { FlipCard } from '../../../../atoms'
+import styled from 'styled-components'
 import { useUnmountEffect } from '../../../../../hooks'
 
+
+// fixed size slot of the carousel; the glass card inside fills it
+const Slot = styled.div`
+    box-sizing: border-box;
+    width: ${props => props.$width};
+    height: ${props => props.$height};
+    visibility: ${props => props.$hidden ? 'hidden' : undefined};
+`
 
 export const Card = (props) => {
     const {observer,Summary, Details } = props
@@ -59,8 +67,8 @@ export const Card = (props) => {
     const stateProps = state||{}
     const hidden = !stateProps.visible
 
-    return <FlipCard  hidden={hidden} width={widthStr} height={heightStr} padding={paddingStr} background='linear-gradient(darkred,#180457)' delay='1s' >
+    return <Slot $hidden={hidden} $width={widthStr} $height={heightStr} style={{padding:paddingStr}}>
         {Summary ? <Summary {...stateProps} width={width-padding} height={height} />:null}
         {Details ? <Details {...stateProps} width={width-padding} height={height} />:null}
-    </FlipCard>
+    </Slot>
 }

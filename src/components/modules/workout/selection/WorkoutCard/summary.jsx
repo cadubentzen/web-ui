@@ -2,10 +2,9 @@ import React from 'react';
 import { TrashIcon } from '@primer/octicons-react';
 import { AppThemeProvider } from '../../../../../theme';
 import { copyPropsExcluding } from '../../../../../utils/props';
-import { Button, Column, Icon, Loader, Row } from '../../../../atoms';
+import { Button, Icon, Loader, Row } from '../../../../atoms';
 import { WorkoutGraph } from '../../../../molecules';
-import { Container, DataContainer, DurationLabel, DurationText, ImageContainer,Title,
-         ButtonContainer,LoaderContainer } from '../base/atoms';
+import { Actions, Container, DataContainer, Footer, ImageContainer, LoaderContainer, Subtitle, Title } from '../base/atoms';
 import styled from 'styled-components'
 
 const Trash = (props)=> {
@@ -44,9 +43,11 @@ export const WorkoutSummary = ( props) => {
         )
     }
 
+    const showFtp = typeof(props.ftp)==='number'
+
     return (
         <AppThemeProvider>
-        <Container width={width} height={height} hidden={!visible} selected={selected} className='workout-card'>
+        <Container hidden={!visible} $selected={selected} className='workout-card'>
             <ImageContainer>
                 { workout?
                         <Row width='100%' height='100%'>
@@ -57,31 +58,23 @@ export const WorkoutSummary = ( props) => {
             </ImageContainer>
 
             <DataContainer className='data'>
-                <Row> 
-                    <Column width='80%'><Title bold={true}>{titleStr}</Title></Column>                
-                </Row>
-                <Row> 
-                    {showDuration ? 
-                    <Column>
-                        <DurationLabel>Duration</DurationLabel>
-                        <DurationText>{duration}</DurationText>
-                    </Column>
-                    :null}
-                </Row>
-
+                <div>
+                    <Title title={titleStr}>{titleStr}</Title>
+                    {showDuration ? <Subtitle>{duration}</Subtitle> : null}
+                </div>
+                <Footer>
+                    <span>{showFtp ? `FTP ${ftp} W` : null}</span>
+                    <Actions>
+                        {selected ?
+                            <Button text='Unselect' size='small' margin='0' disabled={!workout} logContext={ {title}} onClick={onUnselect}/> :
+                            <Button text='Select' primary={true} size='small' margin='0' disabled={!workout} logContext={ {title}} onClick={onOK} />
+                        }
+                        {canDelete?<Icon height={20} margin={0} padding={0} id={'delete'} onClick={onDelete}><Trash/></Icon>:null}
+                    </Actions>
+                </Footer>
             </DataContainer>
 
-
-            <ButtonContainer>
-                {selected ? 
-                    <Button text='Unselect' disabled={!workout} logContext={ {title}} onClick={onUnselect}/> :
-                    <Button text='OK' disabled={!workout} logContext={ {title}} onClick={onOK} /> 
-                }
-                {canDelete?<Icon height={20} margin={0} padding={0} id={'delete'} onClick={onDelete}><Trash/></Icon>:null}
-            </ButtonContainer>
-
-        </Container>    
+        </Container>
         </AppThemeProvider>
     )
 }
-

@@ -34,10 +34,21 @@ export class Autosize extends React.Component {
         }        
 
         window.addEventListener("resize", this.onResizeHandler);    
+
+        // the container can still be settling its layout at mount (e.g. a card inside a carousel):
+        // measure again whenever the element itself changes size, not only on window resize
+        const current = this.ref?.current
+        if (typeof ResizeObserver!=='undefined' && current && !this.isFixed()) {
+            this.observer = new ResizeObserver( this.onResizeHandler )
+            this.observer.observe(current)
+            if (current.parentElement && (!this.props.width || !this.props.height))
+                this.observer.observe(current.parentElement)
+        }
     }
 
     componentWillUnmount() {
         window.removeEventListener("resize", this.onResizeHandler);
+        this.observer?.disconnect()
         
     }
 

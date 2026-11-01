@@ -1,9 +1,8 @@
 import React from 'react';
 import { AppThemeProvider } from '../../../../../theme';
-import { Button, Column, Loader, Row } from '../../../../atoms';
+import { Button, Loader, Row } from '../../../../atoms';
 import { WorkoutGraph } from '../../../../molecules';
-import { Container, DataContainer, DurationLabel, DurationText, ImageContainer,Title,
-         ButtonContainer,LoaderContainer } from '../base/atoms';
+import { Actions, Container, DataContainer, Footer, ImageContainer, LoaderContainer, Subtitle, Title } from '../base/atoms';
 
 export const ScheduledWorkoutSummary = ( props) => {
   
@@ -16,10 +15,13 @@ export const ScheduledWorkoutSummary = ( props) => {
     const showDate = !!date
     const dateStr = showDate ? date.toLocaleDateString() : ''
 
+    const showFtp = typeof(props.ftp)==='number'
+    const subtitle = [showDuration ? duration : null, showDate ? dateStr : null].filter(Boolean).join(' · ')
+
     return (
         <AppThemeProvider>
-        <Container width={width} height={height} hidden={!visible} selected={selected} className='workout-card'>
-            
+        <Container hidden={!visible} $selected={selected} className='workout-card'>
+
             <ImageContainer>
                 { workout?
                         <Row width='100%' height='100%'>
@@ -30,45 +32,22 @@ export const ScheduledWorkoutSummary = ( props) => {
             </ImageContainer>
 
             <DataContainer className='data'>
-                <Row> 
-                    <Column width='80%'><Title bold={true}>{titleStr}</Title></Column>                
-                </Row>
-                <Row> 
-                    {showDuration ? 
-                    <Column width='50%'>
-                        <DurationLabel>Duration</DurationLabel>
-                        <DurationText>{duration}</DurationText>
-                    </Column>
-                    :<Column width='50%'>
-                        &nbsp;
-                    </Column>
-                    }
-
-                    {showDate ? 
-                    <Column width='50%'>
-                        <DurationLabel>Date</DurationLabel>
-                        <DurationText>{dateStr}</DurationText>
-                    </Column>
-                    :
-                    <Column width='50%'>
-                        &nbsp;
-                    </Column>
-                    }
-
-                </Row>
-
+                <div>
+                    <Title title={titleStr}>{titleStr}</Title>
+                    {subtitle ? <Subtitle>{subtitle}</Subtitle> : null}
+                </div>
+                <Footer>
+                    <span>{showFtp ? `FTP ${ftp} W` : null}</span>
+                    <Actions>
+                        {selected ?
+                            <Button text='Unselect' size='small' margin='0' disabled={!workout} logContext={ {title}} onClick={onUnselect}/> :
+                            <Button text='Select' primary={true} size='small' margin='0' disabled={!workout} logContext={ {title}} onClick={onOK} />
+                        }
+                    </Actions>
+                </Footer>
             </DataContainer>
 
-
-            <ButtonContainer>
-                {selected ? 
-                    <Button text='Unselect' disabled={!workout} logContext={ {title}} onClick={onUnselect}/> :
-                    <Button text='OK' disabled={!workout} logContext={ {title}} onClick={onOK} /> 
-                }                
-            </ButtonContainer>
-
-        </Container>    
+        </Container>
         </AppThemeProvider>
     )
 }
-

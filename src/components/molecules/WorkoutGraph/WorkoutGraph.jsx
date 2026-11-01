@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import 'react-vis/dist/style.css';
 import {XYPlot,makeVisFlexible,LineSeries,VerticalRectSeries,Highlight, XAxis,YAxis,Crosshair} from 'react-vis';
 import styled from 'styled-components';
+import { useKitTokens } from '../../../theme';
 
 import { Autosize, ErrorBoundary, View } from "../../atoms";
 import { StepDetails } from "./StepDetails";
@@ -45,6 +46,7 @@ const zoneColor = [
 export const WorkoutGraphView = (props) => {
 
     const logger = new EventLogger('WorkoutGraph');
+    const kit = useKitTokens()
 
     const [state,setState] = useState( {})
 
@@ -101,7 +103,7 @@ export const WorkoutGraphView = (props) => {
 
             const margin = dashBoardMode ? {left:0,right:0,top:0,bottom:0} : props.margin || { left: width/80, right:60*width/800,  top: height/80, bottom: 60*height/600} ;
             const fontSize = 11*margin.bottom/40;
-            const style = {fontSize};
+            const style = {fontSize, text:{fill:kit.muted, stroke:'none'}, line:{stroke:kit.hairline}, ticks:{stroke:kit.hairline}};
             let {enableZoom,scheme='light',ftp} = props??{};
 
             return {width,height,margin,style,enableZoom,showMarker,showDetails,dashBoardMode,scheme,ftp}
@@ -132,7 +134,7 @@ export const WorkoutGraphView = (props) => {
                         onValueMouseOver={onValueMouseOver} 
                         onValueMouseOut={onValueMouseOut} 
                     />
-                    <LineSeries color='red'  data={ftpData} />
+                    <LineSeries color={kit.danger}  data={ftpData} />
 
                     { showMarker ? 
                     <PositionMarker 

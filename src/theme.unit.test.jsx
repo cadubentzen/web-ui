@@ -21,7 +21,7 @@ describe('theme', () => {
 
     test('newUI theme defines the kit tokens', () => {
         expect(newUITheme.page.background).toBe('radial-gradient(120% 90% at 85% -10%, #4a1240 0%, transparent 55%), linear-gradient(160deg, #24081f 0%, #160a3c 100%)')
-        expect(newUITheme.panel).toEqual({ fill: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.14)', radius: '0.9em' })
+        expect(newUITheme.panel).toEqual({ fill: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.14)', radius: '0.9em', band: 'rgba(0,0,0,0.18)' })
         expect(newUITheme.field).toEqual({ fill: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.14)', radius: '0.55em' })
         expect(newUITheme.pill.selected).toBe('rgba(255,255,255,0.14)')
         expect(newUITheme.colors.danger).toBe('#ff6b6b')

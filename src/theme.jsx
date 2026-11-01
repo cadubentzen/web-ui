@@ -268,6 +268,7 @@ export const newUITheme = {
         fill: 'rgba(255,255,255,0.06)',
         borderColor: 'rgba(255,255,255,0.14)',
         radius: '0.9em',
+        band: 'rgba(0,0,0,0.18)',
     },
     field: {
         fill: 'rgba(255,255,255,0.1)',

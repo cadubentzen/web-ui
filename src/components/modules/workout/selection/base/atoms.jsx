@@ -1,98 +1,81 @@
 import styled from "styled-components";
 import { Row } from "../../../../atoms";
+import { Panel } from "../../../../atoms/Panel";
+import { kitTokens } from "../../../../../theme";
 
+/** Glass workout card: fills the (fixed size) card slot, minus a small gutter between the cards */
+export const Container = styled(Panel)`
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    margin: 8px;
+    text-align: left;
+    user-select: none;
+    color: ${props => kitTokens(props.theme).pillSelectedText};
+    ${props => props.$selected ? `border-color: ${kitTokens(props.theme).accent};` : ''}
+    &:hover, &:focus-within { border-color: ${props => kitTokens(props.theme).accent}; }
+`
+
+/** Darker band at the top of a card; holds the workout profile (or the drop zone / logo) */
+export const ImageContainer = styled.div`
+    position: relative;
+    flex: 0 0 46%;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0.6em 0.6em 0 0.6em;
+    background: ${props => kitTokens(props.theme).panel.band};
+    user-select: none;
+`
+
+export const DataContainer = styled.div`
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0.7em 0.9em 0.8em;
+    gap: 0.25em;
+`
 
 export const Title = styled.div`
-    width: 100%;
-    font-size: 1.75vh;
+    font-size: 1.9vh;
     font-weight: bold;
-    padding-left: 10px;
-    padding-top: 1vh;
-    height: 3.5vh;
-    min-height: 3.5vh;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
-export const DurationText = styled(Row)`
-    width: 100%;
+
+export const Subtitle = styled.div`
     font-size: 1.5vh;
-    font-weight: bold;   
-    padding: 0 0 5px 10px;
+    color: ${props => kitTokens(props.theme).muted};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
 
-export const DateText = styled(Row)`
-    width: 100%;
-    font-size: 1.5vh;
-    font-weight: bold;   
-    padding: 0 0 5px 10px;
-`
-
-export const DurationLabel = styled(Row)`
-    width: 100%;
-    font-size: 1.3vh;
-    font-weight: bold;   
-    padding: 0 0 0 10px;
-`
-
-export const Container = styled.div`
-    z-index: 0;
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    background: ${props=> props.selected?  props.theme.list.selected.background: 'linear-gradient(darkred,#180457)'};
-    height: ${props => `${props.height}px`};
-    width: ${props => `${props.width}px`};
-    user-select: none;
-
-    padding: 0;
-    margin: 0;
-`
-export const ImageContainer = styled.div`
-    height: calc(50% - 4.4vh - 20px);
-    width: calc(100% - 20px);
-    user-select: none;
-    padding: 10px;
-
-`
-export const DataContainer = styled.div`
-    z-index:2;
-    user-select:none;
-    display: flex;
-    position: absolute;
-    flex-direction: column;
-    justify-content: start;
-    text-align: left;
-    color: white;
-    background: none;
-    height: 50%; 
-    min-height: 50%;
-    width: 100%;
-    top: calc(50% - 4.4vh);
-    left:0;
-    padding: 0;
-    margin: 0;
-`
-
-export const ButtonContainer = styled(Row)`
-    z-index:10;
-    position: absolute;
-    width: 100%;
-    justify-content: center;
+export const Footer = styled(Row)`
     align-items: center;
-    background: none;
-    bottom:0;
-    left:0;
-    padding: 0;
-    margin: 0;
-`;
+    justify-content: space-between;
+    gap: 0.5em;
+    font-size: 1.4vh;
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+export const Actions = styled(Row)`
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4em;
+    width: auto;
+`
 
 export const LoaderContainer = styled.div`
-    position:absolute;
-    display:flex;
+    position: absolute;
+    display: flex;
     justify-content: center;
     align-items: center;
-
-    left:0;
-    top:0;
-    height:50%;
-    width:100%
-`;
-
+    inset: 0;
+`

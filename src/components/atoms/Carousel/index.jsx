@@ -4,6 +4,7 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 
 import { AutoHide,Button } from "../../atoms";
+import { kitTokens } from "../../../theme";
 
 
 const View = styled.div`
@@ -27,18 +28,16 @@ const PrevNextButton = styled(Button)`
     min-width: 40px;
     height: 5vh;
     min-height: 5vh;
-    background-color: #333;
-    --background-clip: content-box;
-    border: 0.25rem solid transparent;
+    background-color: ${props => kitTokens(props.theme).pillSelected};
+    border: 2px solid transparent;
+    border-radius: 999px;
     margin: 0;
     padding: 0;
     opacity: 50%;
     transition: all 0.2s;
     &:hover {
         opacity: 80%;
-        border-style: solid;
-        border-width: 5px;
-        border-color: white;
+        border-color: ${props => kitTokens(props.theme).accent};
     }
 `
 

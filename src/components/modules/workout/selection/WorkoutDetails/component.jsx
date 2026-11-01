@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Button, ButtonBar, CheckBox, Column, Divider, EditNumber, EditText, Row, SingleSelect, Text } from "../../../../atoms"
 import styled from "styled-components"
 import { Dialog,WorkoutGraph } from "../../../../molecules"
+import { Panel } from "../../../../atoms/Panel"
 import { useUserSettings } from "incyclist-services"
 
 const ContentArea = styled(Column)`
@@ -11,6 +12,15 @@ const ContentArea = styled(Column)`
     padding-right:0.4vw;
 `
 
+
+const ChartFrame = styled(Panel)`
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin-top: 1vh;
+    padding: 1vh 1vw 0.5vh 1vw;
+    overflow: hidden;
+`
 
 export const WorkoutDetails = ({title,workout,ftp, ftpRequired, useErgMode, duration,stress,canStart,canStartWorkoutOnly, category, categories,
     onStart, onSelect,onCancel, onCategorySelected, date})=>{
@@ -118,7 +128,8 @@ export const WorkoutDetails = ({title,workout,ftp, ftpRequired, useErgMode, dura
     
     const categoryList = [...state.categories??[]]
     categoryList.push( 'Add new Category')
-    const styling = {labelWidth:'12ch',labelPosition:'before'  }
+    // wide enough for the longest label ('Audio Step-Change Signal') on one line, shared by all rows so they line up
+    const styling = {labelWidth:'26ch',labelPosition:'before'  }
 
     return (
         <Dialog id='WorkoutDetails' log={{title:workout?.name}} title={title||workout.name||'Workout Details'} /*onOutsideClicked={onUserCancel}*/ width="80vw" height="80vh" zIndex={100} onESC={onCancelClicked}>
@@ -141,16 +152,16 @@ export const WorkoutDetails = ({title,workout,ftp, ftpRequired, useErgMode, dura
                 <CheckBox {...styling} label='Use ERG Mode'  value={state.useErgMode} onValueChange={onERGModeChanged} />
                 <CheckBox {...styling} label='Audio Step-Change Signal'  value={state.stepChangeAudioSignal} onValueChange={onStepChangeAudioSignalChanged} />
 
-                <Row height='100%' width='100%' className="graph"> 
+                <ChartFrame className="graph"> 
                     <WorkoutGraph workout={workout} ftp={state.ftp??200} />
-                </Row>
+                </ChartFrame>
             </ContentArea>
             <ButtonBar justify='center'>
                 {canStart ? 
                     <Button primary={true} text='Start' onClick = { onStartClicked}/> : 
                     <Button primary={true} text='Select' onClick = { onSelectClicked}/>
                 }
-                {canStartWorkoutOnly ? <Button primary={true} text='Start without route' onClick = { onStartWorkoutClicked}/> : null}
+                {canStartWorkoutOnly ? <Button primary={false} text='Start without route' onClick = { onStartWorkoutClicked}/> : null}
                 <Button text='Cancel' primary={false} onClick = { onCancelClicked}/>
             </ButtonBar>
 
