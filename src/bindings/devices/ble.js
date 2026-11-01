@@ -1,8 +1,15 @@
 import { useAppState } from "incyclist-services";
 import { api, hasFeature, isElectron,isReactNative } from "../../utils";
 import AppInfoBinding from "../app-info";
+import { isMockZwiftPlayEnabled, withMockZwiftPlay } from "./mock/zwiftPlay";
 
 export default function getBleBinding() {
+    const binding = getPlatformBleBinding()
+    // development aid: a simulated Zwift Play next to the real devices (?mock=zwift-play)
+    return isMockZwiftPlayEnabled() ? withMockZwiftPlay(binding) : binding
+}
+
+function getPlatformBleBinding() {
 
     try {
         let binding = null;
