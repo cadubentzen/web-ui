@@ -4,15 +4,50 @@ import {XYPlot,LineSeries,HorizontalGridLines, XAxis,YAxis,VerticalGridLines,Cro
 import styled from 'styled-components';
 import { EventLogger}  from 'gd-eventlog';
 
-import { AppThemeProvider } from "../../../../theme";
+import { AppThemeProvider, useKitTokens } from "../../../../theme";
 import { Autosize, Column, ErrorBoundary, Row } from "../../../atoms";
 import { copyPropsExcluding } from "../../../../utils/props";
 import { average } from "../../../../utils/coding";
 import { getZone, zoneColor } from "../utils";
 
+const ZONE_GRADIENT = `linear-gradient(90deg, ${zoneColor.slice(1).join(', ')})`
+
 const PositionMarker = styled(Crosshair)`
-    border-color:black;
     width:100;
+    /* the tooltip brings its own glass frame */
+    .rv-crosshair__inner__content { background: transparent; padding: 0; box-shadow: none; }
+`
+
+const Tooltip = styled.div`
+    background: ${props => props.$background};
+    color: inherit;
+    border: 1px solid ${props => props.$border};
+    border-radius: 0.55em;
+    padding: 0.4em 0.8em;
+    font-size: 1.5vh;
+    width: 20ch;
+    white-space: nowrap;
+`
+
+const Legend = styled(Row)`
+    align-items: center;
+    gap: 1.6vw;
+    padding: 0 0.5vw 0.6vh;
+    font-size: 1.5vh;
+    color: ${props => props.$color};
+`
+
+const LegendItem = styled.span`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    &::before {
+        content: '';
+        width: 1.6em;
+        height: 0.5em;
+        border-radius: 999px;
+        background: ${props => props.$swatch};
+    }
 `
 
 const ContainerArea = styled(Row)`
@@ -23,6 +58,7 @@ const ContainerArea = styled(Row)`
 const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
 
     const [crosshairValues, setCrosshairValues] = useState([])
+    const kit = useKitTokens()
 
     const refHighlight = useRef()    
     const refData = useRef(null)
@@ -54,13 +90,13 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
             }
 
             return (
-                <div style={{background: 'white',color:'black', fontSize:'1.5vh', width: '20ch'}}>
+                <Tooltip $background={kit.dialogBackground} $border={kit.hairline}>
                 {getDistance()}<br/>
                 { speed!==undefined ? `Speed: ${speed.toFixed(1)} ${units?.speed??'km/h'}` :''}<br/> 
                 { power!==undefined ? `Power: ${power.toFixed(0)} W`:''} <br/>
                 { heartrate!==undefined ? `Heartrate: ${heartrate.toFixed(0)} bpm` : ''}  <br/> 
                 { elevation!==undefined ? `Elevation: ${elevation.toFixed(0)} ${units?.elevation??'m'}` :''}<br/> 
-                </div>
+                </Tooltip>
             );
         }
         return(<div></div>)        
@@ -82,7 +118,7 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
     const getColor = (P) => {
         const ftpVal = activity?.user?.ftp??ftp
         if (!ftpVal)
-            return 'blue'
+            return kit.accent
 
         return zoneColor[getZone(P/ftpVal*100)]
     }
@@ -90,17 +126,11 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
     const getPowerConfig = () => {
         const ftpVal = activity?.user?.ftp??ftp
         if (!ftpVal) 
-            return { background:'blue', text:'white', line:'blue', style:'line'}        
+            return { swatch:kit.accent, line:kit.accent, style:'line'}        
         else 
-            return { background:'blue', text:'white', line: 'blue', style:'bars'}        
+            return { swatch:ZONE_GRADIENT, line:kit.accent, style:'bars'}        
     }
-    const getHeartrateConfig = () => {
-        const ftpVal = activity?.user?.ftp??ftp
-        if (!ftpVal) 
-            return { background:'red', text:'white', line:'red'}        
-        else 
-            return { background:'white', text:'black', line: 'white'}        
-    }
+    const getHeartrateConfig = () => ({ swatch:kit.heartRate, line:kit.heartRate })
 
     const getData = ( timeOrDistance='distance') => {
         if (refData.current && width && refData.current?.width===width 
@@ -216,6 +246,14 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
         return false
     
 
+    // react-vis defaults (dark text, light grid) are made for a white background
+    const gridStyle = { stroke: kit.hairline, strokeOpacity: 0.5 }
+    const axisStyle = {
+        line: { stroke: kit.hairline },
+        ticks: { stroke: kit.hairline },
+        text: { stroke: 'none', fill: kit.muted, fontSize: '1.5vh', fontWeight: 400 },
+    }
+
     const xTicks = v => { 
         if (units?.distance)
             return v.toFixed(1)
@@ -226,25 +264,25 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
         <AppThemeProvider>
             <ErrorBoundary hideOnError debug>
             <Column className="column activityGraph">
-                <Row position='relative' className="row activityGraphLabels">
-                    {power?.length ? <Column background={pc.background} color={pc.text} margin='0 1vw 0 0'>Power</Column>:null}
-                    {heartrate?.length ? <Column background={hc.background} color={hc.text} margin='0 1vw 0 0'>Heartrate</Column>:null}
-                </Row>
+                <Legend position='relative' className="row activityGraphLabels" $color={kit.muted}>
+                    {power?.length ? <LegendItem $swatch={pc.swatch}>Power</LegendItem>:null}
+                    {heartrate?.length ? <LegendItem $swatch={hc.swatch}>Heartrate</LegendItem>:null}
+                </Legend>
 
                 <ContainerArea position='relative' ref= {refHighlight}>
                     
                     <div className='graph1' style={{  zIndex:998, top:0, position:'absolute' }}>
                         <XYPlot margin={{right: 40}} width={width} height={height}  >
-                            {width && <HorizontalGridLines direction='horizontal' attr='y' />}
-                            {width && <VerticalGridLines direction='vertical' attr='x' />}
-                            {width && <XAxis attr='x' tickFormat={ xTicks } style={{text: {stroke:'white', fontSize:'1.5vh'}}} />}
+                            {width && <HorizontalGridLines direction='horizontal' attr='y' style={gridStyle} />}
+                            {width && <VerticalGridLines direction='vertical' attr='x' style={gridStyle} />}
+                            {width && <XAxis attr='x' tickFormat={ xTicks } style={axisStyle} />}
                             {width && <YAxis attr='y' orientation='left' tickFormat={ v => v? `${v.toFixed(0)}`:undefined } style={{
-                                text: {stroke:pc.line, fontSize:'1.5vh'}
+                                ...axisStyle, text: {...axisStyle.text, fill:pc.line}
                             }}/>}
 
                             {width && <PositionMarker 
                                 values={crosshairValues} 
-                                style={ {line:{background:'white', width:2}} } >
+                                style={ {line:{background:kit.muted, width:2}} } >
                                 {getCrosshair()}
                             </PositionMarker>}
 
@@ -261,7 +299,7 @@ const ActivityGraphView  = ({activity,ftp,width,height,units}) => {
                     {(heartrate && heartrate.length>0) && <div className='graph2' style={{ zIndex:999, top:2, position:'absolute' }}>
                         <XYPlot margin={{right: 40}} width={width} height={height} >
                             {width &&  <YAxis attr='y' orientation='right' tickFormat={ v => v? `${v.toFixed(0)}`:undefined }  style={{
-                                text: {stroke:hc.line, fontSize:'1.5vh'}                                
+                                ...axisStyle, line: {stroke:'none'}, ticks: {stroke:'none'}, text: {...axisStyle.text, fill:hc.line}
                             }}/>}
                             <LineSeries color={hc.line} data={heartrate} onNearestX={onNearestX}     />
                         </XYPlot>

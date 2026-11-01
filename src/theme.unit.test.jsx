@@ -25,6 +25,7 @@ describe('theme', () => {
         expect(newUITheme.field).toEqual({ fill: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.14)', radius: '0.55em' })
         expect(newUITheme.pill.selected).toBe('rgba(255,255,255,0.14)')
         expect(newUITheme.colors.danger).toBe('#ff6b6b')
+        expect(kitTokens(undefined).heartRate).toBe(newUITheme.colors.heartRate)
     })
 
     describe('kitTokens', () => {

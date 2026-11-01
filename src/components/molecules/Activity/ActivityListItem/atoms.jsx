@@ -1,58 +1,46 @@
 import React, { useState } from 'react'
 import styled from "styled-components";
-import {Autosize, Column, Icon, Loader, Row, Text} from '../../../atoms'
+import {Autosize, Icon, Loader} from '../../../atoms'
+import { Panel } from '../../../atoms/Panel'
+import { kitTokens } from '../../../../theme'
 import { TrashIcon } from '@primer/octicons-react';
 import { sleep } from '../../../../utils/coding';
 
-const getHeight = (props) => {
-    return typeof(props.height)==='number' ? `${props.height}px` : props.height
-}
-
-
-
-export const Container = styled(Row)`
-    z-index: 0;
+export const Container = styled(Panel)`
     position: relative;
-    background: ${props => props.theme?.pageLists?.background || 'linear-gradient(darkred,#180457)'};
-    height: ${props => getHeight(props)};
-    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.2vw;
+    box-sizing: border-box;
+    width: 100%;
+    height: ${props => props.height || '8vh'};
+    min-height: 56px;
+    margin-bottom: 0.8vh;
+    padding: 0.6vh 1vw 0.6vh 0.6vh;
+    color: ${props => kitTokens(props.theme).pillSelectedText};
+    cursor: pointer;
     user-select: none;
-    pading:0;
-    margin-top: 0.5vh;
-    color: white;
-    width: calc(100% - 2.5vw);
-    
-    &:hover {        
-        border-style: solid;
-        margin: 0 0 0 0;
-        border-width: 5px;
-        border-color: white;
-        padding: 0 0 5px 0;        
-        width: calc(100% - 10px - 2.5vw);
-        height: ${props => props ? `calc(${getHeight(props)} + 0.5vh - 10px)` : undefined};
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover, &:focus-within {
+        border-color: ${props => kitTokens(props.theme).accent};
+        background-image: linear-gradient(${props => kitTokens(props.theme).pillHover}, ${props => kitTokens(props.theme).pillHover});
     }
 `
 
-//    padding-top: 0.5vh;
-
 export const ImageContainer = styled.div`
-    position:relative;
-    height: ${props => props.height};
-    min-height: ${props => props.height};
-    aspect-ratio: auto 235 / 132;
+    position: relative;
+    height: 100%;
+    flex: 0 0 auto;
+    aspect-ratio: 235 / 132;
+    overflow: hidden;
+    border-radius: ${props => kitTokens(props.theme).field.radius};
+    background: ${props => kitTokens(props.theme).panel.band};
     user-select: none;
     pointer-events: none;
-    margin: 5px;
 `
 
-export const PillContainer = styled(Row)`
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: fit-content;    
-    padding: 5px;
-
-`
 export const Image = styled.img`
     width: ${props => props.width};
     height: ${props => props.height};
@@ -62,40 +50,62 @@ export const Image = styled.img`
     pointer-events: none;
 `
 
-
-export const ElevationContainer = styled.div`
-    position: relative;
-   
-    background: none    
-    height: ${props => props.height};    
-    aspect-ratio: auto 235 / 132;
-    opacity: 0.2;
-    padding-left: 0.5vw;
-    padding-right: 0.5vw;
-
+export const Identity = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4vh;
+    flex: 1 1 auto;
+    min-width: 0;
 `
 
-export const DataContainer = styled(Column)`    
-    
-
+export const Title = styled.div`
+    font-size: 2.4vh;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
-export const DetailsContainer = styled(Row)`
-    width: 10vw;
-    min-width: 10vw;
-    position: absolute;
-    top:0;
-    right:0
-
+export const Meta = styled.div`
+    font-size: 1.7vh;
+    color: ${props => kitTokens(props.theme).muted};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
-export const Title = styled(Text)`
-    font-size: 3vh;
-    padding-left: 1vw;
+export const Stats = styled.div`
+    display: flex;
+    flex: 0 0 auto;
+    gap: 2vw;
 `
 
-export const ImageLabel = styled(Text)`
-    font-size:1vh
+export const Stat = styled.div`
+    min-width: 7ch;
+    text-align: right;
+`
+
+export const StatValue = styled.div`
+    font-size: 2.2vh;
+    font-weight: 600;
+    white-space: nowrap;
+`
+
+export const StatLabel = styled.div`
+    font-size: 1.4vh;
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+export const DeleteSlot = styled.div`
+    flex: 0 0 auto;
+    width: 4.4vh;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    ${Container}:hover &, ${Container}:focus-within & { opacity: 1; }
 `
 
 export const SizedIcon = ({width,height,logContext,onClick})=> {

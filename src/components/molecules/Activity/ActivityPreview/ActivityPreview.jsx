@@ -4,11 +4,13 @@ import { Center, Loader, Row,Autosize,AutoHide } from "../../../atoms"
 import { copyPropsExcluding } from "../../../../utils/props"
 import { average } from "../../../../utils/coding"
 import { getZone, zoneColor } from "../utils"
+import { useKitTokens } from "../../../../theme"
 
 const ActivityPreviewRaw = ({loading,activity,ftp,width,height}) => { 
     //const [data, setData] = useState(false)
     
-    const lineColor = 'white'
+    const kit = useKitTokens()
+    const lineColor = kit.muted
         
     const getData = () => {
 
@@ -18,7 +20,7 @@ const ActivityPreviewRaw = ({loading,activity,ftp,width,height}) => {
             const getColor = (P) => {
                 const ftpVal = activity?.user?.ftp??ftp
                 if (!ftpVal)
-                    return 'lightgray'
+                    return kit.accent
         
                 return zoneColor[getZone(P/ftpVal*100)]
             }

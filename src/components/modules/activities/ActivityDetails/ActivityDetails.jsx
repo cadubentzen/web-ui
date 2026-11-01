@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Button, ButtonBar,  Column, Divider, ErrorBoundary, Loader, Row, Text } from '../../../atoms'
+import { Button, ButtonBar, ErrorBoundary, Loader } from '../../../atoms'
+import { Panel } from '../../../atoms/Panel'
+import { kitTokens } from '../../../../theme'
 import { Dialog, FreeMap } from '../../../molecules'
 import { formatDateTime, useActivityList} from 'incyclist-services'
 import { ActivityGraph,FilePill,UploadPill,ScreenshotPopup} from '../../../molecules/Activity'
@@ -10,19 +12,97 @@ import { useAppUI } from '../../../../bindings/native-ui'
 import { Marker } from "react-leaflet";
 import L, { icon } from 'leaflet';
 
-const ContentArea = styled(Column)`
+const ContentArea = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1.4vh;
+    box-sizing: border-box;
     height: calc(100% - 7.7vh);
-    width: calc(100% - 0.8vw);
-    padding-left:0.4vw;
-    padding-right:0.4vw;
+    width: 100%;
+    padding: 0 1.4vw 1.4vh;
     font-size: 1.7vh;
 `
 
-const GraphRow = styled(Row)`
-    background: ${props => props.theme?.dialogContent?.background || 'white'};
-    color: ${props => props.theme?.dialogContent?.text || 'black'};
+const TopRow = styled.div`
+    display: flex;
+    gap: 1.4vw;
+    flex: 0 0 36%;
+    min-height: 0;
+`
+
+const MapPanel = styled(Panel)`
+    flex: 1 1 50%;
+    min-width: 0;
+    overflow: hidden;
     position: relative;
 `
+
+// info grid: muted labels in one column, values (and the chips) in the other
+const InfoPanel = styled(Panel)`
+    flex: 1 1 50%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 1.4vh 1.4vw;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    align-content: start;
+    align-items: center;
+    gap: 0.9vh 1.6vw;
+`
+
+const InfoLabel = styled.div`
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+const InfoValue = styled.div`
+    font-weight: 600;
+    overflow-wrap: anywhere;
+`
+
+const Chips = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6vh 0.5vw;
+`
+
+const GraphPanel = styled(Panel)`
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1.2vh 1vw;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+`
+
+const GraphSlot = styled.div`
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+`
+
+// Delete is set apart on the left; the other actions are right-aligned, the primary one last
+const Footer = styled(ButtonBar)`
+    gap: 0.8vw;
+    padding: 0 1.4vw;
+    box-sizing: border-box;
+    background: transparent;
+    border-top: 1px solid ${props => kitTokens(props.theme).hairline};
+
+    & > * { flex: none; max-width: none; margin: 0; }
+    & button { overflow: visible; max-width: none; margin: 0; }
+`
+
+const Slot = styled.div`
+    order: ${props => props.$order};
+    ${props => props.$start ? 'margin-right: auto;' : ''}
+`
+
+const InfoRow = ({label, children}) => <>
+    <InfoLabel>{label}</InfoLabel>
+    <InfoValue>{children}</InfoValue>
+</>
 
 export const ActivityDetails = ({activity, units, title,started,duration, distance, elevation,logs, points, 
                                 showMap,startPos,segment,loading,
@@ -168,9 +248,7 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
         
         const files = (exports??[]).map(e => ({
             text:e?.type,
-            size:'large',            
-            color: e?.file ? 'green' : 'lightgrey',
-            textColor: e?.file ? 'white' : 'black'                            ,
+            tone: e?.file ? 'ok' : 'idle',
             canOpen: e?.file!==undefined && e?.file!==null,
             canCreate: e?.file===undefined,
             loading:e?.creating
@@ -191,19 +269,10 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
                 const canSynchronize = !success && !stillLoading
                 const loading = e?.synchronizing || stillLoading
 
-                let color, textColor = 'white'
-                if (failed)
-                    color = 'red'
-                else if (success)
-                    color = 'green'
-                else {
-                    color = 'lightgrey'
-                    textColor = 'black'
-                }
+                const tone = failed ? 'failed' : success ? 'ok' : 'idle'
 
                 return{
-                        size:'large',
-                        color, textColor,
+                        tone,
                         text:e?.text??e?.type,
                         canOpen,canSynchronize,
                         type:e?.type,
@@ -243,10 +312,9 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
                     <ContentArea>
                         <Loader />
                     </ContentArea>
-                    <ButtonBar justify='center'>
+                    <Footer justify='flex-end'>
                         <Button text='Close' onClick={onCancelClicked} />
-
-                    </ButtonBar>
+                    </Footer>
                 </Dialog>
             </ErrorBoundary>
 
@@ -257,17 +325,16 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
         
             <Dialog width='90vw' height='90vh' id='ActivityDetails' log={{title:title}} title={title} /*onOutsideClicked={onUserCancel}*/ zIndex={100} onESC={onCancelClicked}>
             <ContentArea>
-                <Row height='33%'>
-                    <Column width='50%' margin='0 1vw 0 1vw'>
-                        {showMap ? <FreeMap  
+                <TopRow>
+                    {showMap ? <MapPanel>
+                        <FreeMap  
                             zoomControl={true} points={points} startPos={0} draggable={false}
                             onViewportChanged={onViewportChanged }
                         >
                                 {(screenshots?.length>0) && screenshots.filter(s => !!s.position).map ( (s) => 
-                                    <ErrorBoundary hideOnError>
+                                    <ErrorBoundary hideOnError key = {`${s.position}`}>
                                         <Marker
                                             icon = {myIcon}
-                                            key = {`${s.position}`}
                                             draggable={false}
                                             position={ [s.position.lat, s.position.lng]}
                                         >
@@ -277,66 +344,44 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
                                     
                                 )}                
 
-                        </FreeMap> : null}
-
-                    </Column>
-                    <Column width='50%'>
-                        <Text label='Started' labelWidth='10ch' text={getDateTime(started)} />
-                        <Text label='Duration' labelWidth='10ch' text={getDuration(duration)} />
-                        {startPos ? <Text label='Start At' labelWidth='10ch' text={getDistance(startPos)} />:null}
-                        {segment ? <Text label='Segment' labelWidth='10ch' text={segment} />:null}
-                        <Text label='Distance' labelWidth='10ch' text={getDistance(distance)} />
-                        <Text label='Elevation' labelWidth='10ch' text={getElevation()} />
-                        <Row >
-                            <Column width='10ch'>
-                                <Text text={'Files'} labelWidth='10ch' />
-                            </Column>
-                            <Column >
-                                <Row>
-                                {getFiles().map((e,i) => <FilePill margin='0.2vh 0.2vh' key={e.text} {...e} 
-                                    onOpen={()=>onOpenExport(exports[i])}
-                                    onCreate={()=>onExport(exports[i])}
-                                />)}
-                                </Row>
-                            </Column>
-                        </Row>
-                        <Row>
-                            
-                            <Column width='10ch'>
-                                <Text text={'Uploads'} labelWidth='10ch' />
-                            </Column>
-                            <Column >
-                                <Row>
-                                {getUploads().map((e,i) => <UploadPill key={e.text} {...e} 
-                                    onOpen={()=>onOpenUpload(uploads[i])}
-                                    onSynchronize={()=>onUpload(uploads[i])}
-                                    />
-
-                                    )}
-                                </Row>
-                            </Column>
-                            
-                        </Row>
-                        
-                    
-                    </Column>
-
-                </Row>
-                <Divider width='90%' />
-                <GraphRow height='67%'>
-                    <Column width='100%' height='100%' className='ActivityGraphRow' position='relative'>
+                        </FreeMap>
+                    </MapPanel> : null}
+                    <InfoPanel>
+                        <InfoRow label='Started'>{getDateTime(started)}</InfoRow>
+                        <InfoRow label='Duration'>{getDuration(duration)}</InfoRow>
+                        {startPos ? <InfoRow label='Start At'>{getDistance(startPos)}</InfoRow>:null}
+                        {segment ? <InfoRow label='Segment'>{segment}</InfoRow>:null}
+                        <InfoRow label='Distance'>{getDistance(distance)}</InfoRow>
+                        <InfoRow label='Elevation'>{getElevation()}</InfoRow>
+                        <InfoLabel>Files</InfoLabel>
+                        <Chips>
+                            {getFiles().map((e,i) => <FilePill key={e.text} {...e} 
+                                onOpen={()=>onOpenExport(exports[i])}
+                                onCreate={()=>onExport(exports[i])}
+                            />)}
+                        </Chips>
+                        <InfoLabel>Uploads</InfoLabel>
+                        <Chips>
+                            {getUploads().map((e,i) => <UploadPill key={e.text} {...e} 
+                                onOpen={()=>onOpenUpload(uploads[i])}
+                                onSynchronize={()=>onUpload(uploads[i])}
+                            />)}
+                        </Chips>
+                    </InfoPanel>
+                </TopRow>
+                <GraphPanel>
+                    <GraphSlot className='ActivityGraphRow'>
                         <ActivityGraph activity={activity} units={units} dialog={this}/>
-                    </Column>
-                </GraphRow>
+                    </GraphSlot>
+                </GraphPanel>
 
             </ContentArea>
-            <ButtonBar justify='center'>
-                <Button text='Ride Again' onClick={onStartClicked} disabled={!canStart} />
-                <Button text='Open' onClick={onOpenClicked} disabled={!canOpen} /> 
-                <Button text='Close' onClick={onCancelClicked} />
-                <Button text='Delete' onClick={onDeleteClicked} margin='0 0 0 4vw' />
-
-            </ButtonBar>
+            <Footer justify='flex-end'>
+                <Slot $order={3}><Button primary={canStart} text='Ride Again' onClick={onStartClicked} disabled={!canStart} /></Slot>
+                <Slot $order={2}><Button primary={!canStart && canOpen} text='Open' onClick={onOpenClicked} disabled={!canOpen} /></Slot>
+                <Slot $order={1}><Button text='Close' onClick={onCancelClicked} /></Slot>
+                <Slot $order={0} $start><Button variant='danger' text='Delete' onClick={onDeleteClicked} /></Slot>
+            </Footer>
             </Dialog>
         
     )

@@ -72,4 +72,30 @@ describe('ActivityDetails - upload pill loading status (issue #48)', () => {
 
         expect(onUpload).toHaveBeenCalledWith(uploads[0])
     })
+
+    test('footer: Delete is a danger action set apart, Ride Again is primary when it can start', () => {
+        const onDelete = vi.fn()
+        const onStart = vi.fn()
+        render(<ActivityDetails {...baseProps} canStart={true} canOpen={true} onDelete={onDelete} onStart={onStart} />)
+
+        const del = screen.getByRole('button', { name: 'Delete' })
+        const rideAgain = screen.getByRole('button', { name: 'Ride Again' })
+        expect(screen.getByRole('button', { name: 'Open' })).toBeEnabled()
+        expect(screen.getByRole('button', { name: 'Close' })).toBeEnabled()
+        // primary = accent fill, danger = red outline
+        expect(getComputedStyle(rideAgain).backgroundColor).not.toBe(getComputedStyle(del).backgroundColor)
+        expect(getComputedStyle(del).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+        expect(del.parentElement.parentElement).toBe(rideAgain.parentElement.parentElement)
+    })
+
+    test('info is a label/value grid and chips are focusable buttons', () => {
+        render(<ActivityDetails {...baseProps} started={new Date(2026, 9, 31, 8, 5).getTime()} duration={3900}
+            distance={25400} exports={[{ type: 'fit', file: '/tmp/a.fit' }]}
+            uploads={[{ type: 'strava', text: 'Strava', status: 'unknown' }]} />)
+        expect(screen.getByText('Started')).toBeInTheDocument()
+        expect(screen.getByText('1h 5min')).toBeInTheDocument()
+        expect(screen.getByText('25.4 km')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'fit' })).toBeEnabled()
+        expect(screen.getByRole('button', { name: 'Strava' })).toBeEnabled()
+    })
 })

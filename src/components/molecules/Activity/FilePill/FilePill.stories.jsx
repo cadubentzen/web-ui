@@ -19,7 +19,7 @@ const Template = args => <FilePill {...args} />;
 export const Default = Template.bind({});
 Default.args = {
     text:'Export',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     canCreate:true,
     canOpen:true
 
@@ -29,7 +29,7 @@ Default.args = {
 export const OnlyOpen = Template.bind({});
 OnlyOpen.args = {
     text:'Export',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     canOpen:true
 
 };
@@ -38,7 +38,7 @@ OnlyOpen.args = {
 export const OnlySync = Template.bind({});
 OnlySync.args = {
     text:'Export',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     canCreate:true,
 
 };
@@ -46,14 +46,14 @@ OnlySync.args = {
 export const None = Template.bind({});
 None.args = {
     text:'Export',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
 
 };
 
 export const Loading = Template.bind({});
 Loading.args = {
     text:'Export',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     loading:true,
     canCreate:true,
     canOpen:true
@@ -69,7 +69,7 @@ const Multiple = args => <Row>
 export const Three = Multiple.bind({});
 Three.args = {
     text:'Export',
-    color:'green', 
+    tone:'ok',
     textColor:'white', 
     size:'large',
     canCreate:true,

@@ -1,4 +1,5 @@
 import React,{ useEffect, useRef, useState,useCallback } from 'react'
+import styled from 'styled-components'
 import { TableContainer } from '../../../atoms'
 import { AppThemeProvider } from '../../../../theme'
 import { useMouseSwipe, useUnmountEffect } from '../../../../hooks'
@@ -6,6 +7,12 @@ import { ActivityListItem } from '../../../molecules/Activity'
 import { Dynamic } from '../../../atoms/Dynamic'
 import { Observer, useActivityList } from 'incyclist-services'
 import {EventLoggger} from 'gd-eventlog'
+
+// room around the rows so the controller focus glow is not clipped by the scroll container
+const Rows = styled(TableContainer)`
+    box-sizing: border-box;
+    padding: 6px 10px 6px 6px;
+`
 
 export const ActivitiesTable = ({activities,onSelect,onDelete}) => {
 
@@ -150,13 +157,13 @@ export const ActivitiesTable = ({activities,onSelect,onDelete}) => {
     if (!initialized) {
         return (
         <AppThemeProvider >
-            <TableContainer width='100%' height='100%' ref={refDiv} >
+            <Rows width='100%' height='100%' ref={refDiv} >
             {visible?.map( (ai,idx) => 
                     <Dynamic observer={observerRef.current} key={ai.summary?.id??`activity-${idx}`}  event={`outsideFold-${idx}`} prop='outsideFold'>
                         <ActivityListItem outsideFold={true}  />
                     </Dynamic>
                 )}
-            </TableContainer>
+            </Rows>
         </AppThemeProvider>
     )}
 
@@ -164,7 +171,7 @@ export const ActivitiesTable = ({activities,onSelect,onDelete}) => {
 
     return (
         <AppThemeProvider >
-            <TableContainer width='100%' height='100%' ref={refDiv} >
+            <Rows width='100%' height='100%' ref={refDiv} >
                 {visible?.map( (ai,idx) => 
                     <Dynamic observer={observerRef.current} key={ai.summary?.id??`activity-${idx}`} event={`outsideFold-${idx}`} prop='outsideFold' > 
                         <ActivityListItem outsideFold={foldInfo[idx]}  activityInfo={ai}  
@@ -174,7 +181,7 @@ export const ActivitiesTable = ({activities,onSelect,onDelete}) => {
                     </Dynamic>
                 )}
                  
-            </TableContainer>
+            </Rows>
         </AppThemeProvider>
     )
 }

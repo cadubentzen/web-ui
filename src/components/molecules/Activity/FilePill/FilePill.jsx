@@ -1,29 +1,18 @@
 import React, {  useState } from "react"
-import { Column, Loader, Pill, Text } from "../../../atoms"
+import { Loader } from "../../../atoms"
 import { useFloating,   useHover, useClick,
     useInteractions,
     safePolygon} from '@floating-ui/react';
 import styled from "styled-components";
-import { AppThemeProvider } from "../../../../theme";
+import { AppThemeProvider, useKitTokens } from "../../../../theme";
+import { Chip, ChipMenu, ChipMenuItem } from "../PillChip";
 import { copyPropsExcluding } from "../../../../utils/props";
 import { EventLogger } from "gd-eventlog";
 
 
-const Container = styled.div`
-    user-select: none;
-` 
-
-const FloatingContainer = styled(Column)`
-    background: ${props => props.color??props.theme.menu.background};
-    color: ${props => props.color??props.theme.menu.text};
-    border: ${props => props.theme.menu.border || 'rgb(0,0,0) 1px solid'};
-    border-radius: ${props => props.theme.menu?.borderRadius};
-    z-index: 1000;
-`
-
 const PillContainer = styled.div`
-    width: min-content;
-    height: min-content;
+    width: max-content;
+    max-width: 100%;
     opacity: ${props => props.isLoading ? 0.5 : 1};   
     user-select: none;
     position: ${props => props.isLoading ? 'relative' : undefined };
@@ -35,13 +24,11 @@ const LoaderContainer = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
 `
-const MenuItem = styled(Text)`  
-    :hover {background: ${props => props.selected ? props.theme.menu.selected.background : props.theme.menu.hover.background}};
-`
 
 export const FilePill = ( props) => {
 
     const logger = new EventLogger('Incyclist')
+    const kit = useKitTokens()
 
     const [isOpen, setIsOpen] = useState(false)
     const {refs, floatingStyles,context} = useFloating({
@@ -59,7 +46,7 @@ export const FilePill = ( props) => {
     const {getReferenceProps, getFloatingProps} = useInteractions([click,hover]);
     
 
-    const pillProps = copyPropsExcluding(props,['onOpen','onCreate','canOpen','canCreate','loading'])
+    const pillProps = copyPropsExcluding(props,['tone','size','onOpen','onCreate','canOpen','canCreate','loading'])
     const {onOpen, onCreate,canOpen, canCreate,loading} = props
     const isDeactivated = (!canOpen && !canCreate) || loading
 
@@ -85,22 +72,22 @@ export const FilePill = ( props) => {
 
     return (
         <AppThemeProvider>
-            <Container classname='pill-container'>
+            <>
                 <PillContainer ref={floatingRef} {...referenceProps} isLoading={loading}>                
-                        <Pill  size='small' margin='0.2vh 0.2vh' {...pillProps} />                    
-                        {loading ? <LoaderContainer><Loader size='1vh' color={'black'} /></LoaderContainer> : null}    
+                        <Chip type='button' $tone={props.tone} disabled={isDeactivated} aria-haspopup='menu'>{pillProps.text}</Chip>                    
+                        {loading ? <LoaderContainer><Loader size='1vh' color={kit.muted} /></LoaderContainer> : null}    
                 </PillContainer>
                 
                 { isOpen && !isDeactivated ?
                 <div ref={refs.setFloating}  {...getFloatingProps()} style={{...floatingStyles}}>            
 
-                        <FloatingContainer  height='auto' margin='0' padding='0'>
-                            {canCreate ? <MenuItem size='small' margin='0.2vh 0.2vw' onClick={onCreateHandler}>Create</MenuItem> : null}
-                            {canOpen?<MenuItem size='small' margin='0.2vh 0.2vw' onClick={onOpenHandler}>Show</MenuItem>: null}
-                        </FloatingContainer> 
+                        <ChipMenu role='menu'>
+                            {canCreate ? <ChipMenuItem onClick={onCreateHandler}>Create</ChipMenuItem> : null}
+                            {canOpen?<ChipMenuItem onClick={onOpenHandler}>Show</ChipMenuItem>: null}
+                        </ChipMenu> 
                         
                 </div> : null}
-            </Container>
+            </>
         </AppThemeProvider>
     )
 }

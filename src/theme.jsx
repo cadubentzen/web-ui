@@ -1,5 +1,5 @@
 import React from "react"
-import { ThemeProvider, useTheme } from "styled-components"
+import { ThemeContext, ThemeProvider, useTheme } from "styled-components"
 
 const base = {
     text: "black",
@@ -260,7 +260,7 @@ export const newUITheme = {
     url: {
         color: 'cyan'
     },
-    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203', danger: '#ff6b6b', ok: '#8dc100' },
+    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203', danger: '#ff6b6b', ok: '#8dc100', heartRate: '#ff8a8a' },
     page: {
         background: 'radial-gradient(120% 90% at 85% -10%, #4a1240 0%, transparent 55%), linear-gradient(160deg, #24081f 0%, #160a3c 100%)',
     },
@@ -335,10 +335,13 @@ export const kitTokens = (theme) => ({
     danger: theme?.colors?.danger ?? newUITheme.colors.danger,
     accent: theme?.colors?.accent ?? newUITheme.colors.accent,
     accentText: theme?.colors?.accentText ?? newUITheme.colors.accentText,
+    heartRate: theme?.colors?.heartRate ?? newUITheme.colors.heartRate,
+    dialogBackground: theme?.dialog?.background ?? newUITheme.dialog.background,
 })
 
 /** kitTokens() for the theme of the current styled-components context */
-export const useKitTokens = () => kitTokens(useTheme())
+// reads the context directly (undefined without a provider) so views also render standalone
+export const useKitTokens = () => kitTokens(React.useContext(ThemeContext))
 
 /** hudTokens() for the theme of the current styled-components context */
 export const useHudTokens = () => hudTokens(useTheme())

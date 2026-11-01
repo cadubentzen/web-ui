@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AppThemeProvider } from '../../../../theme';
-import { Container, DataContainer, DeleteIcon, DetailsContainer, Image, ImageContainer, ImageLabel, Title } from './atoms';
+import { Container, DeleteSlot, Identity, ImageContainer, Meta, Stat, StatLabel, Stats, StatValue, Title } from './atoms';
 import { ActivityPreview } from '../ActivityPreview';
 import { Dynamic } from '../../../atoms/Dynamic';
-import { Column, Row, Text } from '../../../atoms';
+import { Button } from '../../../atoms';
+import { TrashIcon } from '@primer/octicons-react';
 import { formatDateTime, useActivityList, useUserSettings } from 'incyclist-services';
 import styled from 'styled-components';
 import { useCallback } from 'react';
-import { useHoverObserver } from '../../../../hooks/ui/useHover.jsx';
 
 const OutsideFold = styled(Container)`
     opacity: 0.1;
 `
+
+const TitleElement = ({text}) => <Title>{text}</Title>
+const StatText = ({text}) => <StatValue>{text}</StatValue>
 
 export const ActivityListItem = ({ onClick,onDelete, activityInfo, outsideFold}) => { 
 
@@ -23,8 +26,6 @@ export const ActivityListItem = ({ onClick,onDelete, activityInfo, outsideFold})
 
     const {id,distance: rideDistance,startTime,rideTime,totalElevation:summaryElavation} = activityInfo?.summary??{}
     const {logs,totalElevation:detailsElevation} = activityInfo?.details??{}
-    const containerRef = useRef()
-    const [hoverObserverRef,setHoverObserver] = useHoverObserver(containerRef)
     const totalElevation = summaryElavation??detailsElevation
     
 
@@ -134,23 +135,19 @@ export const ActivityListItem = ({ onClick,onDelete, activityInfo, outsideFold})
         if (initialized.current)
             return
 
-        if (!outsideFold) {
-            setHoverObserver(containerRef)
-        }
-
         if (!logs && !outsideFold) {
             if (id!==undefined) {
                 setObserver( getDetails(id))
             }
         }
         initialized.current = !outsideFold
-    },[getDetails, id, logs, outsideFold, setHoverObserver])
+    },[getDetails, id, logs, outsideFold])
 
     // reduce rendering time when commponent is not visible (below fold), just reserve required space
     if (outsideFold) {
         return (
             <AppThemeProvider>
-                <OutsideFold opacity='0.1'  height={'7vh'} onClick={ onContainerClicked}></OutsideFold>        
+                <OutsideFold onClick={ onContainerClicked}></OutsideFold>        
             </AppThemeProvider>
         )
     }
@@ -158,8 +155,6 @@ export const ActivityListItem = ({ onClick,onDelete, activityInfo, outsideFold})
     if (!activityInfo || !activityInfo.summary) 
         return null
 
-
-    const TitleElement = ({text}) => <Title>{text}</Title>
 
     const title = getTitle()
     const {date,time} = getDateTime()
@@ -171,59 +166,40 @@ export const ActivityListItem = ({ onClick,onDelete, activityInfo, outsideFold})
 
     return (
         <AppThemeProvider>
-            <Container  height={'7vh'} onClick={ onContainerClicked} ref={containerRef}>
+            <Container tabIndex={0} aria-label={title} onClick={ onContainerClicked}>
                 <ImageContainer>
                         <Dynamic observer={observer} events={'loaded,updated'} prop='activity' >
                             <ActivityPreview activity={ activityInfo?.details } ftp={ftp}/>
                         </Dynamic> 
                 </ImageContainer>
-                <DataContainer>
-                    <Row height='3.5vh' width='100%'> 
+
+                <Identity>
                     <Dynamic observer={observer} events={'loaded,updated'} prop='text' transform={getTitle} >
-                            <TitleElement text={title}/>
-                        </Dynamic> 
-                        
-                    </Row>
-                    <Row height='3.5vh' width='100%' position='relative'> 
-                        <Column width='1vw'/>
-                        <Column width='10ch' justify='center' align='center'> <Text text={date} /> </Column>
-                        <Column width='1vw'/>
-                        <Column width='5ch' justify='center' align='center'> <Text text={time} /> </Column>
-                        <Column width='1vw'/>
-                        <Column width='10ch' justify='center' align='center'> <Text text={duration} /> </Column>
-                    </Row>
+                        <TitleElement text={title}/>
+                    </Dynamic> 
+                    <Meta>{[date,time,duration].filter(v=>!!v).join('  ·  ')}</Meta>
+                </Identity>
 
-                </DataContainer>
+                <Stats>
+                    <Stat>
+                        <StatValue>{distanceText}</StatValue>
+                        <StatLabel>Distance</StatLabel>
+                    </Stat>
+                    <Stat>
+                        <Dynamic observer={observer} events='loaded,updated' transform={getElevationText} prop='text'>
+                            <StatText text={elevationText} />
+                        </Dynamic>
+                        <StatLabel>Elevation</StatLabel>
+                    </Stat>
+                </Stats>
 
-                <DetailsContainer>
-                    <DataContainer width='3vw' justify='end'    align='center' >
-                            <Dynamic observer={hoverObserverRef.current} event='hovered' prop='visible'>
-                                <DeleteIcon onClick={onDeleteHandler} logContext={{id,title}} />
-                            </Dynamic>
-                    </DataContainer>
-                    <DataContainer width='5vw' justify='start' align='center'>
-                            <Row><Image src='images/length.gif' color='white' width='20px' /></Row>
-                            <Row><ImageLabel text='Distance' /></Row>
-                            <Row><Text align='center' text={distanceText} /></Row>
-                    </DataContainer>
-
-                    <DataContainer width='5vw' justify='start' align='center'>
-                            <Row><Image src='images/up.gif' color='white' width='20px' /></Row>
-                            
-                            <Row><ImageLabel text='Elevation' /></Row>
-                            <Row>
-                                <Dynamic observer={observer} events='loaded,updated' transform={getElevationText} prop='text'>
-                                    <Text align='center' text={elevationText} />
-                                </Dynamic>
-                            </Row>
-                    </DataContainer>
-
-                </DetailsContainer>
-
-
+                <DeleteSlot>
+                    <Button variant='text' id='delete' size='small' margin='0' padding='0.4em' width='4.4vh' height='4.4vh'
+                        aria-label='Delete' logContext={{id,title}} onClick={onDeleteHandler}>
+                        <TrashIcon verticalAlign='middle' />
+                    </Button>
+                </DeleteSlot>
             </Container>        
         </AppThemeProvider>
     )
 }
-
-

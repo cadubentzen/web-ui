@@ -19,7 +19,7 @@ const Template = args => <UploadPill {...args} />;
 export const Default = Template.bind({});
 Default.args = {
     text:'Upload',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     canSynchronize:true,
     canOpen:true
 
@@ -28,7 +28,7 @@ Default.args = {
 export const Loading = Template.bind({});
 Loading.args = {
     text:'Upload',
-    color:'green', textColor:'white', size:'large',
+    tone:'ok',
     loading:true,
     canSynchronize:true,
     canOpen:true
@@ -44,7 +44,7 @@ const Multiple = args => <Row>
 export const Three = Multiple.bind({});
 Three.args = {
     text:'Upload',
-    color:'green', 
+    tone:'ok',
     textColor:'white', 
     size:'large',
     canSynchronize:true,
