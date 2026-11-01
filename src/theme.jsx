@@ -257,7 +257,18 @@ export const newUITheme = {
     url: {
         color: 'cyan'
     },
-    colors: base,
+    colors: { ...base, accent: '#e4a13c', accentText: '#1c1203' },
+    hud: {
+        panel: 'linear-gradient(rgba(56,1,31,0.72), rgba(26,4,86,0.72))',
+        border: 'rgba(255,255,255,0.16)',
+        hairline: 'rgba(255,255,255,0.18)',
+        text: '#ffffff',
+        muted: 'rgba(255,255,255,0.7)',
+        track: 'rgba(255,255,255,0.15)',
+        radius: '0.9vw',
+        warning: '#FFBF00',
+        error: '#ff4d4d',
+    },
 }
 
 

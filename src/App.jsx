@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/atoms';
 import { useInitAppTheme, usePlatformIntegration } from './hooks';
 import NativeUiService from './bindings/native-ui';
 import { api, hasFeature, sleep } from './utils';
+import { AppThemeProvider } from './theme';
 
 
 export const App = ()=> {
@@ -94,6 +95,7 @@ export const App = ()=> {
     }
 
     return (
+        <AppThemeProvider>
         <ErrorBoundary debug>
             <MonitorOnlineStatus loading={<AppLoadingPage/>}> 
                 <MapsApiLoader/>
@@ -122,6 +124,7 @@ export const App = ()=> {
                 </MemoryRouter>            
             </MonitorOnlineStatus>
         </ErrorBoundary>
+        </AppThemeProvider>
     
     )
 
