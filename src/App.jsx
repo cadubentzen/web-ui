@@ -96,34 +96,34 @@ export const App = ()=> {
 
     return (
         <AppThemeProvider>
-        <ErrorBoundary debug>
-            <MonitorOnlineStatus loading={<AppLoadingPage/>}> 
-                <MapsApiLoader/>
-                <UpdateChecker/>
-                <MemoryRouter>
-                    <NavigationBridge/>
-                    <ControllerNavigation/>
-                    <Routes>
+            <ErrorBoundary debug>
+                <MonitorOnlineStatus loading={<AppLoadingPage/>}> 
+                    <MapsApiLoader/>
+                    <UpdateChecker/>
+                    <MemoryRouter>
+                        <NavigationBridge/>
+                        <ControllerNavigation/>
+                        <Routes>
 
-                        <Route path="/rideDeviceOK" element={<RidePage rideOnly={true} />} />
-                        <Route path="/rideSimulate" element={<RidePage rideOnly={true} simulate={true} />}/>
-                        <Route path="/rideOK" element={<RidePage rideOnly={true} routeSelected={true} />}/>
-                        <Route path="/rideSkipped" element={<RidePage rideOnly={true} gearSkipped={true} />}/>
-                        <Route path="/pairingStart" element={<PairingPage  mode='start'/>} />
-                        <Route path="/devices" element={<PairingPage/>} />
-                        <Route path="/routes" element={<RouteListPage/>} />
-                        <Route path="/search" element={<RouteListPage  />} />
-                        <Route path="/workouts" element={<WorkoutsPage  />} />
-                        <Route path="/activities" element={<ActivitiesPage  />} />
-                        <Route path="/start" element={<PairingPage  />} />
-                        <Route path="/exit" element= {<ExitPage  />} />
-                        <Route path="/" element={<PairingPage  />} >
+                            <Route path="/rideDeviceOK" element={<RidePage rideOnly={true} />} />
+                            <Route path="/rideSimulate" element={<RidePage rideOnly={true} simulate={true} />}/>
+                            <Route path="/rideOK" element={<RidePage rideOnly={true} routeSelected={true} />}/>
+                            <Route path="/rideSkipped" element={<RidePage rideOnly={true} gearSkipped={true} />}/>
+                            <Route path="/pairingStart" element={<PairingPage  mode='start'/>} />
+                            <Route path="/devices" element={<PairingPage/>} />
+                            <Route path="/routes" element={<RouteListPage/>} />
+                            <Route path="/search" element={<RouteListPage  />} />
+                            <Route path="/workouts" element={<WorkoutsPage  />} />
+                            <Route path="/activities" element={<ActivitiesPage  />} />
+                            <Route path="/start" element={<PairingPage  />} />
+                            <Route path="/exit" element= {<ExitPage  />} />
+                            <Route path="/" element={<PairingPage  />} >
                         
-                        </Route>
-                    </Routes>
-                </MemoryRouter>            
-            </MonitorOnlineStatus>
-        </ErrorBoundary>
+                            </Route>
+                        </Routes>
+                    </MemoryRouter>            
+                </MonitorOnlineStatus>
+            </ErrorBoundary>
         </AppThemeProvider>
     
     )

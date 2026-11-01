@@ -15,7 +15,6 @@ const PanelArea = styled(Row)`
 const NameInfo = styled.div `	
     height: 2vh;
     text-align: left;
-    font-family: "Roboto", "Arial", sans-serif, bold;
     font-size: 1.7vh;
     text-align: left;
     font-weight: bold;
@@ -34,7 +33,6 @@ const InfoGrid = styled(Row) `
 `
 const InfoLine = styled(Column) ` 
     width: ${props => props.width || '100%'};
-    font-family: "Roboto", "Arial", sans-serif, bold;
     font-size: 1.3vh;
     text-align: ${props => props.align || 'right'};
     white-space: nowrap;
@@ -46,7 +44,6 @@ const DeltaInfo = styled.div `
     height: 2vh;
     min-height: 2vh;
     width: ${props => props.width || '100%'};
-    font-family: "Roboto", "Arial", sans-serif, bold;
     font-size: ${props => props.large ? '1.7vh' :'1.3vh'};
     text-align: ${props => props.align || 'right'};
     vertical-align: middle;

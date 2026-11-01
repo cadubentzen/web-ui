@@ -21,6 +21,18 @@ describe('RideProgressPanelView', () => {
         expect(container.textContent).not.toMatch(/ridden|to go/i)
     })
 
+    test('shows the elevation gain (and what is left to climb) under time and distance, if given', () => {
+        renderView(<RideProgressPanelView time={time} distance={distance} elevation={{ value: '120', unit: 'm', remaining: '−340' }} />)
+        expect(screen.getByRole('img', { name: 'elevation' })).toBeDefined()
+        expect(screen.getByText('120').textContent).toBe('120m')
+        expect(screen.getByText('−340').textContent).toBe('−340m')
+    })
+
+    test('no elevation row without a route', () => {
+        renderView(<RideProgressPanelView time={time} distance={distance} />)
+        expect(screen.queryByRole('img', { name: 'elevation' })).toBeNull()
+    })
+
     test('remaining distance is followed by its unit', () => {
         renderView(<RideProgressPanelView time={time} distance={distance} />)
         const rem = screen.getByText('−9.20')
@@ -53,5 +65,11 @@ describe('RideProgressPanelView', () => {
         const r = renderView(<RideProgressPanelView time={{ value: '5:00', remaining: '−5:00' }} distance={{ value: '–' }} />)
         const bar = r.container.querySelector('[data-testid="progress"]')
         expect(parseFloat(bar.style.width)).toBeCloseTo(50, 1)
+    })
+
+    test('the panel surface comes from the theme', () => {
+        const theme = { ...newUITheme, hud: { ...newUITheme.hud, panel: 'rgb(1, 2, 3)' } }
+        const { container } = render(<ThemeProvider theme={theme}><RideProgressPanelView time={time} distance={distance} /></ThemeProvider>)
+        expect(getComputedStyle(container.firstChild).backgroundColor).toBe('rgb(1, 2, 3)')
     })
 })

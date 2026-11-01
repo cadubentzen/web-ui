@@ -8,7 +8,8 @@ const remaining = (v) => {
     return '−' + String(v).replace(/^[-−]/, '')
 }
 
-// a route-less workout reports '-0.00' remaining distance: nothing to show
+// a route-less workout reports '-0.00' remaining distance (and a flat route '-0' elevation to
+// climb): nothing to show
 const remainingDistance = (v) => {
     const res = remaining(v)
     return res && parseFloat(res.slice(1)) === 0 ? undefined : res
@@ -44,6 +45,16 @@ export const toHudModel = (items) => {
     const distRemaining = remainingDistance(distItem?.data?.[1]?.value)
     if (distRemaining) distance.remaining = distRemaining
 
+    // elevation gained so far and still to climb (only on rides with a route)
+    const elev = byTitle.Slope?.elevation
+    let elevation
+    if (elev) {
+        elevation = { value: text(elev.value) }
+        if (elev.unit !== undefined) elevation.unit = elev.unit
+        const elevRemaining = remainingDistance(elev.remaining)     // nothing left to climb: none
+        if (elevRemaining) elevation.remaining = elevRemaining
+    }
+
     const withGauge = (key, item) => {
         const m = metric(key, item)
         if (item?.gauge) m.gauge = item.gauge
@@ -68,6 +79,7 @@ export const toHudModel = (items) => {
     return {
         time,
         distance,
+        elevation,
         power: withGauge('power', byTitle.Power),
         heartrate: withGauge('heartrate', byTitle.Heartrate),
         row,

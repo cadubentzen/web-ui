@@ -1,72 +1,58 @@
-import React from 'react';
-import styled from 'styled-components'
+import React, { useContext } from 'react';
+import styled, { ThemeContext } from 'styled-components'
 
-import AppTheme from '../../../../../theme';
 import { PrevRideInfo } from '../../../../molecules/Ride/PrevRideInfo/component';
 import { ErrorBoundary } from '../../../../atoms';
+import { hudTokens } from '../../../../../theme'
+
 
 const PanelArea = styled.div`
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     width: ${props => props.width || '100%'};
-    height: ${props => props.max ? `${props.max*4+2}vh`:'6vh' };
+    max-height: 100%;
+    overflow: hidden;
+    padding: 0.4vw 0.8vw;
     z-index: ${props => props.zIndex!==undefined?  props.zIndex : 10};
-    color: ${props => props.textColor || 'black'};
-    background-color: ${props => props.backgroundColor || 'lightgrey'};
+    color: ${p => hudTokens(p.theme).text};
+    background: ${p => hudTokens(p.theme).panel};
+    border: 1px solid ${p => hudTokens(p.theme).border};
+    border-radius: ${p => hudTokens(p.theme).radius};
 `;
 
-const Title = styled.div `	
-    height: 3vh;
-    width: 100%;
+const Title = styled.div `
+    flex: none;
+    padding: 0.2vw 0 0.3vw;
     text-align: left;
-    font-family: "Roboto", "Arial", sans-serif, bold;
-    font-size: 2vh;
-    text-align: center;
-    font-weight: bold;
+    font-size: 1.3vh;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    background-color: ${props => props.$headerBackground};
-    color: ${props => props.$headerText};
+    color: ${p => hudTokens(p.theme).muted};
 `
 export const PrevRides = (props) => {
 
-    const listTheme = AppTheme.get().list
-    const {rides=[], title='Previous Rides',max=10,width, backgroundColors=['black','#363636'], textColors=['white']} = props??{}
+    const t = hudTokens(useContext(ThemeContext))
+    const {rides=[], title='Previous Rides',width} = props??{}
 
-    const prepareList = () =>{ 
-        try{
+    // rows sit on the panel itself, the current ride is highlighted in the accent colour
+    const list = rides.map( item => ({
+        ...item,
+        backgroundColor: 'transparent',
+        textColor: item.title==='current' ? t.accent : t.text,
+    }))
 
-            const list = rides.map( (item,idx) => {
-                if ( !item.backgroundColor) item.backgroundColor = textColors && textColors.length>0 ? backgroundColors[idx % backgroundColors.length] : 'lightgrey';
-                if ( !item.textColor) item.textColor = textColors && textColors.length>0  ? textColors[idx % textColors.length] : 'black';
-
-                if (item.title==='current') {
-                    item.backgroundColor = listTheme.selected.background;
-                    item.textColor = 'black'
-                }
-                return item;
-            })
-            return list;
-        }
-        catch(err) {
-            console.log('# error',err)
-            return []
-        }
-    }
-
-    const list = prepareList();
-    
-    if (!list?.length) 
+    if (!list.length) 
         return null
-
-
-    const listSize = Math.min(max,list.length);
 
     return (
         <ErrorBoundary hideOnError>
-            <PanelArea width={width} max={listSize}> 
-                <Title $headerBackground={listTheme.header.background} $headerText={listTheme.header.text}>{title??'Previous Rides'}</Title>
+            <PanelArea width={width}> 
+                <Title>{title??'Previous Rides'}</Title>
                 {list.map((item,index) => <PrevRideInfo {...item} key={index}/>)}
             </PanelArea>
         </ErrorBoundary>

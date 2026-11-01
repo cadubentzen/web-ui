@@ -45,7 +45,7 @@ vi.mock('../../../../utils/stepChangeTone', async (importOriginal) => {
 })
 
 // Stub the presentational component - we only care about the wrapper's event wiring here.
-vi.mock('./component', () => ({
+vi.mock('./WorkoutPanelView', () => ({
     default: (props) => <div data-testid="dashboard" data-steppulse={JSON.stringify(props.stepPulse ?? null)} />,
 }))
 

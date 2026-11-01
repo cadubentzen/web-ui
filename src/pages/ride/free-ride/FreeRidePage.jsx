@@ -1,11 +1,12 @@
 import React, { useEffect, useState }  from "react"
-import { DynamicRideDashboard, MapOverlay, StartRideOverlay, SideViewOverlay, RouteOptions,RidePageItems } from "../../../components/modules/Ride";
+import { MapOverlay, StartRideOverlay, SideViewOverlay, RouteOptions,RidePageItems, RideProgressPanel, RideMetricsPanel } from "../../../components/modules/Ride";
 import { DynamicWorkoutDashboard } from "../../../components/modules/workout/dashboard/wrapper";
 import { Center, ErrorBoundary, Loader } from "../../../components/atoms";
 import { InfoText } from "../../../components/molecules";
 import { MainArea } from "../atoms/MainArea";
 import { WorkoutControl } from "../../../components/modules/workout/control";
 import { GpxRideView } from "../../../components/modules/Ride/views/gpx/GpxRideView";
+import { getRideLayout, toCss } from "../atoms/layout";
 import { ShiftingControl } from "../../../components/modules/shifting/control";
 
 
@@ -18,14 +19,12 @@ export const FreeRideRidePage = ( { workout, activity, route, state,initialized,
                                        position, markers, options, hideAll,rideView,
                                        displayObserver, onDisplayEvent,displayPosition, sideViews, svInitAllowed, rideViewNotice, svCoverageNotice, svHasCoverage,
                                        showShiftingButtons, showDashboard, showWorkout,
-                                       map,optionProps,dbColumns,
+                                       map,optionProps,
                                        screenshotRequested, onScreenshot, onSettings, onFreeRideOptionSelected,
                                        onStartRetry, onStartIgnore, onStartCancel, onStartWithMap, onToggleCyclingMode
                                     } ) => { 
 
 
-    // time, distance, speed, power,  heartrate, cadence
-    const dbWidth = 50/7*(dbColumns??6)
     const isStarting = state==='Starting' || state==='Idle'
 
 
@@ -37,18 +36,6 @@ export const FreeRideRidePage = ( { workout, activity, route, state,initialized,
     const [coverageNoticeKey, setCoverageNoticeKey] = useState(undefined)
     useEffect( ()=> { if (svCoverageNotice) setCoverageNoticeKey(svCoverageNotice.ts) }, [svCoverageNotice])
 
-    const svl = {
-        top: '53vh' ,
-        left: '0px' ,
-        height: '35vh',
-        width: '25vw'
-    }
-    const svr = { ...svl,
-        left: '75vw' ,
-    }
-
-
-
     let View = ()=><Center><Loader/></Center>
     if (initialized && isStarting) {
         const childProps = {...startOverlayProps, onRetry:onStartRetry, onIgnore:onStartIgnore, onCancel:onStartCancel, onStartWithMap:onStartWithMap}
@@ -58,6 +45,12 @@ export const FreeRideRidePage = ( { workout, activity, route, state,initialized,
     const sideViewProps = { stateKey:'sideViews',persistState:true, fold:'top-right', transparent:false, opacity:opacity}
     const isReady = initialized && !isStarting
     const showMap = map?.show && rideView!=='map'
+
+    const layout = getRideLayout({
+        workout: showWorkout, upcoming: false, nearby: false, prev: false,
+        sideViews: sideViews?.enabled, map: showMap, totalElevation: false
+    })
+    const css = Object.fromEntries( Object.keys(layout).map( k=>[k, toCss(layout[k])] ) )
 
     return <MainArea>            
                 <ErrorBoundary hideOnError>
@@ -71,35 +64,36 @@ export const FreeRideRidePage = ( { workout, activity, route, state,initialized,
                             <GpxRideView visible={true} options={options} isMain={true} position={displayPosition} route={route} rideView={rideView} svInitAllowed={svInitAllowed} onEvent={onDisplayEvent} observer={displayObserver} />
 
                             {/* dashboards and controls */}
-                            <DynamicRideDashboard visible={showDashboard} scheme='light'fold='top-right' foldId='gpx-ride-dashboard' opacity={1.0}  height={'10vh'} top={0} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`}  />
-                            <ShiftingControl visible={showShiftingButtons&& !screenshotRequested} background='none' top={'calc(10vh + 10px);'}  justify='center' onToggleMode={ onToggleCyclingMode} />
+                            <RideProgressPanel visible={showDashboard} transparent fold='top-right' foldId='free-progress' opacity={1.0} {...css.progress} />
+                            <RideMetricsPanel visible={showDashboard} transparent fold='top-right' foldId='free-metrics' opacity={1.0} {...css.metrics} />
+                            <ShiftingControl opacity={1.0} visible={showShiftingButtons&& !screenshotRequested} background='none' justify='center' onToggleMode={ onToggleCyclingMode} {...css.shifting} />
 
-                            <DynamicWorkoutDashboard visible={showWorkout && !screenshotRequested} showSlope={false} background='none' scheme='light' opacity={1.0}  height={'10vh'} top={'10vh'} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`} />                            
-                            <WorkoutControl visible={showWorkout} background='none' top={'calc(20vh + 10px);'} left={`${(100-dbWidth)/2}vw`} onToggleMode={ onToggleCyclingMode}/>
-                            <RouteOptions visible={!isStarting && !screenshotRequested} top='65vh' left='26vw' height='35vh' width='48vw'
+                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={!screenshotRequested} opacity={1.0} {...css.workoutPanel} /> : null}
+                            {layout.workoutControl ? <WorkoutControl visible={!screenshotRequested} background='none' onToggleMode={ onToggleCyclingMode} {...css.workoutControl} /> : null}
+                            <RouteOptions visible={!isStarting && !screenshotRequested} {...css.routeOptions}
                                 options={options}  settings={true} screenshot={true}                                 
                                 {...optionProps}
                                 transparent={true} pinned={false} 
-                                onScreenshot={onScreenshot} onSettings={onSettings} onOptionSelected={onFreeRideOptionSelected} />           
+                                onScreenshot={onScreenshot} onSettings={onSettings} onOptionSelected={onFreeRideOptionSelected} />
 
                             {/* overlays */}
-                            {showMap ? <MapOverlay foldId='map' fold={'top-right'}  opacity={1.0}                             
+                            {css.map ? <MapOverlay foldId='map' fold={'top-right'} transparent={true} opacity={1.0}                             
                                 viewport={map.viewport} center={map.center} bounds= {map.bounds} viewportOverwrite={map.viewportOverwrite} onViewportChange={map.onViewportChange}
                                 preview={false} freeRide={false}    
                                 minimized = {map?.minimized}
-                                top = {0} left={0} height={'30vh'} width={'20vw'}
+                                {...css.map}
                                 routeData={route.details} position={position} options={options} markers = {markers} 
                                 /> : null}
 
-                            {sideViews?.enabled ? 
-                                <SideViewOverlay {...sideViewProps} {...svl} foldId='sv-left' hidden={sideViews.hide}
+                            {css.svLeft ? 
+                                <SideViewOverlay {...sideViewProps} {...css.svLeft} foldId='sv-left' hidden={sideViews.hide}
                                 useMinimizeProp
                                 direction='left'  position={displayPosition}  observer={displayObserver} svInitAllowed={svInitAllowed}
                                 minimized={!sideViews?.left} transparent={false} opacity={1}
                                 />                            
                             : null}
-                            {sideViews?.enabled ? 
-                                <SideViewOverlay {...sideViewProps} {...svr} foldId='sv-right'  hidden={sideViews.hide}
+                            {css.svRight ? 
+                                <SideViewOverlay {...sideViewProps} {...css.svRight} foldId='sv-right'  hidden={sideViews.hide}
                                 useMinimizeProp
                                 direction='right' position={displayPosition} observer={displayObserver} svInitAllowed={svInitAllowed}
                                 minimized={!sideViews?.right} transparent={false} opacity={1}

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import WorkoutDashboard from './component';
+import WorkoutPanelView from './WorkoutPanelView';
 import { useWorkoutRide, useUserSettings } from 'incyclist-services';
 import { copyPropsExcluding } from '../../../../utils/props'
 import { playTone, STEP_COUNTDOWN_TICK_TONE, STEP_CHANGE_TONE } from '../../../../utils/stepChangeTone';
 
 
-export const DynamicWorkoutDashboard = ({visible, showSlope,zIndex, scheme='light'})=> {
+export const DynamicWorkoutDashboard = ({visible, zIndex})=> {
 
     const [state,setState] = useState(null)    
     const [initialized,setInitialized] = useState(false)
@@ -89,16 +89,11 @@ export const DynamicWorkoutDashboard = ({visible, showSlope,zIndex, scheme='ligh
     if (!initialized || !state?.observer || !state?.workout || !visible)
         return null
 
-    const numDataColumns = showSlope ? 4 :3;
     const childProps = copyPropsExcluding(state,['observer'])
 
     return (
-        <WorkoutDashboard 
-            className='workout-dashboard'
-            numDataColumns={numDataColumns}
+        <WorkoutPanelView
             {...childProps}
-            
-            scheme = {scheme}
             zIndex = {zIndex}
         />
     )

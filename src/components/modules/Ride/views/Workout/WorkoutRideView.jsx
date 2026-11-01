@@ -13,14 +13,14 @@ const View = styled(Column)`
 `
 
 const GraphArea = styled(Row)`
-    width: 96vw;
-    height: 68vh;
-    top: 30vh;
-    left: 2vw;
+    width: ${p=>p.$width ?? '96vw'};
+    height: ${p=>p.$height ?? '68vh'};
+    top: ${p=>p.$top ?? '30vh'};
+    left: ${p=>p.$left ?? '2vw'};
     position: absolute;
 `
 
-export const WorkoutRideView = () => {
+export const WorkoutRideView = ({top, left, width, height}) => {
 
 
     const [state,setState] = useState({})
@@ -59,7 +59,7 @@ export const WorkoutRideView = () => {
     return (
         <View background="black" position='relative'>
 
-            <GraphArea>
+            <GraphArea $top={top} $left={left} $width={width} $height={height}>
                 { initialized ? <WorkoutRideGraph {...state}   /> : null}
             </GraphArea>
 

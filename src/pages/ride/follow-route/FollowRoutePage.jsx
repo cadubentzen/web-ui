@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
 import { useUserSettings } from "incyclist-services";
 
-import { DynamicRideDashboard, MapOverlay, NearbyRiders, StartRideOverlay, TotalElevationOverlay, UpcomingElevationOverlay,
-         SideViewOverlay, RouteOptions,RidePageItems  } from "../../../components/modules/Ride";
+import { MapOverlay, NearbyRiders, StartRideOverlay, TotalElevationOverlay, UpcomingElevationOverlay,
+         SideViewOverlay, RouteOptions,RidePageItems, RideProgressPanel, RideMetricsPanel } from "../../../components/modules/Ride";
 import { DynamicWorkoutDashboard } from "../../../components/modules/workout/dashboard/wrapper";
 import { Center, ErrorBoundary, Loader } from "../../../components/atoms";
 import { InfoText } from "../../../components/molecules";
@@ -10,6 +10,7 @@ import { MainArea } from "../atoms/MainArea";
 import { WorkoutControl } from "../../../components/modules/workout/control";
 import { GpxRideView } from "../../../components/modules/Ride/views/gpx/GpxRideView";
 import { PrevRides } from "../../../components/modules/Ride/lists/PreviousRides";
+import { getRideLayout, toCss } from "../atoms/layout";
 import { ShiftingControl } from "../../../components/modules/shifting/control";
 
 
@@ -21,15 +22,13 @@ export const cameraSound = new Audio(CAMERA_SOUND);
 export const FollowRouteRidePage = ( { workout, activity, route, state,initialized,startOverlayProps= {},
                                        position, markers, hideAll,rideView,realityFactor,startPos, endPos,
                                        displayObserver, onDisplayEvent,displayPosition, sideViews, svInitAllowed, rideViewNotice, svCoverageNotice, svHasCoverage,
-                                       map,upcomingElevation,totalElevation,dbColumns,xScale, yScale,
+                                       map,upcomingElevation,totalElevation,xScale, yScale,
                                        prevRides,nearbyRides, showShiftingButtons, showDashboard, showWorkout,
                                        screenshotRequested, onScreenshot, onSettings,
                                        onStartRetry, onStartIgnore, onStartCancel, onStartWithMap, onToggleCyclingMode
                                     } ) => {
 
 
-    // time, distance, speed, power, slope, heartrate, cadence
-    const dbWidth = 50/7*(dbColumns??7)
     const isStarting = state==='Starting' || state==='Idle'
     const lapMode = route?.description?.isLoop
     const slopeRange = 2000
@@ -48,39 +47,6 @@ export const FollowRouteRidePage = ( { workout, activity, route, state,initializ
 
     const opacity = rideView==='map' ? 1 : 0.6
 
-    const egPos = {
-        top:'88vh',
-        left:0,
-        height:'12vh',
-    }
-
-    const nbPos = {
-        top: '22vh',
-        left: `${74+deltaX}vw`,
-    }
-
-    const prPos = {
-        top: '22vh',
-        left: `${74+deltaX}vw`,
-    }
-
-    const nearbyLeft = nearbyRides?.show && prevRides?.show 
-
-    if (nearbyLeft) {
-        prPos.top = map?.show ? '32vh' : '22vh'
-        prPos.left = '1vw'
-    }
-
-    const svl = {
-        top: nearbyRides?.show || prevRides?.show ? '65vh' : '53vh' ,
-        left: '0px' ,
-        height: nearbyRides?.show || prevRides?.show ? '23vh' : '35vh',
-        width: '25vw'
-    }
-    const svr = { ...svl,
-        left: '75vw' ,
-    }
-
     let View = ()=><Center><Loader/></Center>
 
 
@@ -92,6 +58,13 @@ export const FollowRouteRidePage = ( { workout, activity, route, state,initializ
     const sideViewProps = { stateKey:'sideViews',persistState:true, fold:'top-right', transparent:false, opacity:opacity}
     const isReady = initialized && !isStarting
     const showMap = map?.show && rideView!=='map'
+
+    const layout = getRideLayout({
+        deltaX,
+        workout: showWorkout, upcoming: upcomingElevation?.show, nearby: nearbyRides?.show, prev: prevRides?.show,
+        sideViews: sideViews?.enabled, map: showMap, totalElevation: totalElevation?.show
+    })
+    const css = Object.fromEntries( Object.keys(layout).map( k=>[k, toCss(layout[k])] ) )
 
     
     return <MainArea>
@@ -106,30 +79,31 @@ export const FollowRouteRidePage = ( { workout, activity, route, state,initializ
                             <GpxRideView visible={true} isMain={true} position={displayPosition} route={route} rideView={rideView} svInitAllowed={svInitAllowed} onEvent={onDisplayEvent} observer={displayObserver} />
 
                             {/* dashboards and controls */}
-                            <DynamicRideDashboard visible={showDashboard} scheme='light' fold='top-right' foldId='gpx-ride-dashboard' opacity={1.0}  height={'10vh'} top={0} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`}  />
-                            <ShiftingControl visible={showShiftingButtons&& !screenshotRequested} background='none' top={'calc(10vh + 10px);'}  justify='center' onToggleMode={ onToggleCyclingMode} />
+                            <RideProgressPanel visible={showDashboard} transparent fold='top-right' foldId='gpx-progress' opacity={1.0} {...css.progress} />
+                            <RideMetricsPanel visible={showDashboard} transparent fold='top-right' foldId='gpx-metrics' opacity={1.0} {...css.metrics} />
+                            <ShiftingControl opacity={1.0} visible={showShiftingButtons&& !screenshotRequested} background='none' justify='center' onToggleMode={ onToggleCyclingMode} {...css.shifting} />
 
-                            <DynamicWorkoutDashboard visible={showWorkout} showSlope={false} background='none' scheme='light' opacity={1.0}  height={'10vh'} top={'10vh'} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`} />                            
-                            <WorkoutControl visible={showWorkout&& !screenshotRequested} background='none' top={'calc(20vh + 10px);'} left={`${(100-dbWidth)/2}vw`} onToggleMode={ onToggleCyclingMode}/>
-                            <RouteOptions visible={!isStarting&& !screenshotRequested} top='65vh' left='26vw' height='35vh' width='48vw'
+                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={true} opacity={1.0} {...css.workoutPanel} /> : null}
+                            {layout.workoutControl ? <WorkoutControl visible={!screenshotRequested} background='none' onToggleMode={ onToggleCyclingMode} {...css.workoutControl} /> : null}
+                            <RouteOptions visible={!isStarting&& !screenshotRequested} {...css.routeOptions}
                                 transparent={true} pinned={false} settings={true} screenshot={true}
-                                onScreenshot={onScreenshot} onSettings={onSettings}/>           
+                                onScreenshot={onScreenshot} onSettings={onSettings}/>
 
                             {/* overlays */}
-                            {showMap ? <MapOverlay foldId='map' fold={'top-right'}  opacity={1.0} markers = {markers} preview={false} freeRide={false} 
+                            {css.map ? <MapOverlay foldId='map' fold={'top-right'} transparent={true} opacity={1.0} markers = {markers} preview={false} freeRide={false} 
                                 minimized = {map?.minimized}
-                                top = {0} left={0} height={'30vh'} width={'20vw'}
+                                {...css.map}
                                 routeData={route.details} position={position} startPos={startPos} endPos={endPos} 
                                 /> : null}
-                            {upcomingElevation?.show ? <UpcomingElevationOverlay {...sideViewProps} foldId={'slope'} top={0} left={'85vw'} width={'15vw'} height={'20vh'}
+                            {css.upcoming ? <UpcomingElevationOverlay {...sideViewProps} foldId={'slope'} {...css.upcoming} transparent={true} opacity={1.0}
                                 minimized={upcomingElevation?.minimized} 
                                 routeData={route.details} lapMode={lapMode} pctReality={realityFactor}
                                 showXAxis={true} showYAxis={true} xScale={xScale} yScale={yScale} line={{color:'white'}} range={slopeRange}
                                 markers = { []}
                                 position={position} /> : null}
 
-                            {totalElevation?.show ? <TotalElevationOverlay {...sideViewProps} foldId={'elevation'} transparent={true} opacity={rideView==='map' ? 1 : opacity}   
-                                top={egPos.top} left={egPos.left} width={egPos.width} height={egPos.height} 
+                            {css.totalElevation ? <TotalElevationOverlay {...sideViewProps} foldId={'elevation'} transparent={true} opacity={1.0}   
+                                {...css.totalElevation}
                                 minimized={totalElevation?.minimized} 
                                 addPosition={true}
                                 routeData={route.details} lapMode={lapMode}
@@ -137,34 +111,32 @@ export const FollowRouteRidePage = ( { workout, activity, route, state,initializ
                                 position={position}
                                 /> : null }
 
-                            {sideViews?.enabled ? 
-                                <SideViewOverlay {...sideViewProps} {...svl} foldId='sv-left' hidden={sideViews.hide}
+                            {css.svLeft ? 
+                                <SideViewOverlay {...sideViewProps} {...css.svLeft} foldId='sv-left' hidden={sideViews.hide}
                                 useMinimizeProp
                                 direction='left'  position={displayPosition}  observer={displayObserver} svInitAllowed={svInitAllowed}
                                 minimized={!sideViews?.left} transparent={false} opacity={1}
                                 />                            
                             : null}
-                            {sideViews?.enabled ? 
-                                <SideViewOverlay {...sideViewProps} {...svr} foldId='sv-right'  hidden={sideViews.hide}
+                            {css.svRight ? 
+                                <SideViewOverlay {...sideViewProps} {...css.svRight} foldId='sv-right'  hidden={sideViews.hide}
                                 useMinimizeProp
                                 direction='right' position={displayPosition} observer={displayObserver} svInitAllowed={svInitAllowed}
                                 minimized={!sideViews?.right} transparent={false} opacity={1}
                                 />                            
                             : null}
 
-
-                            { prevRides?.show?
-                                <PrevRides rides={prevRides.list} foldId={'prev-rides'} fold={'top-right'}  persistState={true} transparent={true}  opacity={opacity}   
+                            { css.prev ?
+                                <PrevRides rides={prevRides.list} foldId={'prev-rides'} fold={'top-right'}  persistState={true} transparent={true}  opacity={1.0}   
                                 minimized={prevRides.minimized}
-                                top={prPos.top} left={prPos.left} width={'25vw'} height={'43vh'} />
+                                {...css.prev} />
                                 : null }                                
 
-                            { nearbyRides?.show ?
-                                <NearbyRiders observer={nearbyRides?.observer} foldId={'nearby-rides'} fold={'top-right'} persistState={true} transparent={true} opacity={opacity} 
+                            { css.nearby ?
+                                <NearbyRiders observer={nearbyRides?.observer} foldId={'nearby-rides'} fold={'top-right'} persistState={true} transparent={true} opacity={1.0} 
                                 minimized={nearbyRides?.minimized}  
-                                top={nbPos.top} left={nbPos.left} width={'25vw'} height={'43vh'} />
+                                {...css.nearby} />
                                 : null } 
-
 
                         </RidePageItems>
 

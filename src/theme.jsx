@@ -1,5 +1,5 @@
 import React from "react"
-import { ThemeProvider } from "styled-components"
+import { ThemeProvider, useTheme } from "styled-components"
 
 const base = {
     text: "black",
@@ -270,8 +270,21 @@ export const newUITheme = {
         error: '#ff4d4d',
     },
 }
+/**
+ * The HUD design tokens: the theme's `hud` values (and accent colours) merged over the newUI defaults,
+ * so that components still render correctly under themes that do not define them.
+ *
+ * @param {object} [theme] the styled-components theme
+ */
+export const hudTokens = (theme) => ({
+    ...newUITheme.hud,
+    ...(theme?.hud ?? {}),
+    accent: theme?.colors?.accent ?? newUITheme.colors.accent,
+    accentText: theme?.colors?.accentText ?? newUITheme.colors.accentText,
+})
 
-
+/** hudTokens() for the theme of the current styled-components context */
+export const useHudTokens = () => hudTokens(useTheme())
 
 class Theme {
 

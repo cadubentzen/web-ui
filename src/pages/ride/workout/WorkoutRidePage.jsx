@@ -1,9 +1,10 @@
 import React from "react"
-import { DynamicRideDashboard, StartRideOverlay, WorkoutRideView, RouteOptions,RidePageItems  } from "../../../components/modules/Ride";
+import { StartRideOverlay, WorkoutRideView, RouteOptions,RidePageItems, RideProgressPanel, RideMetricsPanel } from "../../../components/modules/Ride";
 import { DynamicWorkoutDashboard } from "../../../components/modules/workout/dashboard/wrapper";
 import { Center, ErrorBoundary, Loader } from "../../../components/atoms";
 import { MainArea } from "../atoms/MainArea";
 import { WorkoutControl } from "../../../components/modules/workout/control";
+import { getRideLayout, toCss } from "../atoms/layout";
 
 
 export const PAGE_ID = 'Ride'
@@ -15,10 +16,14 @@ export const WorkoutRidePage = ( {workout, activity, state,initialized,onScreens
                                     onStartRetry, onStartIgnore, onStartCancel, onToggleCyclingMode
                                     } ) => { 
 
-    // time, distance, speed, power, slope, heartrate, cadence
-    const dbWidth = 42.86;
     const isStarting = state==='Starting' || state==='Idle'
     const showDashboard = !!activity
+
+    const layout = getRideLayout({
+        workout: true, workoutOnly: true, map: false, totalElevation: false,
+        upcoming: false, nearby: false, prev: false, sideViews: false
+    })
+    const css = Object.fromEntries( Object.keys(layout).map( k=>[k, toCss(layout[k])] ) )
 
     let View = ()=><Center><Loader/></Center>
 
@@ -34,14 +39,14 @@ export const WorkoutRidePage = ( {workout, activity, state,initialized,onScreens
 
                     {initialized && !isStarting ?
                         <RidePageItems visible={true} width='100%' height='100%' zIndex={1}  >
-                            <WorkoutRideView isMain={true} workout={workout} activity={activity} />
-                            <DynamicRideDashboard visible={showDashboard} scheme='light'fold='top-right' foldId='workout-ride-dashboard' opacity={1.0}  height={'10vh'} top={0} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`}  />
-                            <DynamicWorkoutDashboard visible={!isStarting} showSlope={false} background='none' scheme='light' opacity={1.0}  height={'10vh'} top={'10vh'} left={`${(100-dbWidth)/2}vw`} width={`${dbWidth}vw`} />                            
-
-                            <WorkoutControl visible={!isStarting} background='none' top={'calc(20vh + 10px);'} left={`${(100-dbWidth)/2}vw`} onToggleMode={ onToggleCyclingMode}/>
-                            <RouteOptions visible={!isStarting} top='1vh' left='1vw' height='15vh' width='15vw' 
+                            <WorkoutRideView isMain={true} workout={workout} activity={activity} {...css.workoutGraph} />
+                            <RideProgressPanel visible={showDashboard} transparent fold='top-right' foldId='workout-progress' opacity={1.0} {...css.progress} />
+                            <RideMetricsPanel visible={showDashboard} transparent fold='top-right' foldId='workout-metrics' opacity={1.0} {...css.metrics} />
+                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={!isStarting} opacity={1.0} {...css.workoutPanel} /> : null}
+                            {layout.workoutControl ? <WorkoutControl visible={!isStarting} background='none' onToggleMode={ onToggleCyclingMode} {...css.workoutControl} /> : null}
+                            <RouteOptions visible={!isStarting} {...css.routeOptions}
                                 transparent={true} pinned={true} settings={true} screenshot={true}
-                                onScreenshot={onScreenshot} onSettings={onSettings}/>           
+                                onScreenshot={onScreenshot} onSettings={onSettings}/>
                         </RidePageItems>
                         :
                         <View/>

@@ -2,9 +2,8 @@ import React from 'react'
 import styled, { useTheme } from 'styled-components'
 import { MetricIcon } from '../../../atoms/Icons'
 import { arcPath, polar, valueToAngle } from './geometry'
+import { hudTokens } from '../../../../theme'
 
-const FALLBACK = { text: '#ffffff', muted: 'rgba(255,255,255,0.7)', track: 'rgba(255,255,255,0.15)' }
-const tokens = theme => ({ ...FALLBACK, ...(theme?.hud ?? {}) })
 
 const CX = 50
 const CY = 50
@@ -39,12 +38,12 @@ const Value = styled.div`
     font-size: 0.2em;
     font-weight: 600;
     line-height: 1.1;
-    color: ${p => tokens(p.theme).text};
+    color: ${p => hudTokens(p.theme).text};
 `
 const Unit = styled.span`
     font-size: 0.45em;
     font-weight: 400;
-    color: ${p => tokens(p.theme).muted};
+    color: ${p => hudTokens(p.theme).muted};
 `
 const ZoneName = styled.span`
     font-size: 0.1em;
@@ -70,8 +69,9 @@ const tick = (angle, key) => {
     return <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeWidth="1.6" />
 }
 
-export const ZoneGauge = ({ metric, value, unit, gauge, size = '13vw' }) => {
-    const t = tokens(useTheme())
+export const ZoneGauge = ({ metric, value, unit, gauge, state, size = '13vw' }) => {
+    const t = hudTokens(useTheme())
+    const iconColor = state === 'red' ? t.error : state === 'amber' ? t.warning : t.muted
     const { min = 0, max = 1, zones, zone, target } = gauge ?? {}
     const hasZones = Array.isArray(zones) && zones.length > 0
     const num = toNumber(value)
@@ -118,7 +118,7 @@ export const ZoneGauge = ({ metric, value, unit, gauge, size = '13vw' }) => {
                 ) : null}
             </Arc>
             <Centre $size={size}>
-                <MetricIcon metric={metric} color={t.muted} />
+                <MetricIcon metric={metric} color={iconColor} />
                 <Value>
                     <span>{value}</span>
                     {unit ? <Unit>{unit}</Unit> : null}

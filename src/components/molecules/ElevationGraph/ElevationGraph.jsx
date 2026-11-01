@@ -330,7 +330,7 @@ export class Graph extends React.Component {
         if (this.state.error)
             return null;
         
-        const {showXAxis,showYAxis,line, comparisonLine, xScale={ value:1/1000, unit:'km'}, yScale={ value:1, unit:'m'}, showXUnit=false, showYUnit=true } = this.props
+        const {showXAxis,showYAxis,barColor,line, comparisonLine, xScale={ value:1/1000, unit:'km'}, yScale={ value:1, unit:'m'}, showXUnit=false, showYUnit=true } = this.props
         const {width,height} = this.state
         const data = this.getData();
         const comparisonData = this.getComparisonData();
@@ -380,7 +380,7 @@ export class Graph extends React.Component {
                 {this.hasSize()&&data?.length>0 ?  
             
                         <XYPlot height={height} width={width} margin={margin} yDomain={yDomain} xDomain={xDomain} >
-                            <VerticalBarSeries colorType='literal' data={data} />
+                            <VerticalBarSeries colorType='literal' data={barColor ? data.map(d => ({...d, color:barColor})) : data} />
                             {comparisonData?.length>0 ?
                                 <LineSeries colorType='literal' color={comparisonLine?.color || '#9fa4a8'}
                                             strokeStyle={comparisonLine?.strokeStyle || 'dashed'} data={comparisonData} />

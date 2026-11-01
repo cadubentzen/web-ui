@@ -30,4 +30,17 @@ describe('RideMetricsPanelView', () => {
         const { container } = renderView(<RideMetricsPanelView power={power} heartrate={heartrate} row={row.filter(r => ['speed', 'cadence'].includes(r.key))} />)
         expect(container.querySelectorAll('[data-testid="row-column"]').length).toBe(2)
     })
+
+    test('passes the sensor state of power and heart rate to the gauges', () => {
+        const { container } = renderView(<RideMetricsPanelView power={{ ...power, state: 'red' }} heartrate={{ ...heartrate, state: 'amber' }} row={[]} />)
+        expect(container.querySelector('svg[aria-label="power"]').style.color).toBe('rgb(255, 77, 77)')
+        expect(container.querySelector('svg[aria-label="heartrate"]').style.color).toBe('rgb(255, 191, 0)')
+    })
+
+    test('the panel takes the height of its content (short stack), at most its region', () => {
+        const { getByTestId } = renderView(<RideMetricsPanelView power={power} heartrate={heartrate} row={row} />)
+        const style = getComputedStyle(getByTestId('metrics-panel'))
+        expect(style.height).not.toBe('100%')
+        expect(style.maxHeight).toBe('100%')
+    })
 })

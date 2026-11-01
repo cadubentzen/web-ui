@@ -11,8 +11,8 @@ Power.args = { metric: 'power', value: '210', unit: 'W' }
 export const Warning = Template.bind({})
 Warning.args = { metric: 'heartrate', value: '171', unit: 'bpm', state: 'amber' }
 
-export const Error = Template.bind({})
-Error.args = { metric: 'power', value: '420', unit: 'W', state: 'red' }
+export const Critical = Template.bind({})
+Critical.args = { metric: 'power', value: '420', unit: 'W', state: 'red' }
 
 export const WithBadge = Template.bind({})
 WithBadge.args = { metric: 'power', value: '210', unit: 'W', badge: 'RF 50%' }

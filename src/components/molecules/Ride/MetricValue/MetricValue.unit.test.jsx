@@ -30,4 +30,10 @@ describe('MetricValue', () => {
         renderView(<MetricValue metric="power" value="210" badge="RF 50%" />)
         expect(screen.getByText('RF 50%')).toBeDefined()
     })
+
+    test('the HUD tokens come from the theme', () => {
+        const theme = { ...newUITheme, hud: { ...newUITheme.hud, warning: '#010203' } }
+        render(<ThemeProvider theme={theme}><MetricValue metric="heartrate" value="150" state="amber" /></ThemeProvider>)
+        expect(screen.getByLabelText('heartrate').style.color).toBe('rgb(1, 2, 3)')
+    })
 })

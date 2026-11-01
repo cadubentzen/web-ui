@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, test, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 
-import { WorkoutControl } from './component'
+import { WorkoutControl, ROW_GAP, BUTTON_BOX } from './component'
 
 // FIXES_BACKLOG #35 / services#505: the load-adjustment buttons (+5/+1/-1/-5) either nudge
 // targetPower (Watt) within the current step's power range, or scale the Workout FTP (%),
@@ -140,5 +140,71 @@ describe('WorkoutControl - loadButtonMode (SIM/gear/hidden)', () => {
 
         expect(onPowerUp).toHaveBeenCalledWith(5)
         expect(onPowerDown).toHaveBeenCalledWith(1)
+    })
+})
+
+
+describe('WorkoutControl keeps real buttons', () => {
+    test('every control is a <button> with an accessible name', () => {
+        const { getAllByRole } = render(
+            <WorkoutControl onBackward={vi.fn()} onForward={vi.fn()} onStop={vi.fn()} onPowerUp={vi.fn()} onPowerDown={vi.fn()} onPin={vi.fn()} mode='ERG' />
+        )
+        const buttons = getAllByRole('button')
+        expect(buttons.length).toBeGreaterThanOrEqual(8)
+        buttons.forEach(b => {
+            expect(b.tagName).toBe('BUTTON')
+            expect((b.getAttribute('aria-label') ?? b.textContent).trim()).not.toBe('')
+        })
+        const names = buttons.map(b => b.getAttribute('aria-label') ?? b.textContent)
+        expect(names.some(n => n.includes('-1%'))).toBe(true)
+        expect(names.some(n => n.includes('+1%'))).toBe(true)
+        expect(names).toContain('Previous step')
+        expect(names).toContain('Next step')
+        expect(names).toContain('Pin')
+    })
+
+    test('unpin shows the unpin button', () => {
+        const { getByRole } = render(<WorkoutControl pinned />)
+        expect(getByRole('button', { name: 'Unpin' })).toBeDefined()
+    })
+})
+
+describe('WorkoutControl fits its slot', () => {
+    const props = { onBackward: vi.fn(), onForward: vi.fn(), onStop: vi.fn(), onPowerUp: vi.fn(), onPowerDown: vi.fn(), onPin: vi.fn(), mode: 'ERG' }
+
+    test('buttons are laid out in at most two rows', () => {
+        const { container } = render(<WorkoutControl {...props} />)
+        const rows = container.querySelectorAll('[data-testid="workout-control-row"]')
+        expect(rows.length).toBe(2)
+        expect(rows[0].querySelectorAll('button').length + rows[1].querySelectorAll('button').length).toBe(9)
+        expect(rows[1].querySelector('#inc5')).not.toBeNull()
+        expect(rows[1].querySelector('#dec5')).not.toBeNull()
+        expect(rows[0].querySelector('#stop')).not.toBeNull()
+    })
+
+    test('hidden load buttons leave one row of buttons', () => {
+        const { container } = render(<WorkoutControl {...props} loadButtonMode='hidden' />)
+        const rows = [...container.querySelectorAll('[data-testid="workout-control-row"]')]
+        expect(rows.filter(r => r.querySelector('button')).length).toBe(1)
+    })
+})
+
+describe('WorkoutControl stays inside its slot', () => {
+    const props = { onBackward: vi.fn(), onForward: vi.fn(), onStop: vi.fn(), onPowerUp: vi.fn(), onPowerDown: vi.fn(), onPin: vi.fn(), mode: 'ERG' }
+
+    test('rows use a fixed small gap and buttons are sized from the region (5 per row)', () => {
+        const { container } = render(<WorkoutControl {...props} />)
+        const row = container.querySelector('[data-testid="workout-control-row"]')
+        expect(ROW_GAP).toBe('0.4vw')
+        expect(getComputedStyle(row).gap).toBe(ROW_GAP)
+        expect(BUTTON_BOX).toContain('(19.1vw - 1.2vw - 4 * 0.4vw) / 5')
+        expect(BUTTON_BOX).toContain('4.2vh')
+    })
+
+    test('buttons carry no margin of their own', () => {
+        const { container } = render(<WorkoutControl {...props} />)
+        container.querySelectorAll('button').forEach(b => {
+            expect(getComputedStyle(b).margin === '0px' || getComputedStyle(b).margin === '0').toBe(true)
+        })
     })
 })

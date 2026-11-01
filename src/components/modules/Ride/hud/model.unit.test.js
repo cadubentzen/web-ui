@@ -45,6 +45,15 @@ describe('toHudModel', () => {
         expect(m2.distance.remaining).toBe('−9.20')
     })
 
+    test('elevation gained and still to climb come from the slope item, if there is a route', () => {
+        const withElevation = items.map(i => i.title==='Slope' ? {...i, elevation:{value:'120', remaining:'-340', unit:'m'}} : i)
+        expect(toHudModel(withElevation).elevation).toEqual({ value:'120', unit:'m', remaining:'−340' })
+        expect(toHudModel(items).elevation).toBeUndefined()
+        const climbed = items.map(i => i.title==='Slope' ? {...i, elevation:{value:'460', remaining:'-0', unit:'m'}} : i)
+        expect(toHudModel(climbed).elevation).toEqual({ value:'460', unit:'m' })
+        expect(toHudModel(without('Slope')).elevation).toBeUndefined()
+    })
+
     test('missing remaining is omitted', () => {
         const m = toHudModel(items.map(i => i.title==='Time' ? {...i, data:[{value:'0:10:01'},{}]} : i))
         expect(m.time.remaining).toBeUndefined()

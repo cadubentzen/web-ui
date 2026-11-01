@@ -1,20 +1,14 @@
 import React from 'react'
 import styled, { useTheme } from 'styled-components'
 import { MetricIcon } from '../../../atoms/Icons'
+import { hudTokens } from '../../../../theme'
 
-const FALLBACK = { warning: '#FFBF00', error: '#ff4d4d', muted: 'rgba(255,255,255,0.7)', text: '#ffffff', accent: '#e4a13c', accentText: '#1c1203' }
-const tokens = theme => ({
-    ...FALLBACK,
-    ...(theme?.hud ?? {}),
-    accent: theme?.colors?.accent ?? FALLBACK.accent,
-    accentText: theme?.colors?.accentText ?? FALLBACK.accentText,
-})
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: ${p => tokens(p.theme).text};
+    color: ${p => hudTokens(p.theme).text};
 `
 const Row = styled.div`
     display: flex;
@@ -27,20 +21,20 @@ const Row = styled.div`
 const Unit = styled.span`
     font-size: 0.45em;
     font-weight: 400;
-    color: ${p => tokens(p.theme).muted};
+    color: ${p => hudTokens(p.theme).muted};
 `
 const Badge = styled.span`
     font-size: 0.4em;
     font-weight: 600;
     padding: 0.1em 0.5em;
     border-radius: 1em;
-    background: ${p => tokens(p.theme).accent};
-    color: ${p => tokens(p.theme).accentText};
+    background: ${p => hudTokens(p.theme).accent};
+    color: ${p => hudTokens(p.theme).accentText};
     align-self: center;
 `
 
 export const MetricValue = ({ metric, value, unit, state, badge, size = '2.4vw' }) => {
-    const t = tokens(useTheme())
+    const t = hudTokens(useTheme())
     const iconColor = state === 'red' ? t.error : state === 'amber' ? t.warning : t.muted
     return (
         <Wrapper>

@@ -7,6 +7,7 @@ import { getPointAtDistance, useAvatars } from 'incyclist-services';
 import { CoachAvatar, ErrorBoundary, MaleAvatar } from '../../../../atoms';
 import {FreeMap} from '../../../../molecules/Maps';
 import { EventLogger } from 'gd-eventlog';
+import { hudTokens } from '../../../../../theme'
 
 const getPosition = (latLng) => {            
     return [latLng.lat, latLng.lng]            
@@ -44,9 +45,11 @@ const DetailedMapArea = styled.div`
     padding: 0;
     margin: 0;
     z-index:  ${props => props.zIndex };
-    box-shadow: 0 4px 6px -4px #333;
+    box-sizing: border-box;
+    overflow: hidden;
     background: rgba(0,0,0);
-    border: rgb(229, 229, 229) 1px solid;
+    border: 1px solid ${p => hudTokens(p.theme).border};
+    border-radius: ${p => hudTokens(p.theme).radius};
 `;
 
 export class MapOverlay extends React.Component {

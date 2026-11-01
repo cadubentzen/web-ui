@@ -1,5 +1,18 @@
 import React from "react";
+import styled from "styled-components";
 import { ElevationGraph } from "../../../../molecules";
+import { hudTokens } from '../../../../../theme'
+
+
+const Panel = styled.div`
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: ${p => hudTokens(p.theme).panel};
+    border: 1px solid ${p => hudTokens(p.theme).border};
+    border-radius: ${p => hudTokens(p.theme).radius};
+`
 
 const DEFAULT_MAX_UPDATE_FREQ = 1000
 
@@ -27,6 +40,6 @@ export class UpcomingElevationOverlay extends React.Component {
 
     render() {
         this.prevRender = Date.now()
-        return <ElevationGraph {...this.props} />
+        return <Panel><ElevationGraph {...this.props} /></Panel>
     }
 }

@@ -1,30 +1,24 @@
 import React from 'react'
 import styled from 'styled-components'
 import { MetricIcon } from '../../../atoms/Icons'
+import { hudTokens } from '../../../../theme'
 
-const FALLBACK = {
-    panel: 'linear-gradient(rgba(56,1,31,0.72), rgba(26,4,86,0.72))',
-    border: 'rgba(255,255,255,0.16)',
-    text: '#ffffff',
-    muted: 'rgba(255,255,255,0.7)',
-    track: 'rgba(255,255,255,0.15)',
-    radius: '0.9vw',
-    accent: '#e4a13c',
-}
-const tokens = theme => ({ ...FALLBACK, ...(theme?.hud ?? {}), accent: theme?.colors?.accent ?? FALLBACK.accent })
 
+// takes the height of its rows (time, distance and - on routes - elevation); the layout region
+// is only the most it may take
 const Panel = styled.div`
     box-sizing: border-box;
     width: 100%;
-    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    padding: 0.8vw 1vw;
-    background: ${p => tokens(p.theme).panel};
-    border: 1px solid ${p => tokens(p.theme).border};
-    border-radius: ${p => tokens(p.theme).radius};
-    color: ${p => tokens(p.theme).text};
+    gap: 1.6vh;
+    padding: 1.4vh 1vw;
+    background: ${p => hudTokens(p.theme).panel};
+    border: 1px solid ${p => hudTokens(p.theme).border};
+    border-radius: ${p => hudTokens(p.theme).radius};
+    color: ${p => hudTokens(p.theme).text};
 `
 const Row = styled.div`
     display: flex;
@@ -39,27 +33,27 @@ const Line = styled.div`
 const Elapsed = styled.span`
     font-size: 1.8vw;
     font-weight: 600;
-    color: ${p => tokens(p.theme).text};
+    color: ${p => hudTokens(p.theme).text};
 `
 const Unit = styled.span`
     font-size: 0.45em;
     margin-left: 0.3vw;
-    color: ${p => tokens(p.theme).muted};
+    color: ${p => hudTokens(p.theme).muted};
 `
 const Remaining = styled(Elapsed)`
     margin-left: auto;
     font-weight: 400;
-    color: ${p => tokens(p.theme).muted};
+    color: ${p => hudTokens(p.theme).muted};
 `
 const Track = styled.div`
     height: 0.35vw;
     border-radius: 0.2vw;
-    background: ${p => tokens(p.theme).track};
+    background: ${p => hudTokens(p.theme).track};
     overflow: hidden;
 `
 const Fill = styled.div`
     height: 100%;
-    background: ${p => tokens(p.theme).accent};
+    background: ${p => hudTokens(p.theme).accent};
 `
 
 // time is 'h:mm:ss' or 'm:ss', distance a plain number
@@ -104,9 +98,10 @@ const ProgressRow = ({ metric, item }) => {
     )
 }
 
-export const RideProgressPanelView = ({ time, distance }) => (
+export const RideProgressPanelView = ({ time, distance, elevation }) => (
     <Panel>
         <ProgressRow metric="time" item={time} />
         <ProgressRow metric="distance" item={distance} />
+        {elevation ? <ProgressRow metric="elevation" item={elevation} /> : null}
     </Panel>
 )

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import AppTheme, { newUITheme } from './theme'
+import AppTheme, { newUITheme, hudTokens } from './theme'
 
 describe('theme', () => {
 
@@ -21,5 +21,23 @@ describe('theme', () => {
 
     test('default theme has no accent override', () => {
         expect(AppTheme.get('default').colors.accent).toBeUndefined()
+    })
+
+    describe('hudTokens', () => {
+        test('falls back to the newUI values without a theme', () => {
+            const t = hudTokens(undefined)
+            expect(t.panel).toBe(newUITheme.hud.panel)
+            expect(t.accent).toBe(newUITheme.colors.accent)
+            expect(t.accentText).toBe(newUITheme.colors.accentText)
+        })
+
+        test('the theme values win over the fallback', () => {
+            const t = hudTokens({ hud: { panel: 'red', warning: 'orange' }, colors: { accent: 'blue' } })
+            expect(t.panel).toBe('red')
+            expect(t.warning).toBe('orange')
+            expect(t.accent).toBe('blue')
+            expect(t.border).toBe(newUITheme.hud.border)
+            expect(t.accentText).toBe(newUITheme.colors.accentText)
+        })
     })
 })

@@ -10,10 +10,13 @@ const Btn = styled(Button)`
     float: left;
     display: flex;
     cursor: pointer;
-    width: ${props => props.size} ;
-    height: ${props => props.size};
+    width: ${props => props.$box ?? props.size} ;
+    height: ${props => props.$box ?? props.size};
+    flex: none;
+    box-sizing: border-box;
+    ${props => props.$box ? `margin: 0; padding: 0; font-size: min(1.1vw, 1.5vh); line-height: 1;` : ''}
     border: ${props => `1px solid ${props.borderColor || props.color || 'lightgrey'}`}; 
-    border-radius: 8px;
+    border-radius: ${props => props.$radius ?? '8px'};
     user-select: none;
     opacity:  ${props => props.opacity};
 `;    
@@ -38,16 +41,16 @@ const Hotkey = styled(Center)`
 
 export const WorkoutButton = (props) => {
 
-    const {width,height,size=60,hotkey,color,image,children,text,showHotkey=true } = props
+    const {width,height,size=60,boxSize,hotkey,color,image,children,text,showHotkey=true } = props
 
-    const btnProps = copyPropsExcluding(props,['image','children', 'width', 'height', 'size','text'])    
-    const icnProps = copyPropsExcluding(props,['size','width', 'height','onClick'])
+    const btnProps = copyPropsExcluding(props,['image','children', 'width', 'height', 'size','text','boxSize'])    
+    const icnProps = copyPropsExcluding(props,['$radius','size','width', 'height','onClick','boxSize'])
 
     icnProps.width = width??size
     icnProps.height = height??size
     icnProps.size = size  
 
-    return <Btn {...btnProps} size={`${size+20}px`}>
+    return <Btn {...btnProps} size={`${size+20}px`} $box={boxSize}>
         <Center position='relative'>            
             {children||image ? <Icon {...icnProps} margin={0} raw />:null}
             {text}

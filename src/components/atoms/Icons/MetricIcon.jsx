@@ -9,6 +9,7 @@ const SHAPES = {
     power: <path d="M13 2L5 14h6l-1 8 8-12h-6z" {...S} />,
     heartrate: <path d="M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.5a4.8 4.8 0 0 1 9 2.3C21 15 12 20.5 12 20.5z" {...S} />,
     slope: <path d="M3 19h18V7z" {...S} />,
+    elevation: <path d="M2 20l7-12 4 6 3-4 6 10z" {...S} />,
     cadence: <><path d="M20 12a8 8 0 1 1-2.5-5.8" {...S} /><path d="M20 3v5h-5" {...S} /></>,
     gear: <><circle cx="12" cy="12" r="3" {...S} /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" {...S} /></>,
 }

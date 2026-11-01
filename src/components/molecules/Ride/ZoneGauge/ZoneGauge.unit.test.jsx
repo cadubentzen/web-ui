@@ -70,4 +70,14 @@ describe('ZoneGauge', () => {
         const { container } = renderView(<ZoneGauge metric="power" value="100" unit="W" gauge={gauge} />)
         expect(container.querySelector('[data-testid="target"]')).toBeNull()
     })
+
+    test('state red tints the centre icon with the error token', () => {
+        renderView(<ZoneGauge metric="power" value="100" unit="W" gauge={gauge} state="red" />)
+        expect(screen.getByLabelText('power').style.color).toBe('rgb(255, 77, 77)')
+    })
+
+    test('state amber tints the centre icon with the warning token', () => {
+        renderView(<ZoneGauge metric="heartrate" value="100" unit="bpm" gauge={gauge} state="amber" />)
+        expect(screen.getByLabelText('heartrate').style.color).toBe('rgb(255, 191, 0)')
+    })
 })
