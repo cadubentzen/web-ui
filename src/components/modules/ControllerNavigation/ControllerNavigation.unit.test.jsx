@@ -89,8 +89,8 @@ describe('ControllerNavigation', () => {
         expect(a.classList.contains(FOCUS_CLASS)).toBe(true)
     })
 
-    test('Escape closes a dialog after Enter toggled a switch inside it', async () => {
-        const onESC = vi.fn()
+    // a dialog with a switch and an OK button; the layout puts the switch above OK
+    const renderSwitchDialog = (onESC) => {
         const Page = () => {
             const [on, setOn] = useState(false)
             return <Dialog id='Test' title='Test' onESC={onESC} noClose>
@@ -105,15 +105,34 @@ describe('ControllerNavigation', () => {
             el.getBoundingClientRect = () => el === sw ? rect(0, 0) : el.id === 'ok' ? rect(0, 100) : rect(0, 0, 1000, 1000)
             el.scrollIntoView = () => {}
         }
+        return sw
+    }
+
+    test('Escape closes a dialog after Enter toggled a switch inside it', async () => {
+        vi.useFakeTimers()
+        const onESC = vi.fn()
+        const sw = renderSwitchDialog(onESC)
         key('ArrowDown')
         expect(document.activeElement).toBe(sw)
         key('Enter')
-        await act(async () => { await Promise.resolve() })
+        await act(async () => { await vi.advanceTimersByTimeAsync(500) })
         expect(sw.getAttribute('aria-checked')).toBe('true')
         expect(sw.classList.contains(FOCUS_CLASS)).toBe(true)
         // a real keyboard event carries the legacy keyCode the Dialog matches on
         act(() => { sw.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', keyCode: 27, bubbles: true })) })
         expect(onESC).toHaveBeenCalled()
+    })
+
+    test('an arrow press before the pending auto-focus fires is not overridden by it', async () => {
+        vi.useFakeTimers()
+        const sw = renderSwitchDialog(vi.fn())
+        // the auto-focus (200 ms) is still pending: the user's first move comes first
+        key('ArrowDown')
+        expect(document.activeElement).toBe(sw)
+        // (the auto-focus alone would pick OK, the dialog's default)
+        await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
+        expect(document.activeElement).toBe(sw)
+        expect(sw.classList.contains(FOCUS_CLASS)).toBe(true)
     })
 
     test('the dialog close button is reachable and Enter closes the dialog', () => {
@@ -268,6 +287,33 @@ describe('ControllerNavigation', () => {
             })
             await act(async () => { await Promise.resolve(); vi.advanceTimersByTime(500) })
             expect(focused()).toBe('ok')
+        })
+
+        test('a new page starts at its likely button, even after the user moved on the previous one', async () => {
+            vi.useFakeTimers()
+            connectController()
+            location.pathname = '/pairing'
+            const { rerender } = mount()
+            await act(async () => { vi.advanceTimersByTime(500) })
+            key('ArrowRight')       // the user moves on this page
+
+            // to the next page (same root): its list - and the Select buttons - load a moment later
+            location.pathname = '/workouts'
+            act(() => {
+                document.getElementById('page').innerHTML = `<button id="nav">User</button>`
+                document.getElementById('nav').innerText = 'User'
+                layout({ nav: [0, 0] })
+            })
+            rerender(<ControllerNavigation />)
+            await act(async () => { await Promise.resolve(); vi.advanceTimersByTime(500) })
+            expect(focused()).toBe('nav')     // the only thing there yet
+            act(() => {
+                document.getElementById('page').insertAdjacentHTML('beforeend', `<button id="select">Select</button>`)
+                document.getElementById('select').innerText = 'Select'
+                layout({ nav: [0, 0], select: [300, 300] })
+            })
+            await act(async () => { await Promise.resolve(); vi.advanceTimersByTime(500) })
+            expect(focused()).toBe('select')
         })
 
         test('a likely button that becomes enabled later gets the focus', async () => {

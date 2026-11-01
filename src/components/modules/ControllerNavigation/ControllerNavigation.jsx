@@ -110,7 +110,9 @@ export const ControllerNavigation = () => {
 
         // until the user moves the focus on a screen/dialog, it follows that screen's most likely
         // button (which may only appear or become enabled a bit later, e.g. once devices connect)
+        // a screen is a page (route) or a dialog
         let lastRoot = null
+        let lastPath = null
         let userMoved = false
         const autoFocus = () => {
             const mode = refMode.current
@@ -119,9 +121,10 @@ export const ControllerNavigation = () => {
             const root = getNavigationRoot(document)
             if (refPath.current.startsWith('/ride') && root === document.body)
                 return
-            if (root !== lastRoot)
+            if (root !== lastRoot || refPath.current !== lastPath)
                 userMoved = false
             lastRoot = root
+            lastPath = refPath.current
             if (userMoved && validCurrent(root))
                 return
             if (isTextInput(document.activeElement))
@@ -144,8 +147,12 @@ export const ControllerNavigation = () => {
         observer?.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'aria-disabled', 'hidden'] })
         scheduleAutoFocus()
 
-        const handled = (event) => {
+        const handled = (event, root) => {
             refMode.current.keysUsed = true
+            // remember the root the user moved in, so a pending auto-focus (scheduled before the
+            // first key press) doesn't treat it as a new screen and undo the move
+            lastRoot = root
+            lastPath = refPath.current
             userMoved = true
             event.preventDefault()
             event.stopPropagation()
@@ -166,14 +173,14 @@ export const ControllerNavigation = () => {
             if (direction) {
                 if (isTextInput(active) && (direction === 'left' || direction === 'right'))
                     return
-                handled(event)
+                handled(event, root)
                 move(direction, root)
             }
             else if (event.key === 'Enter') {
                 const target = validCurrent(root)
                 if (!target || isTextInput(active))
                     return
-                handled(event)
+                handled(event, root)
                 logger.logEvent({ message: 'activate', target: describe(target) })
                 target.click()
             }
