@@ -180,11 +180,11 @@ export class ActiveRideSettings extends React.Component {
                     </Tabs>
                 
                 {!showActivity || this.state.area!=='Activity' ? 
-                <ButtonBar justify='center'>
+                <ButtonBar justify='flex-end'>
                     
                     {renderBack ? <Button height={'5vh'} primary={false} text='Back' onClick={ this.props.onBack} /> : null}  
                     {/* {renderNew ? <Button height={'5vh'} primary={true} text='New Ride' disabled={saveDisabled} onClick={this.props.onNew} />:null}  */}
-                    {renderContinue ? <Button height={'5vh'} primary={false} text='Continue' onClick={this.props.onContinue} /> : null} 
+                    {renderContinue ? <Button height={'5vh'} primary={true} text='Continue' onClick={this.props.onContinue} /> : null} 
                     {/* {renderExit ? <Button height={'5vh'} primary={false} text='Exit App' onClick={this.props.onExit} /> : null}              */}
                     {renderOK ? <Button height={'5vh'} primary={false} text='OK' onClick={this.props.onOK} /> : null}             
                 </ButtonBar> :null}
