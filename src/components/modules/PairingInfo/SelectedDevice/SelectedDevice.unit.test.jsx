@@ -22,4 +22,11 @@ describe('SelectedDevice T16 (switched off, device remembered)', ()=> {
         expect(getByText('Tacx Neo')).toBeTruthy()
         expect(queryByText(container, '212')).toBeNull()
     })
+
+    test('shows the device details, e.g. the state of both Zwift Play halves', ()=> {
+        const { getByText } = render(
+            <SelectedDevice title="Controller" capability="app_control" deviceName="Zwift Play" details="Left and right connected" connectState="connected" />
+        )
+        expect(getByText('Left and right connected')).toBeTruthy()
+    })
 })

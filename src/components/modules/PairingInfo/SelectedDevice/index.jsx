@@ -37,6 +37,13 @@ const DeviceName = styled.div`
     white-space: nowrap;
 `
 
+// a line about the device's state, e.g. whether both halves of a Zwift Play are connected
+const Details = styled.div`
+    font-size: 1.6vh;
+    line-height: 1.3;
+    color: ${props => kitTokens(props.theme).muted};
+`
+
 const Info = styled.div`
     display: flex;
     align-items: baseline;
@@ -53,7 +60,7 @@ const Unit = styled.span`
     color: ${props => kitTokens(props.theme).muted};
 `
 
-export const SelectedDevice = ( {title, capability, value, unit, deviceName, imageUrl, connectState, disabled, footer, onClick,onUnselect, onUse }) => {
+export const SelectedDevice = ( {title, capability, value, unit, deviceName, details, imageUrl, connectState, disabled, footer, onClick,onUnselect, onUse }) => {
 
     const onContainerClicked = (e) =>{
         if (onClick)
@@ -76,6 +83,7 @@ export const SelectedDevice = ( {title, capability, value, unit, deviceName, ima
         <Tile $muted={disabled} onClick={ onContainerClicked}>
             <Capability>{title??capability}</Capability>
             <DeviceName>{deviceName}</DeviceName>
+            {details && !disabled ? <Details>{details}</Details> : null}
             <Info>
                 {hasValue ? <>{value}<Unit>{unit}</Unit></> : null}
             </Info>
