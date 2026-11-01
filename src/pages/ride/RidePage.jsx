@@ -6,6 +6,7 @@ import NativeUiService from "../../bindings/native-ui";
 import { CyclingModeIndication, DialogLauncher } from "../../components/molecules";
 import { usePageLogger, useKey, useUnmountEffect } from "../../hooks";
 import { PAGE_ID, cameraSound, WorkoutRidePage } from "./workout/WorkoutRidePage";
+import { useScreenshotRequests } from "./useScreenshotRequests";
 import { FollowRouteRidePage } from "./follow-route";
 import { copyPropsExcluding } from "../../utils";
 import { FreeRideRidePage } from "./free-ride";
@@ -22,14 +23,19 @@ export const RidePage = ({simulate}) => {
     const [state, setState] = useState({ state: 'Idle' });
     const [initState, setInitState] = useState(null);
     const [pageState, setPageState] = useState(null);    
-    const [screenshotRequested, SetScreenShotRequested] = useState(null)
     const [logger, closePageLogger] = usePageLogger(PAGE_ID, pageState);
 
 
     const refDialogs = useRef(null);
     const refSettingsOpened = useRef(false);
     const refObserver = useRef(undefined)
-    const refScreenshotState = useRef(undefined)
+    // screenshots: asked for by the rider or - at key moments - by the ride service
+    const { screenshotRequested, requestScreenshot } = useScreenshotRequests( async (moment) => {
+        // give UI time to finish rendering (without the controls hidden for it)
+        await waitNextTick()
+        cameraSound.play()
+        await ride.takeScreenshot(moment)
+    })
     
     const navigate = useNavigate()    
     const location = useLocation()
@@ -170,8 +176,11 @@ export const RidePage = ({simulate}) => {
     }
 
     const onTakeScreenShot = async () => {
-        SetScreenShotRequested(true)
+        requestScreenshot(true)
     };
+    const onKeyMoment = useCallback( (moment) => {
+        requestScreenshot(moment)
+    },[requestScreenshot]);
 
     
     const onCyclingModeToggled = useCallback( (mode, request) => {
@@ -342,25 +351,6 @@ export const RidePage = ({simulate}) => {
     })
 
 
-    useEffect( ()=> {
-        if (screenshotRequested && !refScreenshotState.current) {
-            refScreenshotState.current = 'taking'
-
-            // give UI time to finish rendering
-            waitNextTick().then( ()=> {
-                cameraSound.play();
-                ride.takeScreenshot().then( ()=> {
-                    delete refScreenshotState.current
-                    SetScreenShotRequested(false)
-                })
-
-            })
-
-
-        }
-    })
-
-
     useEffect(() => {
         if (initState!=='init-service-done')
             return;
@@ -398,7 +388,8 @@ export const RidePage = ({simulate}) => {
             .on('cycling-mode-toggle', onCyclingModeToggled)
             .on('view-changed',onViewChanged)
             .on('route-update',onRouteChanged)
-            .on('options-update',onOptionsChanged);
+            .on('options-update',onOptionsChanged)
+            .on('screenshot-request',onKeyMoment);
 
             // TODO: 
             // window.onbeforeunload = this.onAppClose.bind(this)
@@ -411,7 +402,7 @@ export const RidePage = ({simulate}) => {
         setPageState('opened');
         setInitState('initialized')
 
-    }, [closeSettings, initState, logger, onBack, onCyclingModeToggled, onOptionsChanged, onPositionUpdate, onRouteChanged, onViewChanged, openSettings, ride, simulate]);
+    }, [closeSettings, initState, logger, onBack, onCyclingModeToggled, onKeyMoment, onOptionsChanged, onPositionUpdate, onRouteChanged, onViewChanged, openSettings, ride, simulate]);
 
     // page and dialog helpers
     const disabled = state.disabledHotkeys

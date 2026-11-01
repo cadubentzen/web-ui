@@ -35,6 +35,7 @@ export class RideSettings extends React.Component {
         const preferences = {
             rideView: this.settings.getValue('preferences.rideView', RIDEVIEW.DEFAULT),
             videoSound: this.settings.getValue('preferences.video.sound', false)===true,
+            autoScreenshots: this.settings.getValue('preferences.ride.autoScreenshots', true)!==false,
             reality: this.routes.getStartSettings()?.realityFactor ?? this.props.reality ?? 100,
             renderKey: Date.now(),
             mapsApiKey: this.settings.getValue('GOOGLE_MAPS_API_KEY',undefined)
@@ -63,6 +64,11 @@ export class RideSettings extends React.Component {
         this.setState({videoSound:enabled},()=>{
             this.updateSettings();
         })
+    }
+
+    onAutoScreenshotsChanged(enabled) {
+        this.settings.set('preferences.ride.autoScreenshots',enabled)
+        this.setState({autoScreenshots:enabled})
     }
 
     onChangeRealityFactor(value) {
@@ -137,7 +143,7 @@ export class RideSettings extends React.Component {
     }
     
     render() {
-        const {rideView,reality,videoSound,mapsApiKey} = this.state;
+        const {rideView,reality,videoSound,autoScreenshots,mapsApiKey} = this.state;
         const coachSupported = true;
         const {rideMode: legacyRideMode,isRide} = this.props;
         const rideMode = this.ride.getRideType();
@@ -147,13 +153,14 @@ export class RideSettings extends React.Component {
 
         const isVideo = rideMode==='Video' || legacyRideMode===RIDE_MODES.VIDEO
 
-        const props = {isRide,legacyRideMode,rideMode, rideView, hasElevation, reality, coachSupported, isVideo, videoSound,mapsApiKey }
+        const props = {isRide,legacyRideMode,rideMode, rideView, hasElevation, reality, coachSupported, isVideo, videoSound,autoScreenshots,mapsApiKey }
         return <RideSettingsView {...props} 
             showCoachEditDialog= {this.state.showCoachEditDialog}
             coachEditDialogProps= {this.state.coachEditDialogProps??{}}
             onRideViewSelected={this.onRideViewSelected.bind(this)}
             onChangeRealityFactor={this.onChangeRealityFactor.bind(this)}
             onVideoSoundChanged={this.onVideoSoundChanged.bind(this)}
+            onAutoScreenshotsChanged={this.onAutoScreenshotsChanged.bind(this)}
             onCoachEditDone = {this.onCoachEditDone.bind(this)}
             onMapsApiKeyChanged= {this.onMapsApiKeyChanged.bind(this)}
             onAddCoach = {this.onAddCoachClick.bind(this)}
@@ -180,7 +187,7 @@ export const RideSettingsView = ( props)=> {
 
 
     const {legacyRideMode, rideMode, rideView, hasElevation, reality=100, coachSupported,showCoachEditDialog,coachEditDialogProps,
-        isRide=false,isVideo, videoSound=false,
+        isRide=false,isVideo, videoSound=false, autoScreenshots=true, onAutoScreenshotsChanged,
         mapsApiKey, onMapsApiKeyChanged,
         onRideViewSelected,onChangeRealityFactor,onVideoSoundChanged,onCoachEditDone,onAddCoach
     } = props
@@ -244,6 +251,11 @@ export const RideSettingsView = ( props)=> {
                     </>
                     : null }
 
+
+                <Row> 
+                    <Header>Screenshots</Header> 
+                </Row>
+                <CheckBox label='At key moments' labelPosition='before' labelWidth={LABEL_WIDTH} fontSize='1.8vh' value={autoScreenshots} onValueChange={onAutoScreenshotsChanged} />
     
                 { coachSupported ? <div> <Header>Coach(es)</Header> </div>: null}
                 { coachSupported ? 

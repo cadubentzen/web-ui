@@ -67,6 +67,19 @@ describe('RideSettingsView video sound', () => {
     })
 })
 
+describe('RideSettingsView screenshots at key moments', () => {
+
+    test('on by default, and reports changes', () => {
+        const onAutoScreenshotsChanged = vi.fn()
+        render(<RideSettingsView onAutoScreenshotsChanged={onAutoScreenshotsChanged} />)
+
+        const toggle = screen.getByLabelText('At key moments')
+        expect(toggle.getAttribute('aria-checked')).toBe('true')
+        fireEvent.click(toggle)
+        expect(onAutoScreenshotsChanged).toHaveBeenCalledWith(false)
+    })
+})
+
 describe('RideSettings video sound', () => {
 
     beforeEach(() => {
