@@ -6,12 +6,16 @@ import { ControllerNavigation, FOCUS_CLASS } from './ControllerNavigation'
 import { Dialog } from '../../molecules/Dialog'
 import { CheckBox } from '../../atoms/input/Checkbox'
 
-const { location, adapters } = vi.hoisted(() => ({ location: { pathname: '/routes' }, adapters: [] }))
+const { location, adapters, selection } = vi.hoisted(() => ({ location: { pathname: '/routes' }, adapters: [], selection: { none: false } }))
 
 vi.mock('react-router', () => ({
     useLocation: () => location,
 }))
+// the selected controller: the first app_control adapter in the list (none with selection.none)
 vi.mock('incyclist-services', () => ({
+    useDeviceConfiguration: () => ({
+        getSelected: (capability) => selection.none ? undefined : adapters.find(ai => ai.capabilities.includes(capability))?.adapter,
+    }),
     useDeviceRide: () => ({ getAllAdapters: () => adapters }),
 }))
 vi.mock('gd-eventlog', () => ({
@@ -49,6 +53,7 @@ describe('ControllerNavigation', () => {
     beforeEach(() => {
         location.pathname = '/routes'
         adapters.length = 0
+        selection.none = false
         clicks = []
         document.body.innerHTML = `
             <div id="page">
@@ -364,10 +369,54 @@ describe('ControllerNavigation', () => {
         mount()
         const controller = new EventEmitter()
         const trainer = new EventEmitter()
-        adapters.push({ adapter: controller, capabilities: ['app_control'] }, { adapter: trainer, capabilities: ['power'] })
+        adapters.push({ adapter: trainer, capabilities: ['power'] }, { adapter: controller, capabilities: ['app_control'] })
         act(() => { vi.advanceTimersByTime(2500) })
 
         expect(controller.listenerCount('key-pressed')).toBe(1)
         expect(trainer.listenerCount('key-pressed')).toBe(0)
+    })
+
+    test('only the selected controller is listened to, so a key is never handled twice', () => {
+        // e.g. both halves of a Zwift Play known as controllers: the selected half already
+        // forwards the keys of the other one
+        vi.useFakeTimers()
+        const selected = new EventEmitter()
+        const other = new EventEmitter()
+        adapters.push({ adapter: selected, capabilities: ['app_control'] }, { adapter: other, capabilities: ['app_control'] })
+        mount()
+
+        expect(selected.listenerCount('key-pressed')).toBe(1)
+        expect(other.listenerCount('key-pressed')).toBe(0)
+
+        // one press, one step: the first arrow focuses the top-left element (a second
+        // delivery of the same press would have moved on to 'c')
+        act(() => { selected.emit('key-pressed', {}, { key: 'dpad-down' }) })
+        expect(focused()).toBe('a')
+
+        // the user picks the other one: it replaces the first
+        adapters.splice(0, 1)
+        act(() => { vi.advanceTimersByTime(2500) })
+        expect(selected.listenerCount('key-pressed')).toBe(0)
+        expect(other.listenerCount('key-pressed')).toBe(1)
+    })
+
+    test('while no controller is selected, every controller navigates', () => {
+        vi.useFakeTimers()
+        selection.none = true
+        const play = new EventEmitter()
+        const click = new EventEmitter()
+        const trainer = new EventEmitter()
+        adapters.push({ adapter: play, capabilities: ['app_control'] }, { adapter: click, capabilities: ['app_control'] }, { adapter: trainer, capabilities: ['power'] })
+        mount()
+
+        expect(play.listenerCount('key-pressed')).toBe(1)
+        expect(click.listenerCount('key-pressed')).toBe(1)
+        expect(trainer.listenerCount('key-pressed')).toBe(0)
+
+        // once one is selected, only that one
+        selection.none = false
+        act(() => { vi.advanceTimersByTime(2500) })
+        expect(play.listenerCount('key-pressed')).toBe(1)
+        expect(click.listenerCount('key-pressed')).toBe(0)
     })
 })

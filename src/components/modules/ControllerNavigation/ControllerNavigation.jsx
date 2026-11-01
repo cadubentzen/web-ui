@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 import { useLocation } from "react-router"
-import { useDeviceRide } from "incyclist-services"
+import { useDeviceConfiguration, useDeviceRide } from "incyclist-services"
 import { EventLogger } from "gd-eventlog"
 import { getCandidates, getNavigationRoot, isTextInput, pickDefault, pickFirst, pickHinted, pickNext } from "../../../utils/spatialNavigation"
 
@@ -226,18 +226,34 @@ export const ControllerNavigation = () => {
             target.dispatchEvent(createKeyEvent('keyup', key))
         }
 
+        // the controller selected on the devices page - other controllers (e.g. the second half of
+        // a Zwift Play, which the selected half already forwards) would repeat its keys. As long as
+        // none is selected (e.g. one just found by a scan), every controller can navigate.
+        const getControllers = () => {
+            const selected = useDeviceConfiguration().getSelected(APP_CONTROL)
+            if (selected)
+                return [selected]
+            return (useDeviceRide().getAllAdapters() ?? [])
+                .filter(ai => ai?.capabilities?.includes(APP_CONTROL) && ai.adapter)
+                .map(ai => ai.adapter)
+        }
+
         const scan = () => {
             try {
-                const adapters = useDeviceRide().getAllAdapters() ?? []
-                adapters
-                    .filter(ai => ai?.capabilities?.includes(APP_CONTROL) && ai.adapter && !attached.has(ai.adapter))
-                    .forEach(ai => {
-                        ai.adapter.on('key-pressed', onControllerKey)
-                        attached.add(ai.adapter)
-                        refMode.current.controllers = attached.size
-                        refMode.current.scheduleAutoFocus?.()
-                        logger.logEvent({ message: 'listening to controller', device: ai.adapter.getName?.() })
-                    })
+                const controllers = getControllers()
+                attached.forEach(adapter => {
+                    if (controllers.includes(adapter)) return
+                    adapter.off('key-pressed', onControllerKey)
+                    attached.delete(adapter)
+                    logger.logEvent({ message: 'stopped listening to controller', device: adapter.getName?.() })
+                })
+                controllers.filter(adapter => !attached.has(adapter)).forEach(adapter => {
+                    adapter.on('key-pressed', onControllerKey)
+                    attached.add(adapter)
+                    refMode.current.scheduleAutoFocus?.()
+                    logger.logEvent({ message: 'listening to controller', device: adapter.getName?.() })
+                })
+                refMode.current.controllers = attached.size
             }
             catch (err) {
                 logger.logEvent({ message: 'error', fn: 'scan', error: err?.message })
