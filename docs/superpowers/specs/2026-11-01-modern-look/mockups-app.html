@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incyclist Look · Round 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap">
+<style>
+/* Layout: review sheet — background options first, then five app screens built from the chosen kit; sticky send bar. */
+:root {
+  --bg: #f3f2f5; --surface: #ffffff; --fg: #1d1724; --muted: #625a6c; --line: #e0dce6; --pick: #6a2a8c; --pick-fg: #ffffff;
+  --f-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #141118; --surface: #1d1922; --fg: #ece8f1; --muted: #a39cab; --line: #2f2937; --pick: #e4a13c; --pick-fg: #1c1203; color-scheme: dark } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; padding: 0 max(16px, 3vw) 150px }
+.wrap { max-width: 1180px; margin: 0 auto }
+header.intro { padding-block: 36px 8px; display: grid; gap: 10px }
+header.intro h1 { font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance }
+header.intro p { margin: 0; color: var(--muted); max-width: 74ch }
+.round { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pick) }
+.say { border: 1px solid var(--pick); border-radius: 10px; padding: 10px 14px; background: var(--surface); font-size: 14px }
+.controls { position: sticky; top: 0; z-index: 4; background: var(--bg); display: flex; flex-wrap: wrap; gap: 10px 24px; padding-block: 12px; border-bottom: 1px solid var(--line); margin-top: 12px; align-items: center }
+.ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px }
+.ctl > b { font-weight: 600; margin-right: 4px }
+.opt-btn { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center }
+.opt-btn i { width: 14px; height: 14px; border-radius: 50%; display: block }
+.opt-btn[aria-pressed="true"] { background: var(--pick); border-color: var(--pick); color: var(--pick-fg) }
+.opt-btn:focus-visible, .send:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px }
+section.scr-sec { margin-top: 30px; display: grid; gap: 10px }
+.scr-sec h2 { margin: 0; font-size: 19px }
+.scr-sec p { margin: 0; color: var(--muted); font-size: 14px; max-width: 74ch }
+.note { width: 100%; font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg) }
+.sendbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--surface); border-top: 1px solid var(--line); padding: 12px max(16px, 3vw) }
+.sendbar .wrap { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center }
+.sendbar .summary { font-weight: 600 }
+.sendbar input { flex: 1 1 260px; min-width: 0 }
+.send { font: inherit; font-weight: 600; font-size: 14px; border: 0; border-radius: 8px; padding: 9px 18px; background: var(--pick); color: var(--pick-fg); cursor: pointer }
+.status { font-size: 13px; color: var(--muted) }
+
+/* ───────── app screen mockups: 1em = 1/80 of the screen width, like the ride mockups ───────── */
+.mock { container-type: inline-size; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 6px 24px rgba(0,0,0,.18) }
+.scr { --acc: #e4a13c; --accT: #1c1203; --t: #fff; --mut: rgba(255,255,255,.66); --line2: rgba(255,255,255,.14); --panel: rgba(255,255,255,.06); --panel2: rgba(255,255,255,.1); --ok: #8dc100; --bad: #ff6b6b;
+  position: relative; aspect-ratio: 16 / 10; font-size: 1.25cqw; overflow: hidden; color: var(--t); font-family: "Ubuntu", system-ui, sans-serif; line-height: 1.3; background: var(--pagebg) }
+.bg-wine  { --pagebg: radial-gradient(120% 90% at 85% -10%, #4a1240 0%, transparent 55%), linear-gradient(160deg, #24081f 0%, #160a3c 100%) }
+.bg-graph { --pagebg: radial-gradient(110% 80% at 20% -10%, #2a2d40 0%, transparent 60%), linear-gradient(#14161f, #0e1016) }
+.bg-ink   { --pagebg: radial-gradient(60% 50% at 95% 0%, rgba(228,161,60,.16) 0%, transparent 70%), linear-gradient(#0f0d16, #0b0a10) }
+.nav { position: absolute; left: 1em; top: 1em; bottom: 1em; width: 6.4em; display: flex; flex-direction: column; gap: .4em; padding: .5em; border-radius: 1em; background: rgba(0,0,0,.22) }
+.nav .it { display: grid; justify-items: center; gap: .2em; padding: .7em 0; font-size: .8em; color: var(--mut); border-radius: .7em }
+.nav .it svg { width: 2em; height: 2em }
+.nav .it.on { background: #fff; color: #1c0b2a }
+.nav .grow { flex: 1 }
+.main { position: absolute; left: 9em; right: 2em; top: 1.4em; bottom: 0; display: grid; grid-template-rows: auto auto 1fr; gap: 1em; overflow: hidden }
+.ptitle { font-weight: 700; font-size: 2.3em; letter-spacing: .04em; text-transform: uppercase; margin: 0; line-height: 1 }
+.hrow { display: flex; align-items: center; gap: .8em }
+.sp { flex: 1 }
+.b { display: inline-flex; align-items: center; gap: .45em; padding: .5em 1.2em; border-radius: 999px; font-weight: 600; white-space: nowrap; color: var(--t) }
+.b svg { width: 1.1em; height: 1.1em }
+.b.p { background: var(--acc); color: var(--accT) } .b.s { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.3) } .b.g { opacity: .85 } .b.d { box-shadow: inset 0 0 0 1.5px var(--bad); color: #ffc2c2 }
+.f { outline: .2em solid #ff8c00; outline-offset: .15em; box-shadow: 0 0 .9em .1em rgba(255,140,0,.7) }
+.in { display: inline-flex; align-items: center; justify-content: space-between; gap: .6em; padding: .45em .8em; border-radius: .55em; background: var(--panel2); box-shadow: inset 0 0 0 1px var(--line2); color: var(--t) }
+.in .u { color: var(--mut) }
+.in svg { width: 1.1em; height: 1.1em; color: var(--mut) }
+.chip { padding: .3em .9em; border-radius: 999px; font-size: .9em; color: var(--mut) } .chip.on { background: rgba(255,255,255,.14); color: var(--t) }
+.sw { display: inline-block; width: 2.6em; height: 1.5em; border-radius: 1em; background: var(--acc); position: relative; flex: none }
+.sw::after { content: ""; position: absolute; right: .2em; top: .2em; width: 1.1em; height: 1.1em; border-radius: 50%; background: var(--accT) }
+.sw.off { background: rgba(255,255,255,.2) } .sw.off::after { right: auto; left: .2em; background: #fff }
+.panel { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line2); border-radius: .9em }
+/* routes */
+.list { display: grid; gap: .6em; align-content: start }
+.row { display: grid; grid-template-columns: 8em minmax(0,1fr) 6em 6em 11em 7.5em; gap: 1.2em; align-items: center; padding: .5em 1em .5em .5em }
+.thumb { aspect-ratio: 16/9; border-radius: .55em; position: relative; overflow: hidden; background: linear-gradient(#9cc3e6, #d7e6f0 45%, var(--g1) 46%, var(--g2)) }
+.thumb::after { content: ""; position: absolute; inset: 46% 0 0; background: #6e7072; clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%) }
+.thumb .tag { position: absolute; z-index: 1; left: .4em; top: .4em; font-size: .6em; font-weight: 700; letter-spacing: .06em; padding: .2em .5em; border-radius: 1em; background: rgba(0,0,0,.6) }
+.rname { font-weight: 700; font-size: 1.25em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.meta { font-size: .85em; color: var(--mut); display: flex; gap: .4em; align-items: center; margin-top: .15em }
+.flag { width: 1.3em; height: .9em; border-radius: .12em; display: inline-block }
+.stat b { display: block; font-size: 1.3em; font-variant-numeric: tabular-nums } .stat b small { font-size: .6em; color: var(--mut); font-weight: 500; margin-left: .15em } .stat span { font-size: .72em; color: var(--mut) }
+.spark svg { width: 100%; height: 2.8em; display: block }
+/* devices */
+.dev { position: absolute; inset: 0; padding: 2em 4em; display: grid; grid-template-rows: auto auto 1fr auto; gap: 1.2em }
+.status { display: flex; gap: .6em; align-items: center } .dot { width: .7em; height: .7em; border-radius: 50%; background: var(--ok) }
+.groups { display: grid; gap: 1.5em; align-content: start }
+.group { display: grid; grid-template-columns: 9em 1fr; gap: 1.5em; align-items: start }
+.glbl b { display: block; font-size: 1.2em; text-transform: uppercase; letter-spacing: .04em } .glbl span { font-size: .9em; color: var(--mut) }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1em }
+.tile { padding: 1em 1.1em; display: grid; gap: .45em }
+.tile .cap { font-size: .75em; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc) }
+.tile .dn { font-weight: 600; font-size: 1.1em } .tile .val { font-size: 2.1em; font-weight: 700; min-height: 1em; line-height: 1 } .tile .val small { font-size: .4em; color: var(--mut); font-weight: 500; margin-left: .2em }
+.tile .ft { display: flex; justify-content: space-between; align-items: center; padding-top: .6em; margin-top: .3em; box-shadow: 0 -1px 0 var(--line2); font-size: .85em }
+.tile .ft span { display: flex; gap: .45em; align-items: center } .tile .ft .wait .dot { background: var(--acc) }
+.ifaces { position: absolute; left: 1.2em; bottom: 1.2em; display: flex; gap: .4em } .ifaces span { font-size: .75em; padding: .3em .8em; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line2); color: var(--mut) } .ifaces span.on { color: var(--t); box-shadow: inset 0 0 0 1px var(--ok) }
+/* workouts */
+.wsec { display: grid; gap: .6em } .wsec h4 { margin: 0; font-size: 1.25em }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em }
+.card { overflow: hidden; display: grid }
+.card .gr { height: 5.5em; display: flex; align-items: flex-end; gap: .08em; padding: .6em .6em 0; background: rgba(0,0,0,.18) }
+.card .gr i { flex: 1; border-radius: .1em .1em 0 0 }
+.card .bd { padding: .7em .9em .8em; display: grid; gap: .25em } .card .bd b { font-size: 1.05em } .card .bd span { font-size: .85em; color: var(--mut) }
+.card .bd .ft { display: flex; justify-content: space-between; align-items: center; margin-top: .3em }
+/* dialog */
+.dim { position: absolute; inset: 0; background: rgba(5,4,10,.55) }
+.dlg { position: absolute; left: 14em; right: 14em; top: 3.5em; bottom: 3.5em; border-radius: 1.1em; padding: 1.4em 1.8em; display: grid; grid-template-rows: auto auto 1fr auto; gap: 1em;
+  background: linear-gradient(rgba(44,10,40,.97), rgba(24,10,70,.97)); box-shadow: inset 0 0 0 1px var(--line2), 0 2em 4em rgba(0,0,0,.45) }
+.dlg .hd { display: flex; justify-content: space-between; align-items: center } .dlg .hd b { font-size: 1.6em }
+.x { width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--line2); font-size: .9em }
+.tabs { display: flex; gap: .4em }
+.form { display: grid; grid-template-columns: 11em 1fr; gap: .9em 1.2em; align-items: center; align-content: start }
+.form h5 { grid-column: 1 / -1; margin: .6em 0 0; font-size: .8em; letter-spacing: .1em; text-transform: uppercase; color: var(--mut) }
+.form label { color: var(--mut) }
+.dlg .ft { display: flex; justify-content: flex-end; gap: .8em }
+.sum { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8em } .sum div { padding: .8em 1em } .sum b { display: block; font-size: 1.7em } .sum b small { font-size: .55em; color: var(--mut); margin-left: .15em; font-weight: 500 } .sum span { font-size: .8em; color: var(--mut) }
+.sumgraph { height: 9em; padding: .8em } .sumgraph svg { width: 100%; height: 100%; display: block }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <span class="round">Round 7 · Your kit applied</span>
+    <h1>The whole app in the new look</h1>
+    <div class="say" id="say" hidden></div>
+    <p>Five screens rebuilt from your round 6 picks: pill buttons, filled fields, switches, pill tabs, dialogs with the title on the left and a close button, the white nav tile, glass-panel cards. The blurred photo is gone from the pages — pick one of three clean backgrounds with the toggle (it changes all screens). Comment per screen, then <b>Send to Claude</b>. The ride screens keep the video behind the HUD.</p>
+  </header>
+  <div class="controls">
+    <div class="ctl" role="group" aria-label="Background"><b>Background</b>
+      <button class="opt-btn" type="button" id="bg-wine" data-bg="wine"><i style="background:linear-gradient(160deg,#4a1240,#160a3c)"></i>Wine to indigo</button>
+      <button class="opt-btn" type="button" id="bg-graph" data-bg="graph"><i style="background:linear-gradient(#2a2d40,#0e1016)"></i>Graphite</button>
+      <button class="opt-btn" type="button" id="bg-ink" data-bg="ink"><i style="background:radial-gradient(circle at 80% 20%,#6b4a1c,#0b0a10 60%)"></i>Ink with a warm glow</button>
+    </div>
+  </div>
+  <div id="screens"></div>
+</div>
+<div class="sendbar"><div class="wrap">
+  <span class="summary" id="summary"></span>
+  <input class="note" id="notes" type="text" placeholder="Anything else?" aria-label="General notes">
+  <button class="send" type="button" id="send">Send to Claude</button>
+  <span class="status" id="status" aria-live="polite"></span>
+</div></div>
+<script>
+const I = {
+  user: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c.6-4.6 4-7.2 8.5-7.2s7.9 2.6 8.5 7.2z"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>',
+  bike: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5.5" cy="16" r="3.8"/><circle cx="18.5" cy="16" r="3.8"/><path d="M5.5 16 9 8.5h6.5L18.5 16M9 8.5 12 16h-6.5M8 6h3M15.5 8.5 14.5 5.5h2.5"/></svg>',
+  route: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18.5" r="2.3"/><circle cx="18" cy="5.5" r="2.3"/><path d="M8.3 18.5h7.2a3 3 0 0 0 0-6h-7a3 3 0 0 1 0-6h7.2"/></svg>',
+  bars: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="3.4" height="8" rx=".6"/><rect x="7.6" y="7" width="3.4" height="13" rx=".6"/><rect x="12.2" y="3.5" width="3.4" height="16.5" rx=".6"/><rect x="16.8" y="9.5" width="3.4" height="10.5" rx=".6"/></svg>',
+  act: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 12.5h4l2.5-6 4 12 3-8 1.6 2h3.9"/></svg>',
+  exit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
+  dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4 20h16"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>',
+};
+const FLAGS = { de: 'linear-gradient(#000 33%,#dd0000 33% 66%,#ffce00 66%)', gr: 'repeating-linear-gradient(#0d5eaf 0 11.1%,#fff 11.1% 22.2%)', es: 'linear-gradient(#aa151b 25%,#f1bf00 25% 75%,#aa151b 75%)', fr: 'linear-gradient(90deg,#0055a4 33%,#fff 33% 66%,#ef4135 66%)', ch: 'linear-gradient(#fff,#fff) center/50% 20% no-repeat,linear-gradient(#fff,#fff) center/20% 60% no-repeat,#d52b1e' };
+const ZC = ['#7f7f7f', '#338cff', '#59bf59', '#ffcc3f', '#ff6639', '#ff330c', '#ea39ff'];
+function rng(seed) { let s = seed * 9301 + 49297; return () => (s = (s * 9301 + 49297) % 233280) / 233280 }
+function spark(seed) { const r = rng(seed); let y = .5; const p = []; for (let i = 0; i < 40; i++) { y += (r() - .5) * .22; y = Math.min(.95, Math.max(.08, y)); p.push(y) } const pts = p.map((v, i) => `${(i / 39 * 120).toFixed(1)},${(30 - v * 26 - 2).toFixed(1)}`); return `<svg viewBox="0 0 120 30" preserveAspectRatio="none"><path d="M0,30 L${pts.join(' L')} L120,30 Z" fill="var(--acc)" fill-opacity=".16"/><polyline points="${pts.join(' ')}" fill="none" stroke="var(--acc)" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>` }
+const nav = on => `<div class="nav">${[['user','User'],null,['gear','Settings'],['bike','Devices'],['route','Routes'],['bars','Workouts'],['act','Activities'],null,['exit','Exit']].map(x => x ? `<div class="it${x[1] === on ? ' on' : ''}">${I[x[0]]}<span>${x[1]}</span></div>` : '<div class="grow"></div>').join('')}</div>`;
+const flag = f => `<i class="flag" style="background:${FLAGS[f]}"></i>`;
+
+const routes = () => `${nav('Routes')}<div class="main">
+  <div class="hrow"><span class="b s">${I.bike} Free Ride</span><span class="sp"></span><h4 class="ptitle">Routes</h4><span class="sp"></span><span class="b s">${I.dl} Import</span></div>
+  <div class="hrow"><span class="in" style="flex:0 1 22em;justify-content:flex-start">${I.search} Search routes by name</span><span class="chip on">All</span><span class="chip">Video</span><span class="chip">GPX</span><span class="sp"></span><span style="color:var(--mut)">33 routes</span><span class="in">Suggested ${I.chev}</span></div>
+  <div class="list">${[['Arnbach','de','Germany','Loop','11.7','202',3,['#5e8a3a','#3d5a26'],'VIDEO'],['Polygyros','gr','Greece','Point to point','40.2','723',7,['#b49a6a','#7c6a48'],'VIDEO'],['Malaga City Tour','es','Spain','Loop','10.1','139',9,['#9aa36a','#6f7848'],'GPX'],['Menglonnais','fr','France','Loop','12.0','154',11,['#7aa04e','#53702f'],'VIDEO'],['Lago del Sambuco','ch','Switzerland','Point to point','22.7','1083',2,['#7f8a7a','#55604f'],'VIDEO']].map((r, i) => `
+    <div class="row panel${i === 0 ? ' f' : ''}"><div class="thumb" style="--g1:${r[7][0]};--g2:${r[7][1]}"><span class="tag">${r[8]}</span></div>
+      <div style="min-width:0"><div class="rname">${r[0]}</div><div class="meta">${flag(r[1])} ${r[2]} · ${r[3]}</div></div>
+      <div class="stat"><b>${r[4]}<small>km</small></b><span>Distance</span></div><div class="stat"><b>${r[5]}<small>m</small></b><span>Ascent</span></div>
+      <div class="spark">${spark(r[6])}</div><div><span class="b p">Details ${I.arrow}</span></div></div>`).join('')}</div></div>`;
+
+const devices = () => { const tile = (cap, dn, val, unit, ok = true, f = false) => `<div class="tile panel"><span class="cap">${cap}</span><span class="dn">${dn}</span><span class="val">${val}${unit ? `<small>${unit}</small>` : ''}</span><div class="ft"><span class="${ok ? '' : 'wait'}"><i class="dot"></i>${ok ? 'Connected' : 'Connecting…'}</span><i class="sw${f ? ' f' : ''}"></i></div></div>`;
+  return `<div class="dev"><h4 class="ptitle" style="text-align:center">Devices</h4><div class="status" style="justify-content:center"><i class="dot"></i>Ready to ride with KICKR CORE 05DD. Add optional sensors, or press OK.</div>
+  <div class="groups"><div class="group"><div class="glbl"><b>To ride</b><span>your trainer</span></div><div class="tiles">${tile('Resistance','KICKR CORE 05DD','','',true,true)}${tile('Power','KICKR CORE 05DD','0','W')}${tile('Speed','KICKR CORE 05DD','0.0','km/h')}</div></div>
+  <div class="group"><div class="glbl"><b>Optional</b><span>extras, not needed</span></div><div class="tiles">${tile('Heart rate','HRM-Pro:935280','–','bpm',false)}${tile('Cadence','KICKR CORE 05DD','0','rpm')}${tile('Controller','Zwift Play F84F','','')}</div></div></div>
+  <div style="display:flex;justify-content:center"><span class="b p" style="font-size:1.15em;padding:.55em 3em">OK</span></div></div>
+  <div class="ifaces"><span>ANT+</span><span class="on">BLE</span><span class="on">Serial</span><span>TCP</span></div>`; };
+
+const wbars = (seed, shape) => shape.map(([w, p]) => `<i style="flex:${w};height:${Math.round(p * 80)}%;background:${ZC[p < .55 ? 0 : p < .75 ? 1 : p < .9 ? 2 : p < 1.05 ? 3 : p < 1.2 ? 4 : 5]}"></i>`).join('');
+const workouts = () => { const card = (t, d, shape, f) => `<div class="card panel${f ? ' f' : ''}"><div class="gr">${wbars(0, shape)}</div><div class="bd"><b>${t}</b><span>${d}</span><div class="ft"><span style="color:var(--mut);font-size:.8em">FTP 143 W</span><span class="b p" style="padding:.3em 1em">Select</span></div></div></div>`;
+  const tempo = [[2,.5],[3,.65],[6,.85],[1,.55],[6,.85],[2,.5]], vo2 = [[3,.55],[1,1.15],[1,.5],[1,1.15],[1,.5],[1,1.15],[1,.5],[1,1.15],[3,.5]], thr = [[3,.55],[4,1],[1,.6],[4,1],[1,.6],[4,1],[3,.5]], spr = [[4,.55],[.5,1.6],[1.5,.5],[.5,1.6],[1.5,.5],[.5,1.6],[4,.5]];
+  return `${nav('Workouts')}<div class="main" style="grid-template-rows:auto 1fr"><div class="hrow"><span class="sp"></span><h4 class="ptitle">Workouts</h4><span class="sp"></span><span class="b s">${I.dl} Import</span><span class="b s">Create</span></div>
+  <div style="display:grid;gap:1.3em;align-content:start"><div class="wsec"><h4>Scheduled</h4><div class="cards">${card('45min Z1','45 min · today',[[1,.5]])}</div></div>
+  <div class="wsec"><h4>30 min</h4><div class="cards">${card("30' SubLT Tempo",'30 min · tempo',tempo,true)}${card("30' Threshold Over/Unders",'30 min · threshold',thr)}${card("30' VO2Max Intervals",'30 min · VO2max',vo2)}${card("30' Anaerobic Sprints",'30 min · sprints',spr)}</div></div></div></div>`; };
+
+const settings = () => `${routes()}<div class="dim"></div><div class="dlg"><div class="hd"><b>Settings</b><span class="x">✕</span></div>
+  <div class="tabs"><span class="chip">Gear</span><span class="chip on">Ride</span><span class="chip">Apps</span><span class="chip">Support</span></div>
+  <div class="form"><h5>Maps</h5><label>View preference</label><div class="tabs"><span class="chip on">Street View</span><span class="chip">Satellite</span><span class="chip">Map</span></div>
+    <label>Maps API key</label><span class="in" style="width:20em">••••••••••••</span>
+    <h5>Video</h5><label>Play video sound</label><span class="sw off"></span>
+    <h5>Coaches</h5><label>No coaches added</label><span><span class="b s">Add coach</span></span></div>
+  <div class="ft"><span class="b p f">Done</span></div></div>`;
+
+const pause = () => { const p = []; const r = rng(4); let y = .5; for (let i = 0; i < 60; i++) { y += (r() - .5) * .18; y = Math.min(.9, Math.max(.2, y)); p.push(`${(i / 59 * 200).toFixed(1)},${(40 - y * 36).toFixed(1)}`) }
+  return `<div style="position:absolute;inset:0;background:linear-gradient(#8fb6dc,#cfe0ec 38%,#6d8a4c 39%,#4c6a33 55%,#6e6c62)"></div><div class="dim"></div><div class="dlg" style="grid-template-rows:auto auto auto 1fr auto"><div class="hd"><b>Paused · Arnbach</b><span class="x">✕</span></div>
+  <div class="tabs"><span class="chip on">Activity</span><span class="chip">Ride</span><span class="chip">Gear</span></div>
+  <div class="sum"><div class="panel"><b>0:24:10</b><span>Time</span></div><div class="panel"><b>9.8<small>km</small></b><span>Distance</span></div><div class="panel"><b>148<small>W</small></b><span>Avg power</span></div><div class="panel"><b>121<small>bpm</small></b><span>Avg heart rate</span></div></div>
+  <div class="panel sumgraph"><svg viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="${p.join(' ')}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div>
+  <div class="ft"><span class="b d">Delete</span><span class="sp"></span><span class="b s">Save &amp; exit</span><span class="b p f">Continue</span></div></div>`; };
+
+const SCREENS = [['routes','Routes',routes,'Search as a filled field, filters as pill chips, rows as glass panels, pill buttons.'],['devices','Devices',devices,'Tiles as glass panels with switches; capability in accent; interfaces as small pills.'],['workouts','Workouts',workouts,'Cards as glass panels with the workout profile in zone colours and a Select button.'],['settings','Settings dialog',settings,'Title left with a close button, pill tabs, pill choices, filled fields, switches.'],['pause','Ride · pause menu',pause,'Summary tiles and the power trace instead of the empty activity tab; Delete set apart on the left.']];
+document.getElementById('screens').innerHTML = SCREENS.map(s => `<section class="scr-sec" id="sec-${s[0]}"><h2>${s[1]}</h2><p>${s[3]}</p><div class="mock"><div class="scr">${s[2]()}</div></div><input class="note" type="text" id="snote-${s[0]}" data-s="${s[0]}" placeholder="Comment on ${s[1]}" aria-label="Comment on ${s[1]}"></section>`).join('');
+
+const ROUND = 7, KEY = 'incyclist-look-r' + ROUND;
+const state = { background: 'wine', screenNotes: {}, notes: '' };
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')) } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)) } catch (e) {} };
+const BGN = { wine: 'Wine to indigo', graph: 'Graphite', ink: 'Ink with a warm glow' };
+function render() {
+  document.querySelectorAll('.scr').forEach(s => { s.classList.remove('bg-wine', 'bg-graph', 'bg-ink'); s.classList.add('bg-' + state.background) });
+  document.querySelectorAll('[data-bg]').forEach(b => b.setAttribute('aria-pressed', b.dataset.bg === state.background));
+  document.querySelectorAll('[data-s].note').forEach(i => { if (document.activeElement !== i) i.value = state.screenNotes[i.dataset.s] || '' });
+  const n = document.getElementById('notes'); if (document.activeElement !== n) n.value = state.notes;
+  document.getElementById('summary').textContent = 'Background: ' + BGN[state.background];
+}
+document.addEventListener('click', e => { const t = e.target.closest('[data-bg]'); if (t) { state.background = t.dataset.bg; save(); render() } });
+document.addEventListener('input', e => { const t = e.target; if (t.dataset.s) state.screenNotes = { ...state.screenNotes, [t.dataset.s]: t.value }; else if (t.id === 'notes') state.notes = t.value; save() });
+const status = m => document.getElementById('status').textContent = m;
+document.getElementById('send').addEventListener('click', async () => {
+  status('Sending…');
+  try { const r = await fetch('/pick', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: ROUND, ...state }) }); status(r.ok ? 'Sent. Claude is reading it.' : 'Could not send (' + r.status + ').') }
+  catch (err) { status('Could not reach the local server.') }
+});
+let version = null;
+setInterval(async () => { try { const p = await (await fetch('/poll')).json(); if (version !== null && p.version !== version) location.reload(); version = p.version; const say = document.getElementById('say'); say.hidden = !p.say; if (p.say) say.textContent = 'Claude: ' + p.say } catch (e) {} }, 2000);
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incyclist Look · Round 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&family=Saira+Semi+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Archivo:wght@400;600;800&family=Barlow:wght@400;500;600&family=Manrope:wght@400;600;800&display=swap">
+<style>
+/* Layout: review sheet — ride-number layouts first (the open question), then the rest of direction D for comments; sticky send bar. */
+:root {
+  --bg: #f3f2f5; --surface: #ffffff; --fg: #1d1724; --muted: #625a6c; --line: #e0dce6; --pick: #6a2a8c; --pick-fg: #ffffff;
+  --f-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --numfont: "Ubuntu", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #141118; --surface: #1d1922; --fg: #ece8f1; --muted: #a39cab; --line: #2f2937; --pick: #e4a13c; --pick-fg: #1c1203; color-scheme: dark } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; padding: 0 max(16px, 3vw) 150px }
+.wrap { max-width: 1180px; margin: 0 auto }
+header.intro { padding-block: 36px 8px; display: grid; gap: 10px }
+header.intro h1 { font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.01em }
+header.intro p { margin: 0; color: var(--muted); max-width: 72ch }
+.round { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pick) }
+.say { border: 1px solid var(--pick); border-radius: 10px; padding: 10px 14px; background: var(--surface); font-size: 14px }
+.say b { color: var(--pick) }
+.controls { position: sticky; top: 0; z-index: 4; background: var(--bg); display: flex; flex-wrap: wrap; gap: 10px 28px; padding-block: 12px; border-bottom: 1px solid var(--line); margin-top: 12px }
+.ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px }
+.ctl > b { font-weight: 600; margin-right: 4px }
+.opt-btn { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center }
+.opt-btn i { width: 14px; height: 14px; border-radius: 50%; display: block }
+.opt-btn[aria-pressed="true"] { background: var(--pick); border-color: var(--pick); color: var(--pick-fg) }
+.opt-btn:focus-visible, .fav:focus-visible, .also:focus-visible, .send:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px }
+h2.part { font-size: 22px; margin: 40px 0 4px; letter-spacing: -0.01em }
+p.part { margin: 0 0 8px; color: var(--muted); max-width: 72ch }
+section.var { margin-top: 28px; display: grid; gap: 12px }
+.var-head { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: flex-end; justify-content: space-between }
+.var-head h3 { margin: 0; font-size: 18px }
+.var-head h3 span { color: var(--muted); font-weight: 500 }
+.var-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; max-width: 72ch }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.fav, .also { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--fg); background: transparent; color: var(--fg); white-space: nowrap }
+.fav[aria-pressed="true"] { background: var(--pick); border-color: var(--pick); color: var(--pick-fg) }
+.also[aria-pressed="true"] { border-color: var(--pick); color: var(--pick); box-shadow: inset 0 0 0 1px var(--pick) }
+.note { width: 100%; font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg) }
+figure { margin: 0; display: grid; gap: 6px; min-width: 0 }
+figcaption { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase }
+.sendbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--surface); border-top: 1px solid var(--line); padding: 12px max(16px, 3vw) }
+.sendbar .wrap { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center }
+.sendbar .summary { font-weight: 600 }
+.sendbar input { flex: 1 1 260px; min-width: 0 }
+.send { font: inherit; font-weight: 600; font-size: 14px; border: 0; border-radius: 8px; padding: 9px 18px; background: var(--pick); color: var(--pick-fg); cursor: pointer }
+.status { font-size: 13px; color: var(--muted) }
+
+/* ───────────── mockup engine: everything inside .screen is sized in em; 1em = 1/80 of the screen width ───────────── */
+.mock { container-type: inline-size; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 6px 24px rgba(0,0,0,.18) }
+.screen { position: relative; aspect-ratio: 16 / 10; max-width: 100%; font-size: 1.25cqw; overflow: hidden; color: var(--t); background: var(--sbg); font-family: var(--fb); line-height: 1.3 }
+.scenery { position: absolute; inset: 0;
+  background:
+    radial-gradient(40% 50% at 20% 20%, #3f5a2c 0%, transparent 70%),
+    radial-gradient(35% 40% at 75% 25%, #5d7340 0%, transparent 70%),
+    radial-gradient(60% 40% at 60% 80%, #8b8c86 0%, transparent 70%),
+    radial-gradient(30% 30% at 85% 70%, #b9b8ad 0%, transparent 70%),
+    radial-gradient(40% 35% at 30% 75%, #6c6f5a 0%, transparent 70%),
+    linear-gradient(160deg, #314524, #6a6d5d 60%, #a3a196);
+  filter: blur(0.6em) saturate(var(--sat, 1)); transform: scale(1.08) }
+.scrim { position: absolute; inset: 0; background: var(--scrim, transparent) }
+.nav { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: .5em; background: var(--nav-bg); }
+.nav .it { display: grid; justify-items: center; gap: .25em; width: 100%; padding: .7em 0; color: var(--nav-fg); font-size: .82em; border-radius: var(--nav-r) }
+.nav .it svg { width: 2em; height: 2em }
+.nav .it.on { background: var(--nav-on-bg); color: var(--nav-on-fg) }
+.nav .grow { flex: 1 }
+.main { position: absolute; z-index: 1; display: grid; grid-template-rows: auto auto 1fr; gap: 1em; overflow: hidden }
+.hrow { display: flex; align-items: center; gap: 1em }
+.title { font-family: var(--fd); font-weight: var(--title-w); font-size: 2.6em; letter-spacing: var(--title-ls); text-transform: var(--title-tt); line-height: 1; margin: 0 }
+.sp { flex: 1 }
+.btn { display: inline-flex; align-items: center; gap: .5em; padding: .55em 1.1em; border-radius: var(--btn-r); font-weight: 600; font-family: var(--fbtn, var(--fb)); white-space: nowrap; letter-spacing: var(--btn-ls, 0); text-transform: var(--btn-tt, none) }
+.btn svg { width: 1.2em; height: 1.2em }
+.btn.pri { background: var(--acc); color: var(--acc-t) }
+.btn.sec { background: var(--sec-bg); color: var(--t); box-shadow: inset 0 0 0 1px var(--sec-line) }
+.btn.ghost { color: var(--t) }
+.field { display: flex; align-items: center; gap: .6em; padding: .55em .9em; border-radius: var(--in-r); background: var(--in-bg); color: var(--muted); box-shadow: inset 0 0 0 1px var(--in-line) }
+.field svg { width: 1.1em; height: 1.1em }
+.muted { color: var(--muted) }
+.list { display: grid; gap: var(--row-gap); align-content: start }
+.row { display: grid; grid-template-columns: 8.4em minmax(0, 1fr) 6em 6em 12em 7em; align-items: center; gap: 1.3em; padding: var(--row-pad); border-radius: var(--row-r); background: var(--row-bg); box-shadow: var(--row-shadow); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); position: relative }
+.thumb { aspect-ratio: 16/9; border-radius: var(--th-r); position: relative; overflow: hidden; background: linear-gradient(#9cc3e6, #d7e6f0 45%, var(--g1) 46%, var(--g2)) }
+.thumb::after { content: ""; position: absolute; inset: 46% 0 0; background: #6e7072; clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%) }
+.thumb .tag { position: absolute; z-index: 1; left: .4em; top: .4em; font-size: .62em; font-weight: 700; letter-spacing: .06em; padding: .2em .5em; border-radius: .3em; background: rgba(0,0,0,.65); color: #fff }
+.rname { font-family: var(--fname, var(--fb)); font-weight: var(--name-w, 700); font-size: 1.3em; text-transform: var(--name-tt, none); letter-spacing: var(--name-ls, 0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.rmeta { display: flex; align-items: center; gap: .5em; font-size: .85em; color: var(--muted); margin-top: .2em }
+.flag { width: 1.4em; height: .95em; border-radius: .12em; display: inline-block; flex: none }
+.live { font-size: .85em; padding: .05em .5em; border-radius: 1em; background: var(--live-bg); color: var(--live-t); font-weight: 600 }
+.stat b { display: block; font-family: var(--fnum, var(--fb)); font-size: var(--num-s, 1.35em); font-weight: var(--num-w, 700); font-variant-numeric: tabular-nums; line-height: 1.1 }
+.stat b small { font-size: .65em; font-weight: 500; color: var(--muted); margin-left: .15em }
+.stat span { font-size: .72em; color: var(--muted); text-transform: var(--lbl-tt, none); letter-spacing: var(--lbl-ls, 0) }
+.spark svg { width: 100%; height: 3em; display: block }
+.spark span { font-size: .68em; color: var(--muted) }
+.focus { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-o); box-shadow: var(--focus-glow) }
+
+/* devices */
+.dev { position: absolute; inset: 0; z-index: 1; display: grid; grid-template-rows: auto auto 1fr auto; gap: 1.2em; padding: 2em 4em 2em }
+.status { display: flex; align-items: center; gap: .6em; font-size: 1.05em }
+.dot { width: .7em; height: .7em; border-radius: 50%; background: var(--ok) }
+.groups { display: grid; gap: 1.6em; align-content: start }
+.group { display: grid; grid-template-columns: 9em 1fr; gap: 1.5em; align-items: start }
+.glbl b { display: block; font-family: var(--fd); font-size: 1.25em; text-transform: var(--title-tt); letter-spacing: var(--lbl-ls, 0) }
+.glbl span { font-size: .9em; color: var(--muted) }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2em }
+.tile { border-radius: var(--tile-r); background: var(--tile-bg); box-shadow: var(--tile-shadow); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); padding: 1.1em 1.2em; display: grid; gap: .5em; position: relative; overflow: hidden }
+.tile .cap { font-size: .78em; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--cap) }
+.tile .dn { font-weight: 600; font-size: 1.15em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tile .val { font-family: var(--fnum, var(--fb)); font-size: 2.2em; font-weight: var(--num-w, 700); line-height: 1; font-variant-numeric: tabular-nums; min-height: 1em }
+.tile .val small { font-size: .4em; color: var(--muted); font-weight: 500; margin-left: .2em }
+.tile .ft { display: flex; align-items: center; justify-content: space-between; margin-top: .4em; padding-top: .7em; border-top: 1px solid var(--hair); font-size: .85em }
+.tile .ft .st { display: flex; align-items: center; gap: .45em }
+.tile .ft .st.wait .dot { background: var(--warn) }
+.tog { width: 2.6em; height: 1.45em; border-radius: 1em; background: var(--acc); position: relative; flex: none }
+.tog::after { content: ""; position: absolute; top: .2em; right: .2em; width: 1.05em; height: 1.05em; border-radius: 50%; background: var(--acc-t) }
+.devfoot { display: flex; justify-content: center }
+.devfoot .btn { font-size: 1.15em; padding: .6em 3em }
+.ifaces { position: absolute; left: 1.2em; bottom: 1.2em; display: flex; gap: .4em; z-index: 2 }
+.ifaces span { font-size: .72em; padding: .3em .7em; border-radius: var(--in-r); background: var(--sec-bg); box-shadow: inset 0 0 0 1px var(--sec-line); color: var(--muted) }
+.ifaces span.on { color: var(--t); box-shadow: inset 0 0 0 1px var(--ok) }
+
+/* details dialog */
+.dim { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 1 }
+.dlg { position: absolute; z-index: 2; left: 8em; right: 8em; top: 3em; bottom: 3em; border-radius: var(--dlg-r); background: var(--dlg-bg); box-shadow: var(--dlg-shadow); backdrop-filter: var(--glass-strong); -webkit-backdrop-filter: var(--glass-strong);
+  padding: 1.8em 2em; display: grid; grid-template-rows: auto auto minmax(0,1fr) auto auto auto; gap: 1.1em; overflow: hidden }
+.dlg h3 { margin: 0; font-family: var(--fd); font-weight: var(--title-w); text-transform: var(--title-tt); letter-spacing: var(--title-ls); font-size: 1.9em; line-height: 1 }
+.dlg h3 + .rmeta { margin-top: -.6em }
+.media { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; min-height: 0 }
+.map { border-radius: var(--th-r); background:
+  linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px) 0 0 / 2em 2em, linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px) 0 0 / 2em 2em,
+  radial-gradient(30% 30% at 30% 70%, #cfe2b8, transparent), #ece7da; position: relative; overflow: hidden }
+.map svg, .vid svg { position: absolute; inset: 0; width: 100%; height: 100% }
+.vid { border-radius: var(--th-r); position: relative; overflow: hidden; background: linear-gradient(#a9c9e8, #dbe7ef 50%, #8f8a7b 51%, #5e5a50) }
+.vid::after { content: ""; position: absolute; inset: 51% 0 0; background: #77787a; clip-path: polygon(40% 0, 54% 0, 100% 100%, 8% 100%) }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; padding-block: .6em; border-block: 1px solid var(--hair) }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 1em 3em; align-content: start }
+.opt { display: grid; gap: .35em }
+.opt label { font-size: .85em; color: var(--muted) }
+.inp { display: inline-flex; align-items: center; gap: .5em; width: fit-content; padding: .4em .8em; border-radius: var(--in-r); background: var(--in-bg); box-shadow: inset 0 0 0 1px var(--in-line); font-variant-numeric: tabular-nums; min-width: 7em; justify-content: space-between }
+.seg { display: inline-flex; border-radius: var(--in-r); background: var(--in-bg); box-shadow: inset 0 0 0 1px var(--in-line); padding: .2em; gap: .2em; width: fit-content }
+.seg span { padding: .25em .8em; border-radius: calc(var(--in-r) * .8) }
+.seg span.on { background: var(--acc); color: var(--acc-t); font-weight: 600 }
+.hint { font-size: .75em; color: var(--muted) }
+.dbtns { display: flex; gap: .8em; align-items: center }
+.dbtns .btn { font-size: 1.05em }
+
+/* ───────────── Direction A · Glass ───────────── */
+.t-a { --sbg: #1d2419; --t: #f4f6f1; --muted: rgba(244,246,241,.66); --hair: rgba(255,255,255,.14);
+  --acc: #9fd033; --acc-t: #10170a; --ok: #9fd033; --warn: #f2b84b; --cap: rgba(244,246,241,.7);
+  --fd: "Manrope", system-ui, sans-serif; --fb: "Manrope", system-ui, sans-serif; --title-w: 800; --title-ls: -0.02em; --title-tt: none;
+  --scrim: linear-gradient(90deg, rgba(10,14,10,.55), rgba(10,14,10,.25)); --sat: 1.05;
+  --nav-bg: rgba(16,20,16,.45); --nav-fg: rgba(244,246,241,.75); --nav-on-bg: rgba(255,255,255,.92); --nav-on-fg: #141a12; --nav-r: .9em;
+  --btn-r: 2em; --sec-bg: rgba(255,255,255,.1); --sec-line: rgba(255,255,255,.18);
+  --in-r: 2em; --in-bg: rgba(255,255,255,.1); --in-line: rgba(255,255,255,.16);
+  --row-gap: .7em; --row-pad: .55em 1em .55em .55em; --row-r: 1.1em; --row-bg: rgba(18,22,18,.5); --row-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+  --glass: blur(1.4em) saturate(1.3); --glass-strong: blur(2em) saturate(1.4); --th-r: .75em;
+  --live-bg: rgba(159,208,51,.2); --live-t: #c9ef7d;
+  --focus: #fff; --focus-w: .18em; --focus-o: .18em; --focus-glow: 0 0 0 .5em rgba(159,208,51,.35);
+  --tile-r: 1.1em; --tile-bg: rgba(18,22,18,.5); --tile-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+  --dlg-r: 1.4em; --dlg-bg: rgba(20,24,20,.62); --dlg-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 2em 4em rgba(0,0,0,.4) }
+.t-a .nav { left: 1em; top: 1em; bottom: 1em; width: 6em; border-radius: 1.3em; padding: .6em; backdrop-filter: blur(1.4em); -webkit-backdrop-filter: blur(1.4em); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1) }
+.t-a .main { left: 9em; right: 2em; top: 1.6em; bottom: 0 }
+
+/* ───────────── Direction B · Studio ───────────── */
+.t-b { --sbg: #111418; --t: #eceef1; --muted: #8b93a0; --hair: #252a32;
+  --acc: #f0a43a; --acc-t: #1a1205; --ok: #58c27d; --warn: #f0a43a; --cap: #8b93a0;
+  --fd: "Archivo", system-ui, sans-serif; --fb: "Archivo", system-ui, sans-serif; --title-w: 800; --title-ls: -0.015em; --title-tt: none;
+  --nav-bg: #0b0d10; --nav-fg: #8b93a0; --nav-on-bg: transparent; --nav-on-fg: #fff; --nav-r: 0;
+  --btn-r: .5em; --sec-bg: #1a1e24; --sec-line: #2b313a;
+  --in-r: .5em; --in-bg: #1a1e24; --in-line: #2b313a;
+  --row-gap: 0; --row-pad: .8em .6em; --row-r: 0; --row-bg: transparent; --row-shadow: inset 0 -1px 0 #222730;
+  --glass: none; --glass-strong: none; --th-r: .4em;
+  --live-bg: #1f3a2a; --live-t: #7fdca0;
+  --focus: var(--acc); --focus-w: .16em; --focus-o: -.16em; --focus-glow: none;
+  --tile-r: .7em; --tile-bg: #181c22; --tile-shadow: inset 0 0 0 1px #252a32;
+  --dlg-r: .9em; --dlg-bg: #171a1f; --dlg-shadow: inset 0 0 0 1px #2b313a, 0 2em 4em rgba(0,0,0,.5) }
+.t-b .scenery, .t-b .scrim { display: none }
+.t-b .nav { left: 0; top: 0; bottom: 0; width: 7em; padding: 1em 0; box-shadow: inset -1px 0 0 #1f242b }
+.t-b .nav .it.on { box-shadow: inset .22em 0 0 var(--acc) }
+.t-b .nav .it.on svg { color: var(--acc) }
+.t-b .main { left: 9em; right: 2.5em; top: 2em; bottom: 0 }
+.t-b .row.focus { background: #1a1e24; border-radius: .5em }
+.t-b .dim { background: rgba(5,6,8,.7) }
+.t-b .dev-scenery { display: none }
+
+/* ───────────── Direction C · Race ───────────── */
+.t-c { --sbg: #0b0b0b; --t: #f5f5f0; --muted: #9a9a92; --hair: #2a2a28;
+  --acc: #ffd23f; --acc-t: #121000; --ok: #ffd23f; --warn: #ff7a3d; --cap: #ffd23f;
+  --fd: "Barlow Condensed", "Arial Narrow", sans-serif; --fb: "Barlow", system-ui, sans-serif; --fbtn: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --title-w: 800; --title-ls: .01em; --title-tt: uppercase; --btn-tt: uppercase; --btn-ls: .06em;
+  --fname: "Barlow Condensed", "Arial Narrow", sans-serif; --name-w: 700; --name-tt: uppercase; --name-ls: .02em;
+  --fnum: "Barlow Condensed", "Arial Narrow", sans-serif; --num-s: 1.9em; --num-w: 700; --lbl-tt: uppercase; --lbl-ls: .12em;
+  --scrim: linear-gradient(90deg, rgba(8,8,8,.92) 30%, rgba(8,8,8,.7)); --sat: .3;
+  --nav-bg: #000; --nav-fg: #8f8f88; --nav-on-bg: var(--acc); --nav-on-fg: #000; --nav-r: 0;
+  --btn-r: 0; --sec-bg: transparent; --sec-line: #f5f5f0;
+  --in-r: 0; --in-bg: #161616; --in-line: #333;
+  --row-gap: .45em; --row-pad: 0 1em 0 0; --row-r: 0; --row-bg: #151514; --row-shadow: none;
+  --glass: none; --glass-strong: none; --th-r: 0;
+  --live-bg: #ff7a3d; --live-t: #000;
+  --focus: var(--acc); --focus-w: .25em; --focus-o: 0; --focus-glow: none;
+  --tile-r: 0; --tile-bg: #151514; --tile-shadow: none;
+  --dlg-r: 0; --dlg-bg: #121212; --dlg-shadow: inset 0 .3em 0 var(--acc), 0 2em 4em rgba(0,0,0,.6) }
+.t-c .nav { left: 0; top: 0; bottom: 0; width: 7em; padding: 1em 0; gap: .2em }
+.t-c .nav .it { font-family: "Barlow Condensed", sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .85em }
+.t-c .main { left: 9em; right: 2.5em; top: 2em; bottom: 0 }
+.t-c .title { font-size: 3.4em; font-style: italic }
+.t-c .btn { clip-path: polygon(.6em 0, 100% 0, calc(100% - .6em) 100%, 0 100%); padding-inline: 1.5em }
+.t-c .btn.sec { box-shadow: none; background: #222 }
+.t-c .thumb { clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%) }
+.t-c .row .stat b small { color: var(--acc) }
+.t-c .tile { box-shadow: inset 0 .25em 0 var(--acc) }
+.t-c .tile .val { font-size: 3em }
+.t-c .dev .title, .t-c .dlg h3 { font-style: italic }
+.t-c .tog { border-radius: 0 } .t-c .tog::after { border-radius: 0 }
+.t-c .seg span { border-radius: 0 }
+
+/* ───────────── Direction D · Refined current ───────────── */
+.t-d { --sbg: #24102e; --t: #ffffff; --muted: rgba(255,255,255,.7); --hair: rgba(255,255,255,.18);
+  --acc: #e4a13c; --acc-t: #1c1203; --ok: #8dc100; --warn: #e4a13c; --cap: #f3c37a;
+  --fd: "Ubuntu", system-ui, sans-serif; --fb: "Ubuntu", system-ui, sans-serif; --title-w: 700; --title-ls: .04em; --title-tt: uppercase;
+  --scrim: linear-gradient(rgba(40,4,30,.25), rgba(20,6,60,.35)); --sat: .9;
+  --nav-bg: rgba(40,20,50,.55); --nav-fg: rgba(255,255,255,.85); --nav-on-bg: #fff; --nav-on-fg: #1c0b2a; --nav-r: .6em;
+  --btn-r: .45em; --sec-bg: rgba(255,255,255,.08); --sec-line: rgba(255,255,255,.4);
+  --in-r: .45em; --in-bg: rgba(255,255,255,.1); --in-line: rgba(255,255,255,.25);
+  --row-gap: .6em; --row-pad: .5em 1em .5em .5em; --row-r: .7em; --row-bg: linear-gradient(90deg, rgba(56,1,31,.82), rgba(26,4,86,.75)); --row-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+  --glass: blur(.6em); --glass-strong: blur(1em); --th-r: .45em;
+  --live-bg: rgba(141,193,0,.25); --live-t: #c6ef5b;
+  --focus: #ff8c00; --focus-w: .16em; --focus-o: .1em; --focus-glow: 0 0 .9em .1em rgba(255,140,0,.7);
+  --tile-r: .7em; --tile-bg: linear-gradient(rgba(56,1,31,.85), rgba(26,4,86,.85)); --tile-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+  --dlg-r: .9em; --dlg-bg: linear-gradient(rgba(56,1,31,.95), rgba(26,4,86,.95)); --dlg-shadow: inset 0 0 0 1px rgba(255,255,255,.2), 0 2em 4em rgba(0,0,0,.4) }
+.t-d .nav { left: 0; top: 0; bottom: 0; width: 7em; padding: 1em .6em }
+.t-d .main { left: 9em; right: 2.5em; top: 1.6em; bottom: 0 }
+.t-d .hrow.top { justify-content: center; position: relative }
+.t-d .hrow.top .title { position: absolute; left: 50%; transform: translateX(-50%) }
+.t-d .tile .cap { color: var(--cap) }
+
+/* ride HUD */
+.video { position: absolute; inset: 0; background: linear-gradient(#8fb6dc, #cfe0ec 38%, #6d8a4c 39%, #4c6a33 55%, #6e6c62) }
+.video::before { content: ""; position: absolute; inset: 39% 0 0; background: linear-gradient(#77787a, #5d5e60); clip-path: polygon(47% 0, 53% 0, 92% 100%, 8% 100%) }
+.video::after { content: ""; position: absolute; inset: 39% 0 0; background: repeating-linear-gradient(#f2f2ea 0 2.4em, transparent 2.4em 5em); clip-path: polygon(49.8% 0, 50.2% 0, 51% 100%, 49% 100%); opacity: .8 }
+.hud { position: absolute; z-index: 2; border-radius: var(--hud-r); background: var(--hud-bg); box-shadow: var(--hud-shadow); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass) }
+.dash { left: 4em; right: 4em; top: 1.2em; display: grid; grid-template-columns: repeat(7, 1fr); padding: .7em 0 }
+.dash > div { display: grid; justify-items: center; gap: .1em; position: relative }
+.dash > div + div { box-shadow: -1px 0 0 var(--hair) }
+.dash span { font-size: .72em; color: var(--muted); text-transform: var(--lbl-tt, uppercase); letter-spacing: .1em }
+.dash b { font-family: var(--fnum, var(--fb)); font-size: 2.1em; font-weight: var(--num-w, 700); font-variant-numeric: tabular-nums; line-height: 1.05 }
+.dash b small { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: .15em }
+.dash i { font-style: normal; font-size: .72em; color: var(--muted); font-variant-numeric: tabular-nums }
+.dash .hot b { color: var(--acc) }
+.riders { right: 1.5em; top: 9.4em; width: 15em; padding: .8em 1em; display: grid; gap: .5em; font-size: .9em }
+.riders h5 { margin: 0 0 .2em; font-size: .78em; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700 }
+.riders div { display: flex; justify-content: space-between; gap: .6em; font-variant-numeric: tabular-nums }
+.riders div.me { color: var(--acc); font-weight: 700 }
+.riders em { font-style: normal; color: var(--muted) }
+.minimap { left: 1.5em; bottom: 1.5em; width: 15em; height: 10.5em; overflow: hidden; background: #e9e4d6 }
+.minimap svg { width: 100%; height: 100% }
+.elev { left: 18em; right: 11em; bottom: 1.5em; height: 7.5em; padding: .8em 1.2em; display: grid; grid-template-rows: auto 1fr; gap: .3em }
+.elev .top { display: flex; justify-content: space-between; font-size: .85em; color: var(--muted); font-variant-numeric: tabular-nums }
+.elev .top b { color: var(--t) }
+.elev svg { width: 100%; height: 100%; display: block }
+.gear { right: 1.5em; bottom: 1.5em; width: 8em; height: 7.5em; display: grid; place-content: center; justify-items: center; gap: .1em }
+.gear span { font-size: .72em; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.gear b { font-family: var(--fnum, var(--fb)); font-size: 3.2em; line-height: 1; font-weight: var(--num-w, 700); color: var(--acc) }
+.gear i { font-style: normal; font-size: .8em; color: var(--muted) }
+.slopechip { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); top: 7.6em; padding: .25em .9em; border-radius: var(--btn-r); background: var(--acc); color: var(--acc-t); font-weight: 700; font-variant-numeric: tabular-nums }
+.t-a { --hud-r: 1.1em; --hud-bg: rgba(16,20,16,.42); --hud-shadow: inset 0 0 0 1px rgba(255,255,255,.14) }
+.t-b { --hud-r: .6em; --hud-bg: rgba(14,16,20,.88); --hud-shadow: 0 .4em 1.4em rgba(0,0,0,.35) }
+.t-c { --hud-r: 0; --hud-bg: rgba(8,8,8,.86); --hud-shadow: inset 0 .22em 0 var(--acc) }
+.t-c .slopechip { clip-path: polygon(.5em 0, 100% 0, calc(100% - .5em) 100%, 0 100%); padding-inline: 1.3em; font-family: "Barlow Condensed", sans-serif; font-size: 1.2em }
+.t-d { --hud-r: .7em; --hud-bg: linear-gradient(rgba(56,1,31,.72), rgba(26,4,86,.72)); --hud-shadow: inset 0 0 0 1px rgba(255,255,255,.16) }
+
+/* like chips (mix & match) */
+.likes { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-size: 13px }
+.likes > span { color: var(--muted); margin-right: 4px }
+.chip { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer }
+.chip[aria-pressed="true"] { background: var(--pick); border-color: var(--pick); color: var(--pick-fg) }
+.chip:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px }
+.dirnote { flex: 1 1 240px; min-width: 0; font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg) }
+.round { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pick) }
+.sync { font-size: 12px; color: var(--muted) }
+
+/* accent override (applied to every mockup) */
+.screen.ov { --acc: var(--ov-acc); --acc-t: var(--ov-acc-t) }
+.t-a .screen.ov, .t-c .screen.ov { --ok: var(--ov-acc) }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+
+
+/* ───────────── ride number layouts (direction D) ───────────── */
+.mock .screen { --fnum: var(--numfont) }
+.lbl { display: inline-flex; align-items: center; gap: .35em; font-size: .72em; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap }
+.lbl svg { width: 1.25em; height: 1.25em; flex: none }
+body.labels-words .lbl svg { display: none }
+body.labels-icons .lbl em { display: none }
+body.labels-icons .lbl svg { width: 1.6em; height: 1.6em }
+.lbl em { font-style: normal }
+.num { font-family: var(--fnum); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.02; white-space: nowrap }
+.num small { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: .15em }
+.sub { font-size: .72em; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap }
+
+/* the generic .dash span rules from the engine must not touch the new number markup */
+.dash .num, .trio .num, .deck .num { color: var(--t); text-transform: none; letter-spacing: 0 }
+.dash .lbl, .dash .sub { font-size: .72em }
+.dash .num small { font-size: .45em; text-transform: none; letter-spacing: 0 }
+
+/* V1 top bar */
+.v1 .dash { padding: .8em 0 }
+.v1 .dash .num { font-size: 2.2em }
+.v1 .dash .hot .num { color: var(--acc) }
+
+/* V2 power hero */
+.v2 .dash { left: 20em; right: 20em; grid-template-columns: repeat(4, 1fr) }
+.v2 .dash .num { font-size: 1.8em }
+.trio { left: 19em; right: 12em; bottom: 10.4em; display: grid; grid-template-columns: 1fr 1.7fr 1fr; align-items: center; padding: .9em 1.4em; gap: 1em }
+.trio > div { display: grid; justify-items: center; gap: .2em }
+.trio .side .num { font-size: 2.6em }
+.trio .hero .num { font-size: 4.6em; color: var(--acc) }
+.zones { display: grid; grid-template-columns: repeat(7, 1fr); gap: .15em; width: 100%; position: relative; margin-top: .3em }
+.zones i { height: .45em; border-radius: .1em; opacity: .4 }
+.zones i.on { opacity: 1; height: .65em; margin-top: -.1em }
+.v2 .riders { top: 1.2em }
+.v2 .slopechip { top: 7.6em }
+
+/* V3 side rail */
+.rail { left: 1.5em; top: 1.5em; bottom: 13.5em; width: 15.5em; display: grid; grid-template-rows: repeat(7, 1fr); padding: .4em 1.1em }
+.rail > div { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .2em .6em; box-shadow: 0 1px 0 var(--hair) }
+.rail > div:last-child { box-shadow: none }
+.rail .num { font-size: 2em; grid-row: span 2; text-align: right }
+.rail .hot .num { color: var(--acc) }
+.v3 .slopechip { left: auto; right: 1.5em; transform: none; top: 1.5em }
+.v3 .riders { top: 5em }
+
+/* V4 gauges */
+.gauges { left: 50%; transform: translateX(-50%); top: 1.2em; width: 40em; display: grid; grid-template-columns: 1fr 1.35fr 1fr; align-items: end; padding: .6em 1em .8em }
+.gauge { position: relative; display: grid; justify-items: center }
+.gauge svg { width: 100%; height: auto; display: block }
+.gauge .in { position: absolute; left: 0; right: 0; top: 34%; display: grid; justify-items: center; gap: .05em }
+.gauge .num { font-size: 2.1em }
+.gauge.big .num { font-size: 3em; color: var(--acc) }
+.corner { top: 1.2em; padding: .7em 1.1em; display: grid; gap: .5em; width: 12em }
+.corner > div { display: grid; gap: .05em }
+.corner .num { font-size: 1.8em }
+.corner.l { left: 1.5em } .corner.r { right: 1.5em; text-align: right } .corner.r > div { justify-items: end }
+.v4 .riders { top: 15em }
+.v4 .slopechip { top: 16.2em }
+
+/* V5 zone tiles */
+.ztiles { left: 2em; right: 2em; top: 1.2em; display: grid; grid-template-columns: repeat(7, 1fr); gap: .6em; position: absolute; z-index: 2 }
+.zt { border-radius: var(--hud-r); padding: .6em .8em .5em; display: grid; gap: .1em; background: var(--hud-bg); box-shadow: var(--hud-shadow); position: relative; overflow: hidden; backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass) }
+.zt .num { font-size: 2em }
+.zt svg { width: 100%; height: 1.6em; display: block; margin-top: .2em }
+.zt.zone { background: var(--zc); box-shadow: none }
+.zt.zone .lbl, .zt.zone .sub, .zt.zone .num small { color: rgba(255,255,255,.8) }
+.zt .zname { position: absolute; right: .6em; top: .55em; font-size: .62em; font-weight: 700; letter-spacing: .06em; padding: .1em .45em; border-radius: .3em; background: rgba(0,0,0,.25) }
+.v5 .slopechip { top: 9.6em }
+.v5 .riders { top: 9.8em }
+
+/* V6 bottom deck */
+.deck { left: 1.5em; right: 1.5em; bottom: 1.5em; height: 15em; display: grid; grid-template-columns: 14em 1fr 8em; grid-template-rows: auto 1fr; gap: .8em 1.2em; padding: 1em 1.2em }
+.deck .nums { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr) }
+.deck .nums > div { display: grid; justify-items: center; gap: .05em }
+.deck .nums > div + div { box-shadow: -1px 0 0 var(--hair) }
+.deck .nums .num { font-size: 2.2em }
+.deck .nums .hot .num { color: var(--acc) }
+.deck .dmap { border-radius: .4em; overflow: hidden; background: #e9e4d6 }
+.deck .dmap svg { width: 100%; height: 100% }
+.deck .delev { display: grid; grid-template-rows: auto 1fr; gap: .2em; min-height: 0 }
+.deck .delev svg { width: 100%; height: 100%; display: block }
+.deck .dgear { display: grid; place-content: center; justify-items: center; border-left: 1px solid var(--hair) }
+.deck .dgear b { font-family: var(--fnum); font-size: 3em; color: var(--acc); line-height: 1 }
+.v6 .slopechip { top: auto; bottom: 18em }
+.v6 .riders { top: 1.5em }
+
+/* ── round 3: refined gauges ── */
+.lpanel { left: 1.5em; top: 1.2em; width: 17.5em; padding: .9em 1.1em; display: grid; gap: 1em }
+.lpanel .pair { display: grid; grid-template-columns: 1fr 1fr; gap: .25em .8em }
+.lpanel .pair > .lbl, .lpanel .prog { grid-column: 1 / -1 }
+.lpanel .pair > div { display: grid }
+.lpanel .num { font-size: 1.9em }
+.lpanel .togo { justify-items: end }
+.lpanel .togo .num { color: var(--muted) }
+.prog { height: .35em; border-radius: 1em; background: rgba(255,255,255,.16); overflow: hidden }
+.prog i { display: block; height: 100%; background: var(--acc); border-radius: inherit }
+.cc { left: 50%; transform: translateX(-50%); top: 1.2em; padding: .7em 1.3em .9em; display: grid; align-items: center; column-gap: 1.2em; row-gap: .4em }
+.cc.g1 { grid-template-columns: 6em 12.5em 10em 6em; column-gap: 1em; left: calc(50% - 1em) }
+.g1 .gauge.big .num { font-size: 2.6em } .g1 .gauge .num { font-size: 1.9em } .g1 .pl .num { font-size: 1.8em }
+.cc.g2 { grid-template-columns: 14em 14em }
+.cc.g3 { grid-template-columns: 16.5em 11.5em }
+.cc .stack { display: grid; gap: 1em }
+.cc .pl { display: grid; justify-items: center; gap: .05em }
+.cc .pl .num { font-size: 2.1em; color: var(--t) }
+.cc .row3 { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); padding-top: .6em; box-shadow: 0 -1px 0 var(--hair) }
+.cc .row3 .pl + .pl { box-shadow: -1px 0 0 var(--hair) }
+.gauge .in { top: 30% }
+.gauge .num { font-size: 2.3em; color: var(--t) }
+.gauge.big .num { font-size: 3.1em; color: var(--t) }
+.zn { font-size: .7em; font-weight: 700; color: var(--zc); letter-spacing: .04em; white-space: nowrap }
+.g1 ~ .slopechip { top: 15.6em }
+.g2 ~ .slopechip { top: 22.2em }
+.g3 ~ .slopechip { top: 24em }
+.screen.g1 .riders, .screen.g2 .riders, .screen.g3 .riders { top: 1.2em }
+
+/* ── round 4 ── */
+.r4 .sub, .r4 ~ .hud .sub { display: none }
+.screen .elev { right: 1.5em }
+.lpanel { width: 16em }
+.lpanel .pair { grid-template-columns: auto auto; justify-content: space-between; align-items: baseline }
+.lpanel .pair .num.togo { color: var(--muted); justify-self: end }
+body { --gw: 11.5em }
+body.gz-compact { --gw: 9.5em }
+.cc.r4 { row-gap: .3em; padding: .6em 1.1em .7em }
+.cc.h1 { grid-template-columns: var(--gw) var(--gw) }
+.cc.h2 { grid-template-columns: var(--gw) 6.5em var(--gw) }
+.r4 .gauge .in { top: 31% }
+.r4 .gauge .num, .r4 .gauge.big .num { font-size: calc(var(--gw) * .21) }
+body.gz-compact .r4 .gauge .lbl em { display: none }
+.r4 .zn { font-size: calc(var(--gw) * .068) }
+body.zn-hide .zn { display: none }
+.r4 .pl .num { font-size: 1.9em }
+.row3.four { grid-template-columns: repeat(4, 1fr) }
+.gearc .num { color: var(--acc) !important }
+.gbar { display: grid; grid-template-columns: repeat(24, 1fr); gap: .08em; width: 5.2em; margin-top: .25em }
+.gbar i { height: .45em; border-radius: .06em; background: var(--t); opacity: .2 }
+.gbar i.on { opacity: .5 } .gbar i.cur { opacity: 1; background: var(--acc); height: .65em; margin-top: -.1em }
+.h2 > .gearc { align-self: center }
+.h2 > .gearc .num { font-size: 3em }
+.h1 ~ .slopechip, .h2 ~ .slopechip { top: auto; bottom: 14em }
+.screen.h1 .riders, .screen.h2 .riders { top: 1.2em }
+.lpanel { width: 17.5em }
+.gbar { width: 6.5em; gap: .1em } .gbar i { height: .6em } .gbar i.cur { height: .85em; margin-top: -.12em }
+</style>
+</head>
+<body class="labels-icons gz-medium zn-show">
+<div class="wrap">
+  <header class="intro">
+    <span class="round">Round 4 · Direction D, Refined</span>
+    <h1>Smaller gauges, gear in the centre</h1>
+    <div class="say" id="say" hidden></div>
+    <p>From your round 3 notes: the gauges are smaller, the gear joined the centre panel (the separate gear box is gone, so the elevation strip runs to the edge), and the small avg/max lines are dropped. On the left, the time and distance still to go are shown dimmed with a minus sign instead of a caption. Your toggles from last round are the defaults. Two places for the gear below, plus two new toggles: gauge size and whether the zone name shows inside the gauge.</p>
+  </header>
+  <div class="controls">
+    <div class="ctl" role="group" aria-label="Number font"><b>Number font</b>
+      <button class="opt-btn" type="button" id="nf-ubuntu" data-nf="ubuntu">Ubuntu (today)</button>
+      <button class="opt-btn" type="button" id="nf-barlow" data-nf="barlow">Barlow Condensed</button>
+      <button class="opt-btn" type="button" id="nf-saira" data-nf="saira">Saira</button>
+      <button class="opt-btn" type="button" id="nf-mono" data-nf="mono">JetBrains Mono</button>
+    </div>
+    <div class="ctl" role="group" aria-label="Gauge style"><b>Gauge style</b>
+      <button class="opt-btn" type="button" id="gs-fill" data-gs="fill">Accent fill</button>
+      <button class="opt-btn" type="button" id="gs-needle" data-gs="needle">Needle on zones</button>
+      <button class="opt-btn" type="button" id="gs-zone" data-gs="zone">Zone-coloured fill</button>
+    </div>
+    <div class="ctl" role="group" aria-label="Gauge size"><b>Gauge size</b>
+      <button class="opt-btn" type="button" id="gz-medium" data-gz="medium">Medium</button>
+      <button class="opt-btn" type="button" id="gz-compact" data-gz="compact">Compact</button>
+    </div>
+    <div class="ctl" role="group" aria-label="Zone name"><b>Zone name</b>
+      <button class="opt-btn" type="button" id="zn-show" data-zn="show">Show</button>
+      <button class="opt-btn" type="button" id="zn-hide" data-zn="hide">Hide</button>
+    </div>
+    <div class="ctl" role="group" aria-label="Labels"><b>Labels</b>
+      <button class="opt-btn" type="button" id="lb-words" data-lb="words">Words</button>
+      <button class="opt-btn" type="button" id="lb-icons" data-lb="icons">Icons</button>
+      <button class="opt-btn" type="button" id="lb-both" data-lb="both">Both</button>
+    </div>
+    <div class="ctl" role="group" aria-label="Accent"><b>Accent</b>
+      <button class="opt-btn" type="button" id="ac-orange" data-ac="orange"><i style="background:#e4a13c"></i>Orange</button>
+      <button class="opt-btn" type="button" id="ac-green" data-ac="green"><i style="background:#9fd033"></i>Green</button>
+      <button class="opt-btn" type="button" id="ac-yellow" data-ac="yellow"><i style="background:#ffd23f"></i>Yellow</button>
+    </div>
+  </div>
+  <h2 class="part">Where the gear goes</h2>
+  <p class="part">Same ride as before. The gear strip has 24 marks for the 24 virtual gears; you are in gear 12.</p>
+  <div id="variants"></div>
+  <h2 class="part">The rest of direction D</h2>
+  <p class="part">Anything you'd change on these screens?</p>
+  <div id="screens"></div>
+</div>
+<div class="sendbar"><div class="wrap">
+  <span class="summary" id="summary">No favourite yet</span>
+  <input class="note" id="notes" type="text" placeholder="Anything else?" aria-label="General notes">
+  <button class="send" type="button" id="send">Send to Claude</button>
+  <span class="status" id="status" aria-live="polite"></span>
+</div></div>
+<script>
+const ROUTES = [
+  { n: 'Arnbach', c: 'Germany', f: 'de', t: 'Loop', d: '11.7', a: '202', live: 1, g: ['#5e8a3a', '#3d5a26'], seed: 3, lo: 209, hi: 336 },
+  { n: 'Polygyros', c: 'Greece', f: 'gr', t: 'Point to point', d: '40.2', a: '723', live: 1, g: ['#b49a6a', '#7c6a48'], seed: 7, lo: 34, hi: 592 },
+  { n: 'Menglonnais', c: 'France', f: 'fr', t: 'Loop', d: '12.0', a: '154', g: ['#7aa04e', '#53702f'], seed: 11, lo: 493, hi: 620 },
+  { n: 'Nationalpark De Meinweg', c: 'Germany', f: 'de', t: 'Loop', d: '61.4', a: '237', g: ['#4f7a35', '#2f4a1f'], seed: 5, lo: 32, hi: 86 },
+  { n: 'Aublain – Harcigny (SD)', c: 'Belgium', f: 'be', t: 'Point to point', d: '49.6', a: '476', g: ['#6f9346', '#46602a'], seed: 13, lo: 148, hi: 310 },
+  { n: 'Lago del Sambuco', c: 'Switzerland', f: 'ch', t: 'Point to point', d: '22.7', a: '1083', g: ['#7f8a7a', '#55604f'], seed: 2, lo: 422, hi: 1496, climb: true },
+];
+const FLAGS = {
+  de: 'linear-gradient(#000 33%,#dd0000 33% 66%,#ffce00 66%)',
+  gr: 'repeating-linear-gradient(#0d5eaf 0 11.1%,#fff 11.1% 22.2%)',
+  fr: 'linear-gradient(90deg,#0055a4 33%,#fff 33% 66%,#ef4135 66%)',
+  be: 'linear-gradient(90deg,#000 33%,#fdda24 33% 66%,#ef3340 66%)',
+  ch: 'linear-gradient(#fff,#fff) center/50% 20% no-repeat,linear-gradient(#fff,#fff) center/20% 60% no-repeat,#d52b1e',
+  es: 'linear-gradient(#aa151b 25%,#f1bf00 25% 75%,#aa151b 75%)',
+};
+
+const I = {
+  user: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c.6-4.6 4-7.2 8.5-7.2s7.9 2.6 8.5 7.2z"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>',
+  bike: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5.5" cy="16" r="3.8"/><circle cx="18.5" cy="16" r="3.8"/><path d="M5.5 16 9 8.5h6.5L18.5 16M9 8.5 12 16h-6.5M8 6h3M15.5 8.5 14.5 5.5h2.5"/></svg>',
+  route: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18.5" r="2.3"/><circle cx="18" cy="5.5" r="2.3"/><path d="M8.3 18.5h7.2a3 3 0 0 0 0-6h-7a3 3 0 0 1 0-6h7.2"/></svg>',
+  bars: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="3.4" height="8" rx=".6"/><rect x="7.6" y="7" width="3.4" height="13" rx=".6"/><rect x="12.2" y="3.5" width="3.4" height="16.5" rx=".6"/><rect x="16.8" y="9.5" width="3.4" height="10.5" rx=".6"/></svg>',
+  act: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 12.5h4l2.5-6 4 12 3-8 1.6 2h3.9"/></svg>',
+  exit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
+  filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3.5 6h17M7 12h10M10.5 18h3"/></svg>',
+  dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4 20h16"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>',
+};
+
+function rng(seed) { let s = seed * 9301 + 49297; return () => (s = (s * 9301 + 49297) % 233280) / 233280 }
+function profile(seed, n, climb) {
+  const r = rng(seed); let y = .5; const pts = [];
+  for (let i = 0; i < n; i++) { y += (r() - .5) * .22 + (climb ? .025 : 0); y = Math.min(.95, Math.max(.08, y)); pts.push(y) }
+  return pts;
+}
+function spark(seed, climb) {
+  const p = profile(seed, 40, climb), w = 120, h = 30;
+  const pts = p.map((y, i) => `${(i / (p.length - 1) * w).toFixed(1)},${(h - y * (h - 4) - 2).toFixed(1)}`);
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="M0,${h} L${pts.join(' L')} L${w},${h} Z" fill="var(--acc)" fill-opacity=".16"/><polyline points="${pts.join(' ')}" fill="none" stroke="var(--acc)" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
+}
+const flag = f => `<i class="flag" style="background:${FLAGS[f]}"></i>`;
+
+function nav(on) {
+  const items = [['user', 'User'], null, ['gear', 'Settings'], ['bike', 'Devices'], ['route', 'Routes'], ['bars', 'Workouts'], ['act', 'Activities'], null, ['exit', 'Exit']];
+  return `<div class="nav">${items.map(x => x ? `<div class="it${x[1] === on ? ' on' : ''}">${I[x[0]]}<span>${x[1]}</span></div>` : '<div class="grow"></div>').join('')}</div>`;
+}
+
+function routesScreen() {
+  const rows = ROUTES.map((r, i) => `
+    <div class="row${i === 0 ? ' focus' : ''}">
+      <div class="thumb" style="--g1:${r.g[0]};--g2:${r.g[1]}"><span class="tag">VIDEO</span></div>
+      <div style="min-width:0"><div class="rname">${r.n}</div>
+        <div class="rmeta">${flag(r.f)}<span>${r.c}</span><span>·</span><span>${r.t}</span>${r.live ? `<span class="live">${r.live} live</span>` : ''}</div></div>
+      <div class="stat"><b>${r.d}<small>km</small></b><span>Distance</span></div>
+      <div class="stat"><b>${r.a}<small>m</small></b><span>Ascent</span></div>
+      <div class="spark">${spark(r.seed, r.climb)}<span>${r.lo}–${r.hi} m</span></div>
+      <div><span class="btn pri">Details ${I.arrow}</span></div>
+    </div>`).join('');
+  return `<div class="scenery"></div><div class="scrim"></div>${nav('Routes')}
+    <div class="main">
+      <div class="hrow top"><h4 class="title">Routes</h4><span class="sp"></span><span class="btn sec">${I.bike} Free Ride</span><span class="btn sec">${I.dl} Import</span></div>
+      <div class="hrow"><span class="field" style="flex:0 1 22em">${I.search} Search routes by name</span><span class="field" style="color:var(--t)">${I.filter} Filters ${I.chev}</span>
+        <span class="sp"></span><span class="muted">33 routes</span><span class="field" style="color:var(--t)">Suggested ${I.chev}</span>
+        <span class="btn ghost" style="padding:.4em">${I.list}</span><span class="btn ghost muted" style="padding:.4em;opacity:.6">${I.grid}</span></div>
+      <div class="list">${rows}</div>
+    </div>`;
+}
+
+function devicesScreen() {
+  const tile = (cap, dn, val, unit, ok = true, focus = false) => `
+    <div class="tile"><span class="cap">${cap}</span><span class="dn">${dn}</span>
+      <span class="val">${val}${unit ? `<small>${unit}</small>` : ''}</span>
+      <div class="ft"><span class="st${ok ? '' : ' wait'}"><i class="dot"></i>${ok ? 'Connected' : 'Connecting…'}</span><i class="tog${focus ? ' focus' : ''}"></i></div></div>`;
+  return `<div class="scenery dev-scenery"></div><div class="scrim"></div>
+    <div class="dev">
+      <h4 class="title" style="font-size:2.4em">Devices</h4>
+      <div class="status"><i class="dot"></i>Ready to ride with KICKR CORE 05DD. Add optional sensors, or press OK.</div>
+      <div class="groups">
+        <div class="group"><div class="glbl"><b>To ride</b><span>your trainer</span></div>
+          <div class="tiles">${tile('Resistance', 'KICKR CORE 05DD', '', '', true, true)}${tile('Power', 'KICKR CORE 05DD', '0', 'W')}${tile('Speed', 'KICKR CORE 05DD', '0.0', 'km/h')}</div></div>
+        <div class="group"><div class="glbl"><b>Optional</b><span>extras, not needed</span></div>
+          <div class="tiles">${tile('Heart rate', 'HRM-Pro:935280', '–', 'bpm', false)}${tile('Cadence', 'KICKR CORE 05DD', '0', 'rpm')}${tile('Controller', 'Zwift Play F84F', '', '')}</div></div>
+      </div>
+      <div class="devfoot"><span class="btn pri">OK</span></div>
+    </div>
+    <div class="ifaces"><span>ANT+</span><span class="on">BLE</span><span class="on">Serial</span><span>TCP</span></div>`;
+}
+
+function detailsScreen() {
+  const p = profile(17, 60), w = 200, h = 40;
+  const pts = p.map((y, i) => `${(i / (p.length - 1) * w).toFixed(1)},${(h - y * 22).toFixed(1)}`).join(' L');
+  return `<div class="scenery"></div><div class="scrim"></div><div class="dim"></div>
+    <div class="dlg">
+      <h3>Rioja 2 – Funes</h3>
+      <div class="rmeta">${flag('es')}<span>Spain</span><span>·</span><span>Video · Point to point</span></div>
+      <div class="media">
+        <div class="map"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M46 12 C48 30 44 40 52 52 S 60 70 50 82 L45 86" fill="none" stroke="#2f55d4" stroke-width="2.2" vector-effect="non-scaling-stroke" style="stroke-width:3px"/><circle cx="46" cy="12" r="2.4" fill="#2f55d4"/></svg></div>
+        <div class="vid"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="top:auto;height:35%"><path d="M0,${h} L${pts} L${w},${h} Z" fill="rgba(0,0,0,.55)"/><path d="M${pts}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div>
+      </div>
+      <div class="facts">
+        <div class="stat"><b>28.9<small>km</small></b><span>Distance</span></div>
+        <div class="stat"><b>186<small>m</small></b><span>Elevation</span></div>
+        <div class="stat"><b>MP4</b><span>Video format</span></div>
+        <div class="stat"><b>0.0<small>km</small></b><span>Start at</span></div>
+      </div>
+      <div class="opts">
+        <div class="opt"><label>Reality factor</label><span class="inp"><span>100</span><span class="muted">%</span></span></div>
+        <div class="opt"><label>Terrain smoothing</label><span class="seg"><span class="on">Off</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></span><span class="hint">Softens sharp gradient changes for steadier trainer resistance.</span></div>
+      </div>
+      <div class="dbtns"><span class="btn pri focus">${I.play} Start</span><span class="btn sec">Start with workout</span><span class="btn sec">${I.dl} Download</span><span class="sp"></span><span class="btn ghost">Cancel</span></div>
+    </div>`;
+}
+
+
+
+const ROUND = 4;
+const NF = { ubuntu: '"Ubuntu", system-ui, sans-serif', barlow: '"Barlow Condensed", "Arial Narrow", sans-serif', saira: '"Saira Semi Condensed", "Arial Narrow", sans-serif', mono: '"JetBrains Mono", ui-monospace, monospace' };
+const AC = { orange: ['#e4a13c', '#1c1203'], green: ['#9fd033', '#10170a'], yellow: ['#ffd23f', '#121000'] };
+const ZC = ['#7d7d86', '#3a7bd5', '#3fa34d', '#e2b100', '#ec7a1c', '#d63a3a', '#8e44c9'];
+
+const MI = {
+  time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>',
+  dist: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/></svg>',
+  speed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/></svg>',
+  power: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 5 13.5h6L10 22l9-12h-6.2z"/></svg>',
+  slope: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19h18L21 7z"/></svg>',
+  hr: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-8-4.8-8-11A4.5 4.5 0 0 1 12 6.6 4.5 4.5 0 0 1 20 9.5c0 6.2-8 11-8 11z"/></svg>',
+  cad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5"/></svg>',
+};
+const M = {
+  time: { l: 'Time', v: '0:10:01', u: '', s: '−0:35:12 left' },
+  dist: { l: 'Distance', v: '1.8', u: 'km', s: '9.9 km to go' },
+  speed: { l: 'Speed', v: '31.2', u: 'km/h', s: 'max 55.0' },
+  power: { l: 'Power', v: '152', u: 'W', s: 'avg 170' },
+  slope: { l: 'Slope', v: '1.5', u: '%', s: 'gain 7 m' },
+  hr: { l: 'Heart rate', v: '112', u: 'bpm', s: 'avg 99' },
+  cad: { l: 'Cadence', v: '82', u: 'rpm', s: 'avg 89' },
+};
+const ORDER = ['time', 'dist', 'speed', 'power', 'slope', 'hr', 'cad'];
+const lbl = k => `<span class="lbl">${MI[k]}<em>${M[k].l}</em></span>`;
+const num = k => `<span class="num">${M[k].v}${M[k].u ? `<small>${M[k].u}</small>` : ''}</span>`;
+const sub = k => `<span class="sub">${M[k].s}</span>`;
+const cell = (k, hot) => `<div class="${hot ? 'hot' : ''}">${lbl(k)}${num(k)}${sub(k)}</div>`;
+
+function elevSvg(pos = .16) {
+  const p = profile(3, 80), w = 400, h = 50, cut = Math.round(pos * (p.length - 1));
+  const pts = p.map((y, i) => `${(i / (p.length - 1) * w).toFixed(1)},${(h - y * 40 - 2).toFixed(1)}`);
+  const mx = (pos * w).toFixed(1), my = (h - p[cut] * 40 - 2).toFixed(1);
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="M0,${h} L${pts.join(' L')} L${w},${h} Z" fill="var(--t)" fill-opacity=".12"/>
+    <path d="M0,${h} L${pts.slice(0, cut + 1).join(' L')} L${mx},${h} Z" fill="var(--acc)" fill-opacity=".45"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--t)" stroke-opacity=".6" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+    <line x1="${mx}" x2="${mx}" y1="0" y2="${h}" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${mx}" cy="${my}" r="3.5" fill="var(--acc)"/></svg>`;
+}
+const mapSvg = `<svg viewBox="0 0 100 70" preserveAspectRatio="none"><path d="M20 55 C10 40 20 20 40 18 S 70 10 80 25 S 75 55 55 58 Z" fill="none" stroke="#2f55d4" vector-effect="non-scaling-stroke" style="stroke-width:3px"/><circle cx="21" cy="44" r="3" fill="var(--acc)" stroke="#000" stroke-width=".8"/></svg>`;
+const riders = `<div class="hud riders"><h5>Incyclists nearby</h5>
+  <div><span>M. Keller</span><em>+0:42</em></div><div><span>J. Dupont</span><em>+0:08</em></div>
+  <div class="me"><span>You</span><span>1.8 km</span></div><div><span>A. Rossi</span><em>−0:15</em></div><div><span>Prev. ride 30 Oct</span><em>−0:31</em></div></div>`;
+const slopechip = `<span class="slopechip">↗ 6.2 % in 300 m</span>`;
+const minimap = `<div class="hud minimap">${mapSvg}</div>`;
+const elev = `<div class="hud elev"><div class="top"><span><b>Arnbach</b> · Loop</span><span>1.8 / 11.7 km · <b>254 m</b></span></div>${elevSvg()}</div>`;
+const gear = `<div class="hud gear"><span>Gear</span><b>12</b><i>of 24</i></div>`;
+const spk = (seed, color = 'currentColor') => { const p = profile(seed, 30), w = 100, h = 20; return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${p.map((y, i) => `${(i / 29 * w).toFixed(1)},${(h - y * 16 - 2).toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-opacity=".85" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>` };
+
+function arc(cx, cy, r, a0, a1) {
+  const p = a => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
+  const [x0, y0] = p(a0), [x1, y1] = p(a1);
+  return `M${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(2)},${y1.toFixed(2)}`;
+}
+function gauge(k, frac, big, zones) {
+  const A0 = 150, SW = 240, cx = 50, cy = 50, r = 40;
+  let track = `<path d="${arc(cx, cy, r, A0, A0 + SW)}" stroke="var(--t)" stroke-opacity=".15" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  if (zones) track = zones.map((z, i) => { const s = A0 + SW * z[0], e = A0 + SW * z[1] - 1.5; return `<path d="${arc(cx, cy, r, s, e)}" stroke="${ZC[i]}" stroke-opacity=".45" stroke-width="7" fill="none"/>` }).join('');
+  const val = `<path d="${arc(cx, cy, r - (zones ? 9 : 0), A0, A0 + SW * frac)}" stroke="var(--acc)" stroke-width="${zones ? 5 : 7}" fill="none" stroke-linecap="round"/>`;
+  return `<div class="gauge${big ? ' big' : ''}"><svg viewBox="0 0 100 88">${track}${val}</svg><div class="in">${lbl(k)}${num(k)}${sub(k)}</div></div>`;
+}
+
+// ── round 3: refined "Gauges" — power + heart rate as zone gauges, speed/slope/cadence as numbers in the centre,
+// time & distance (ridden + to go) on the left, nothing in the top right except riders nearby.
+const PZ = { names: ['Z1 Recovery', 'Z2 Endurance', 'Z3 Tempo', 'Z4 Threshold', 'Z5 VO2max', 'Z6 Anaerobic', 'Z7 Sprint'], colors: ZC,
+  // 0–160 % FTP mapped onto the arc
+  bounds: [0, 55, 75, 90, 105, 120, 150, 160].map(x => x / 160), value: 76 / 160, zone: 2 };
+const HZ = { names: ['Z1', 'Z2', 'Z3', 'Z4', 'Z5'], colors: ['#7d7d86', '#3a7bd5', '#3fa34d', '#ec7a1c', '#d63a3a'],
+  // 50–100 % max HR (185 bpm)
+  bounds: [0, .2, .4, .6, .8, 1], value: (112 / 185 - .5) / .5, zone: 1 };
+
+function zgauge(k, Z, big, style) {
+  const A0 = 150, SW = 240, cx = 50, cy = 50, r = 40, zc = Z.colors[Z.zone];
+  const seg = (i, rr, w, op) => `<path d="${arc(cx, cy, rr, A0 + SW * Z.bounds[i] + (i ? .8 : 0), A0 + SW * Z.bounds[i + 1] - .8)}" stroke="${Z.colors[i]}" stroke-opacity="${op}" stroke-width="${w}" fill="none"/>`;
+  const zones = (rr, w, op) => Z.colors.map((_, i) => seg(i, rr, w, op)).join('');
+  const va = A0 + SW * Z.value, rad = va * Math.PI / 180;
+  let g = '';
+  if (style === 'fill') g = zones(r, 6, .4) + `<path d="${arc(cx, cy, r - 8, A0, va)}" stroke="var(--acc)" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  if (style === 'needle') g = zones(r, 7, .95) + `<path d="M${(cx + (r - 13) * Math.cos(rad)).toFixed(2)},${(cy + (r - 13) * Math.sin(rad)).toFixed(2)} L${(cx + (r + 5) * Math.cos(rad - .07)).toFixed(2)},${(cy + (r + 5) * Math.sin(rad - .07)).toFixed(2)} L${(cx + (r + 5) * Math.cos(rad + .07)).toFixed(2)},${(cy + (r + 5) * Math.sin(rad + .07)).toFixed(2)} Z" fill="var(--t)" stroke="#000" stroke-opacity=".4" stroke-width=".6"/>`;
+  if (style === 'zone') g = `<path d="${arc(cx, cy, r, A0, A0 + SW)}" stroke="var(--t)" stroke-opacity=".14" stroke-width="7" fill="none" stroke-linecap="round"/>` +
+    `<path d="${arc(cx, cy, r, A0, va)}" stroke="${zc}" stroke-width="7" fill="none" stroke-linecap="round"/>` + zones(r + 7, 1.6, .9);
+  return `<div class="gauge${big ? ' big' : ''}"><svg viewBox="0 0 100 88">${g}</svg>
+    <div class="in">${lbl(k)}${num(k)}<span class="zn" style="--zc:${zc}">${Z.names[Z.zone]}</span>${sub(k)}</div></div>`;
+}
+const plain = k => `<div class="pl">${lbl(k)}${num(k)}${sub(k)}</div>`;
+
+MI.gear = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="12" cy="12" r="6.5"/></svg>';
+M.gear = { l: 'Gear', v: '12', u: '', s: '' };
+const gearCell = () => `<div class="pl gearc">${lbl('gear')}<span class="num">12</span><div class="gbar">${Array.from({ length: 24 }, (_, i) => `<i class="${i < 12 ? 'on' : ''}${i === 11 ? ' cur' : ''}"></i>`).join('')}</div></div>`;
+const left = () => `<div class="hud lpanel">
+  <div class="pair">${lbl('time')}<span class="num">0:10:01</span><span class="num togo">−0:35:12</span><div class="prog"><i style="width:22%"></i></div></div>
+  <div class="pair">${lbl('dist')}<span class="num">1.8<small>km</small></span><span class="num togo">−9.9<small>km</small></span><div class="prog"><i style="width:15%"></i></div></div></div>`;
+const around = () => `${riders}${minimap}${elev}`;
+
+const VARIANTS = [
+  { id: 'h1', name: 'Gear in the number row', tag: 'four equal numbers',
+    text: 'The two gauges side by side, and speed, slope, cadence and gear in one row underneath. The gear shows the number plus a strip of 24 marks with your position.',
+    html: s => `<div class="video"></div>${left()}<div class="hud cc r4 h1">${zgauge('power', PZ, true, s)}${zgauge('hr', HZ, true, s)}<div class="row3 four">${plain('speed')}${plain('slope')}${plain('cad')}${gearCell()}</div></div>${slopechip}${around()}` },
+  { id: 'h2', name: 'Gear between the gauges', tag: 'gear stands out',
+    text: 'The gear sits between power and heart rate, in the accent colour, so a shift is easy to spot. Speed, slope and cadence stay in the row underneath.',
+    html: s => `<div class="video"></div>${left()}<div class="hud cc r4 h2">${zgauge('power', PZ, true, s)}${gearCell()}${zgauge('hr', HZ, true, s)}<div class="row3">${plain('speed')}${plain('slope')}${plain('cad')}</div></div>${slopechip}${around()}` },
+];
+
+const mock = (html, cls = '') => `<div class="mock t-d"><div class="screen ${cls}">${html}</div></div>`;
+let renderedStyle = null;
+const drawVariants = () => { renderedStyle = state.gaugeStyle; document.getElementById('variants').innerHTML = VARIANTS.map((v, i) => `
+  <section class="var" id="sec-${v.id}" aria-labelledby="h-${v.id}">
+    <div class="var-head"><div><h3 id="h-${v.id}">${i + 1}. ${v.name} <span>— ${v.tag}</span></h3><p>${v.text}</p></div>
+      <div class="acts"><button class="fav" type="button" id="fav-${v.id}" data-v="${v.id}" aria-pressed="false">Favourite</button>
+        <button class="also" type="button" id="also-${v.id}" data-v="${v.id}" aria-pressed="false">I like parts of it</button></div></div>
+    ${mock(v.html(state.gaugeStyle), v.id)}
+    <input class="note" type="text" id="vnote-${v.id}" data-v="${v.id}" placeholder="What works or doesn't in “${v.name}”?" aria-label="Comment on ${v.name}">
+  </section>`).join(''); document.querySelectorAll('#variants .mock h5').forEach(h => h.setAttribute('role', 'presentation')) };
+
+const SCREENS = [['routes', 'Routes', routesScreen], ['devices', 'Devices', devicesScreen], ['details', 'Route details', detailsScreen]];
+document.getElementById('screens').innerHTML = SCREENS.map(s => `
+  <section class="var"><figure><figcaption>${s[1]}</figcaption>${mock(s[2]())}</figure>
+    <input class="note" type="text" id="snote-${s[0]}" data-s="${s[0]}" placeholder="Comment on ${s[1]}" aria-label="Comment on ${s[1]}"></section>`).join('');
+document.querySelectorAll('.mock h3, .mock h4, .mock h5').forEach(h => h.setAttribute('role', 'presentation'));
+
+// ── state: kept in localStorage so a reload (new round, or a page update) keeps your draft
+const KEY = 'incyclist-look-r' + ROUND;
+const state = { favorite: null, alsoLike: [], variantNotes: {}, screenNotes: {}, gaugeStyle: 'needle', gaugeSize: 'medium', zoneName: 'show', numFont: 'ubuntu', labels: 'icons', accent: 'orange', notes: '' };
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')) } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)) } catch (e) {} };
+
+function render() {
+  if (renderedStyle !== state.gaugeStyle) drawVariants();
+  document.documentElement.style.setProperty('--numfont', NF[state.numFont]);
+  document.body.className = `labels-${state.labels} gz-${state.gaugeSize} zn-${state.zoneName}`;
+  document.querySelectorAll('[data-gz]').forEach(b => b.setAttribute('aria-pressed', b.dataset.gz === state.gaugeSize));
+  document.querySelectorAll('[data-zn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.zn === state.zoneName));
+  document.querySelectorAll('.mock .screen').forEach(s => { s.style.setProperty('--acc', AC[state.accent][0]); s.style.setProperty('--acc-t', AC[state.accent][1]) });
+  document.querySelectorAll('[data-nf]').forEach(b => b.setAttribute('aria-pressed', b.dataset.nf === state.numFont));
+  document.querySelectorAll('[data-gs]').forEach(b => b.setAttribute('aria-pressed', b.dataset.gs === state.gaugeStyle));
+  document.querySelectorAll('[data-lb]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lb === state.labels));
+  document.querySelectorAll('[data-ac]').forEach(b => b.setAttribute('aria-pressed', b.dataset.ac === state.accent));
+  document.querySelectorAll('.fav').forEach(b => { const on = b.dataset.v === state.favorite; b.setAttribute('aria-pressed', on); b.textContent = on ? 'Favourite ✓' : 'Favourite' });
+  document.querySelectorAll('.also').forEach(b => b.setAttribute('aria-pressed', state.alsoLike.includes(b.dataset.v)));
+  document.querySelectorAll('[data-v].note').forEach(i => { if (document.activeElement !== i) i.value = state.variantNotes[i.dataset.v] || '' });
+  document.querySelectorAll('[data-s].note').forEach(i => { if (document.activeElement !== i) i.value = state.screenNotes[i.dataset.s] || '' });
+  const n = document.getElementById('notes'); if (document.activeElement !== n) n.value = state.notes;
+  const v = VARIANTS.find(x => x.id === state.favorite);
+  document.getElementById('summary').textContent = v ? `Favourite: ${v.name}` : 'No favourite yet';
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.nf) state.numFont = t.dataset.nf;
+  else if (t.dataset.gs) state.gaugeStyle = t.dataset.gs;
+  else if (t.dataset.gz) state.gaugeSize = t.dataset.gz;
+  else if (t.dataset.zn) state.zoneName = t.dataset.zn;
+  else if (t.dataset.lb) state.labels = t.dataset.lb;
+  else if (t.dataset.ac) state.accent = t.dataset.ac;
+  else if (t.classList.contains('fav')) state.favorite = state.favorite === t.dataset.v ? null : t.dataset.v;
+  else if (t.classList.contains('also')) { const s = new Set(state.alsoLike); s.has(t.dataset.v) ? s.delete(t.dataset.v) : s.add(t.dataset.v); state.alsoLike = [...s] }
+  else return;
+  save(); render();
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.v) state.variantNotes = { ...state.variantNotes, [t.dataset.v]: t.value };
+  else if (t.dataset.s) state.screenNotes = { ...state.screenNotes, [t.dataset.s]: t.value };
+  else if (t.id === 'notes') state.notes = t.value;
+  save();
+});
+const status = m => document.getElementById('status').textContent = m;
+document.getElementById('send').addEventListener('click', async () => {
+  status('Sending…');
+  try {
+    const r = await fetch('/pick', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: ROUND, ...state }) });
+    status(r.ok ? 'Sent. Claude is preparing the next round; this page will update by itself.' : 'Could not send (server said ' + r.status + ').');
+  } catch (err) { status('Could not reach the local server. Is it still running?') }
+});
+
+// ── live updates: reload when Claude writes a new round; show Claude's message
+let version = null;
+setInterval(async () => {
+  try {
+    const p = await (await fetch('/poll')).json();
+    if (version !== null && p.version !== version) location.reload();
+    version = p.version;
+    const say = document.getElementById('say');
+    say.hidden = !p.say; if (p.say) say.innerHTML = '<b>Claude:</b> ' + p.say.replace(/[<&]/g, c => ({ '<': '&lt;', '&': '&amp;' })[c]);
+  } catch (e) {}
+}, 2000);
+render();
+</script>
+</body>
+</html>
