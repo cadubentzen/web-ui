@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* element focused by keyboard / game controller navigation (see ControllerNavigation) */
+.controller-focus {
+  outline: 4px solid #ff8c00 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 12px 2px rgba(255, 140, 0, 0.8) !important;
+}

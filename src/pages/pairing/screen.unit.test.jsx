@@ -83,4 +83,12 @@ describe('PairingScreen', () => {
 
         expect(onClick).toHaveBeenCalled()
     })
+
+    test('the sensor row sends Down to the OK button; the top row does not', () => {
+        const { container } = render(<PairingScreen capabilities={{ top: [tile()], bottom: [tile({ title: 'Heartrate' })] }} buttons={[{ label: 'OK', primary: true }]} />)
+
+        const hint = container.querySelector('.bottom').getAttribute('data-nav-down')
+        expect(container.querySelector(hint)?.textContent).toBe('OK')
+        expect(container.querySelector('.top').hasAttribute('data-nav-down')).toBe(false)
+    })
 })

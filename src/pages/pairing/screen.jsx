@@ -148,7 +148,7 @@ export const PairingScreen = ( {capabilities,interfaces,connectRetry, readyToSta
                 </RowLabel>
                 {top.map(renderTile)}
             </TopRow>
-            <BottomRow className='bottom'>
+            <BottomRow className='bottom' data-nav-down='.pairing-buttons button'>
                 <RowLabel>
                     <div>{rowLabels?.bottom?.text}</div>
                     {rowLabels?.bottom?.subtext ? <div>{rowLabels.bottom.subtext}</div> : null}
@@ -156,7 +156,7 @@ export const PairingScreen = ( {capabilities,interfaces,connectRetry, readyToSta
                 {bottom.map(renderTile)}
             </BottomRow>
             {buttons?.length ?
-                <Buttons>
+                <Buttons className='pairing-buttons'>
                     {buttons.map( (b,idx)=> <Button key={idx} height={'6vh'} width={'8vw'} primary={b.primary} text={b.label} onClick={b.onClick} />)}
                 </Buttons>
             : null}

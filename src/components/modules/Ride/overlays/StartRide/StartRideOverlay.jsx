@@ -207,7 +207,7 @@ export const StartRideOverlay = (props) => {
             : 'Starting activity ...'
 
         return (
-            <OverlayView visible={true}  width={width} left={left} height={height} top={top}>
+            <OverlayView visible={true}  width={width} left={left} height={height} top={top} role='dialog' aria-label='Start ride'>
                 <OverlayText >
                     <b>{heading}</b>
                 </OverlayText>
@@ -239,7 +239,7 @@ export const StartRideOverlay = (props) => {
     
     const OverlayDeviceError = (props) => {
         return(
-            <OverlayView visible={true}  width={width} left={left} height={height} top={top}>
+            <OverlayView visible={true}  width={width} left={left} height={height} top={top} role='dialog' aria-label='Start ride'>
             <OverlayText>
                 <ErrorText><b>Start failed</b></ErrorText>
             </OverlayText>
@@ -256,7 +256,7 @@ export const StartRideOverlay = (props) => {
 
     const OverlaySensorError = (props) => {
         return(
-        <OverlayView visible={true}  width={width} left={left} height={height} top={top}>
+        <OverlayView visible={true}  width={width} left={left} height={height} top={top} role='dialog' aria-label='Start ride'>
             <OverlayText >
                 <Warning><b>Could not start Sensor(s)</b></Warning>
             </OverlayText>
@@ -283,7 +283,7 @@ export const StartRideOverlay = (props) => {
     
     const OverlayVideoError = (props) => {
         return(
-            <OverlayView visible={true}  width={width} left={left} height={height} top={top}>
+            <OverlayView visible={true}  width={width} left={left} height={height} top={top} role='dialog' aria-label='Start ride'>
             <OverlayText>
                 <ErrorText><b>Start failed</b></ErrorText>                
             </OverlayText>
@@ -299,7 +299,7 @@ export const StartRideOverlay = (props) => {
     }    
     const OverlayMapError = (props) => {
         return(
-            <OverlayView visible={true}  width={width} left={left} height={height} top={top}>
+            <OverlayView visible={true}  width={width} left={left} height={height} top={top} role='dialog' aria-label='Start ride'>
             <OverlayText>
                 <ErrorText><b>Start failed</b></ErrorText>                
             </OverlayText>
