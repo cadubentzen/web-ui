@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {GoogleSatelliteView} from '../../../../molecules/Maps';
+import { kitTokens } from '../../../../../theme';
 import { ErrorBoundary } from '../../../../atoms';
 
 const ViewArea = styled.div`
@@ -13,8 +14,7 @@ const ViewArea = styled.div`
     margin: 0;
     height: 100%;
     width:100%;
-    background-image: url("images/background.jpg");
-    background-size: cover;
+    background: ${props => kitTokens(props.theme).pageBackground};
     z-index:  ${props => props.zIndex };
 `;
 
