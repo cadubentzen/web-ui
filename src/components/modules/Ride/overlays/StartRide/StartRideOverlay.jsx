@@ -2,15 +2,18 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button, Overlay} from '../../../../atoms'
+import { hudTokens, kitTokens } from '../../../../../theme'
 
 const DEFAULT_WIDTH = '30vw';
 const DEFAULT_LEFT='35vw' 
 const DEFAULT_HEIGHT='30vh' 
 const DEFAULT_TOP='35vh' 
 
+// the dark start box keeps its look; corners and state colours follow the HUD/kit tokens
 const OverlayView = styled(Overlay)`
     display: flex;
     flex-direction: column;
+    border-radius: ${p => hudTokens(p.theme).radius};
 `
 
 export const RIDE_MODES = {
@@ -87,15 +90,15 @@ const OverlayButtons = styled.div`
 `
 
 const ErrorText = styled.div`
-    color:red;
+    color: ${p => hudTokens(p.theme).error};
 `
 
 const Success = styled.div`
-    color:green;
+    color: ${p => kitTokens(p.theme).ok};
 `
 
 const Warning = styled.div`
-    color:	#FFBF00;
+    color: ${p => hudTokens(p.theme).warning};
 `
 
 export const StartRideOverlay = (props) => {
@@ -229,7 +232,7 @@ export const StartRideOverlay = (props) => {
                     </OverlayDetailsItem> : null}
                 </OverlayDetails>
                 <OverlayButtons >
-                    {props.readyToStart ? <Button margin={'1.2vh 1.1vw'} onClick={()=>onIgnore()}>Start </Button> : null}
+                    {props.readyToStart ? <Button margin={'1.2vh 1.1vw'} primary onClick={()=>onIgnore()}>Start </Button> : null}
                     {isStreetViewStart && viewState==='slow' ? <Button margin={'1.2vh 1.1vw'} onClick={()=>onStartWithMap()}>Start with Map </Button> : null}
                     <Button margin={'1.2vh 1.1vw'} onClick={()=>onCancel()}>Cancel </Button>
                 </OverlayButtons>
