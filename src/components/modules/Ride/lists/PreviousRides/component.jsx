@@ -5,8 +5,6 @@ import AppTheme from '../../../../../theme';
 import { PrevRideInfo } from '../../../../molecules/Ride/PrevRideInfo/component';
 import { ErrorBoundary } from '../../../../atoms';
 
-const listTheme = AppTheme.get().list
-
 const PanelArea = styled.div`
     display: flex;
     flex-direction: column;
@@ -28,10 +26,12 @@ const Title = styled.div `
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    background-color: ${listTheme.header.background};
-    color: ${listTheme.header.text};
+    background-color: ${props => props.$headerBackground};
+    color: ${props => props.$headerText};
 `
 export const PrevRides = (props) => {
+
+    const listTheme = AppTheme.get().list
     const {rides=[], title='Previous Rides',max=10,width, backgroundColors=['black','#363636'], textColors=['white']} = props??{}
 
     const prepareList = () =>{ 
@@ -66,7 +66,7 @@ export const PrevRides = (props) => {
     return (
         <ErrorBoundary hideOnError>
             <PanelArea width={width} max={listSize}> 
-                <Title>{title??'Previous Rides'}</Title>
+                <Title $headerBackground={listTheme.header.background} $headerText={listTheme.header.text}>{title??'Previous Rides'}</Title>
                 {list.map((item,index) => <PrevRideInfo {...item} key={index}/>)}
             </PanelArea>
         </ErrorBoundary>

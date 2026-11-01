@@ -5,8 +5,6 @@ import { RiderInfo } from '../../../../molecules/Ride/RiderInfo/rider-info';
 import { Dynamic, ErrorBoundary } from '../../../../atoms';
 import { copyPropsExcluding } from '../../../../../utils/props';
 
-const listTheme = AppTheme.get().list
-
 const PanelArea = styled.div`
     display: flex;
     flex-direction: column;
@@ -28,11 +26,13 @@ const Title = styled.div `
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    background-color: ${listTheme.header.background};
-    color: ${listTheme.header.text};
+    background-color: ${props => props.$headerBackground};
+    color: ${props => props.$headerText};
 `
 
 export const NearbyRidersView = ( {activeRides=[],title,max=10,width,backgroundColors=['black','#363636'],textColors=['white'],zIndex}) => {
+
+    const listTheme = AppTheme.get().list
 
 
     const prepareList = () => { 
@@ -58,7 +58,7 @@ export const NearbyRidersView = ( {activeRides=[],title,max=10,width,backgroundC
     return (
         <ErrorBoundary hideOnError>
             <PanelArea width={width}> 
-                <Title>{title??'Incyclists Nearby'}</Title>
+                <Title $headerBackground={listTheme.header.background} $headerText={listTheme.header.text}>{title??'Incyclists Nearby'}</Title>
                 {list.map((item,index) => <RiderInfo {...item} key={index}/>)}
             </PanelArea>
         </ErrorBoundary>
