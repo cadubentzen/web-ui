@@ -9,6 +9,7 @@ export default {
   argTypes: { 
     onChangeWeight: { action: 'weight changed' },
     onChangeFtp: { action: 'ftp changed' },
+    onChangeMaxHr: { action: 'max hr changed' },
     onChangeName: { action: 'name changed'},
     onChangeUnits: { action: 'units changed'}
 
@@ -27,6 +28,7 @@ export const Metric = Template.bind({});
 Metric.args = {
   username: 'Test',
   ftp: 200,
+  maxHr: 185,
   weight: { value: 75, unit:'kg'},
   units:'Metric',
   unitsOptions: ['Metric','Imperial']

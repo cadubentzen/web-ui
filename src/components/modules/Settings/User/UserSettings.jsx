@@ -59,8 +59,8 @@ export const UserSettings = ( {width, height,onChange  })=>{
 }
 
 
-export const UserSettingsView = ( { imageUrl, username, weight, ftp, units, unitsOptions, width,height, 
-        onChangeWeight,onChangeFtp,onChangeName,onChangeUnits }) => {
+export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, units, unitsOptions, width,height, 
+        onChangeWeight,onChangeFtp,onChangeMaxHr,onChangeName,onChangeUnits }) => {
 
 
     const setFtp = (newFtp) => {
@@ -82,6 +82,21 @@ export const UserSettingsView = ( { imageUrl, username, weight, ftp, units, unit
             return;
 
         change(newFtp??null)
+    }
+
+    const setMaxHr = (newMaxHr) => {
+        if (!onChangeMaxHr || typeof onChangeMaxHr!=='function')
+            return
+
+        if (newMaxHr===null || newMaxHr===undefined || newMaxHr==='') {
+            onChangeMaxHr(null)
+            return
+        }
+
+        if (isNaN(newMaxHr))
+            return;
+
+        onChangeMaxHr(newMaxHr)
     }
 
     const setWeight = (newWeight) => {
@@ -136,6 +151,7 @@ export const UserSettingsView = ( { imageUrl, username, weight, ftp, units, unit
                 {imageUrl && <ImgField label='Image' value={imageUrl}/>} 
                 <EditText label='Name' onValueChange={ setName} value={username} allowEmpty {...common} />
                 <EditNumber label='FTP' onValueChange={ setFtp} digits={0} max={999} value={ftp} unit='W' {...common} allowEmpty />
+                <EditNumber label='Max HR' onValueChange={ setMaxHr} digits={0} min={100} max={230} value={maxHr} unit='bpm' {...common} allowEmpty />
                 <EditNumber label='Weight' onValueChange={ setWeight} digits={1} max={999} allowEmpty value={weight?.value} unit={weight?.unit??'kg'} {...common} />            
                 {units? <SingleSelect label='Units' onValueChange={setUnits} options={unitsOptions} selected={units} {...common} /> : null}
             </ContentArea>
