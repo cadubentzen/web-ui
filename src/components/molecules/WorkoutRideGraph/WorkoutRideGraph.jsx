@@ -28,7 +28,7 @@ const WorkoutRideGraphView  = ({activity,workout,ftp,width,height}) => {
         if (!ftpVal)
             return 'blue'
 
-        return zoneColor[getZone(P/ftpVal*100)]
+        return zoneColor[getZone(P/ftpVal*100, ftpVal)]
     }
 
     const getPowerConfig = () => {
