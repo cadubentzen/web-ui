@@ -1,6 +1,6 @@
 import { useAppsService } from "incyclist-services"
 import React,{ useEffect, useState } from "react"
-import styled from "styled-components";
+import { SettingsContent, SectionHeader } from "../layout";
 import { AppThemeProvider } from "../../../../theme";
 import { Row  } from "../../../atoms";
 import { AppsItem } from "../../../molecules/Apps/AppsItem";
@@ -9,23 +9,7 @@ import { KomootSettings } from "./Komoot/KomootSettings";
 import {IntervalsSettings} from './Intervals/IntervalsSettings'
 
 
-export const ContentArea = styled.div`
-    position:relative;
-    width: ${props=> props.width || 'calc(100% - 2vw)'};
-    // height: ${props=>props.height || 'calc(100% - 2vh)'};
-    text-align: left ;
-    margin:auto;
-    display: flex;
-    flex-direction:column;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
-    padding:1vw;
-    top:0;
-    left:0;
-    background: ${props => props.background || props.theme.dialogContent.background || 'white'};
-`;
+export const ContentArea = SettingsContent
 
 const getMapping = (service) => {
     const mapping = {
@@ -93,10 +77,11 @@ export const AppsSettingsView = ({apps,onClick}) => {
     return (
         <AppThemeProvider>
             <ContentArea>
+                <SectionHeader>Connect your accounts</SectionHeader>
                 { apps?.length ? 
-                    apps.map( (app) => <Row key={app.key}>
-                        <AppsItem {...app} onClick={()=>onClickHandler(app.key)} />
-                    </Row> ) :
+                    <Row style={{flexWrap:'wrap'}}>
+                        {apps.map( (app) => <AppsItem key={app.key} {...app} onClick={()=>onClickHandler(app.key)} />)}
+                    </Row> :
                     <Row>No Apps available</Row>
                 }
 

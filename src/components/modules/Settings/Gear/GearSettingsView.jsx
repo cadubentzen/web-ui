@@ -1,60 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Property } from '../../../molecules/Settings';
+import { Property, PropertyGrid, Select, Label } from '../../../molecules/Settings';
+import { SettingsContent, SectionHeader } from '../layout';
 import { EventLogger } from 'gd-eventlog';
-import { AppThemeProvider } from '../../../../theme';
+import { AppThemeProvider, kitTokens } from '../../../../theme';
 
 
-const ContentArea = styled.div`
-    position:relative;
-    width: calc(100% - 2vw);
-    // height: calc(100% - 2vh);
-    text-align: left;
-    margin:auto;
-    display: flex;
-    flex-direction:column;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
-    padding:1vw;
-    top:0;
-    left:0;
-    background: ${props => props.theme?.dialogContent?.background || 'white'};
-    color: ${props => props.theme?.dialogContent?.text };
-`;
-
-const ModeSelection = styled.div`
-    font-size: 1.5vh;
-    display: flex;
-    flex-direction: row;
-`
-
-
-const Label = (props) => {
-    return (
-        <div style={{ width:'20%', }}>
-            {props.children}
-        </div>
-    )
-}
-    
 const Description = styled.div`
-    font-size: 1vh;
-    display: flex;
-    flex-direction: column;
-    min-height: 3vh;
-    max-height: 3vh;
-    justify-content: center;
-    text-align: left;
-
+    font-size: 0.8em;
+    color: ${props => kitTokens(props.theme).muted};
 `
-
-
-const Header = styled.h2`
-    font-size: 2vh;
-`
-
 
 export class GearSettingsView extends React.Component {
 
@@ -110,30 +65,24 @@ export class GearSettingsView extends React.Component {
         
         return(
             <AppThemeProvider>
-            <ContentArea>
-                <div><Header>Bike Preference</Header></div>
-                <ModeSelection>
+            <SettingsContent>
+                <SectionHeader>Bike Preference</SectionHeader>
+                <PropertyGrid>
                     <Label>Mode</Label>
-                    <select name='mode' id='mode' value={selected} onChange={ (e)=>this.onChangeMode(e.target.value)} > 
-                    {options.map( (o,index) => 
-                        <option key={index} value={o?.getName()} label={o?.getName()} />
-                            
-                    )}
-                    </select>
-                </ModeSelection>
-                <Description>
-                    {selectedMode? selectedMode.getDescription() : null}
-                </Description>
-
-                {properties.map( (p,index) => 
-                    <div key={index}> 
-                        <Property property={p} noLog logger={logger}value={(settings? settings[p.key]:undefined) || p.default} settings={settings} onChange={ (p,value) => this.onSettingsChanged(p,value)} />
+                    <div>
+                        <Select name='mode' id='mode' aria-label='Mode' value={selected} onChange={ (e)=>this.onChangeMode(e.target.value)} > 
+                        {options.map( (o,index) => 
+                            <option key={index} value={o?.getName()} label={o?.getName()} />
+                        )}
+                        </Select>
+                        {selectedMode?.getDescription() ? <Description>{selectedMode.getDescription()}</Description> : null}
                     </div>
-                )}
 
-                <div></div>
-
-            </ContentArea>
+                    {properties.map( (p,index) => 
+                        <Property key={index} property={p} noLog logger={logger} value={(settings? settings[p.key]:undefined) || p.default} settings={settings} onChange={ (p,value) => this.onSettingsChanged(p,value)} />
+                    )}
+                </PropertyGrid>
+            </SettingsContent>
             </AppThemeProvider>
         )
     }

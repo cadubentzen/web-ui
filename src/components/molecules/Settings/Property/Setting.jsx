@@ -2,6 +2,7 @@ import React from 'react';
 import {EventLogger} from 'gd-eventlog'
 import {CyclingModeProperyType} from 'incyclist-services'
 import { CheckBox } from '../../../atoms/input/Checkbox'
+import { Select, Input } from './fields'
 
 const DEFAULT_UPDATE_TIMEOUT = 5000
 
@@ -171,9 +172,9 @@ export class Setting extends React.Component {
         switch (property.type) {
             case CyclingModeProperyType.SingleSelect:
                 return (
-                    <select value={value} disabled={disabled} onChange={(e)=>onChange(property.key, e.target.value)}>
+                    <Select value={value} disabled={disabled} onChange={(e)=>onChange(property.key, e.target.value)}>
                         {property.options.map((option, index) => <option key={option?.key??option} value={option?.key??option}>{option?.display??option}</option>)}
-                    </select>
+                    </Select>
                 );    
             case CyclingModeProperyType.Boolean:
                 return (
@@ -181,17 +182,17 @@ export class Setting extends React.Component {
                 )
             case CyclingModeProperyType.Integer:
                 return (
-                    <input style={{ color: error? 'red' : 'black' }}type="text" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onIntegerChange(property, e.target.value, true) } onChange={(e)=>this.onIntegerChange(property, e.target.value)}/>
+                    <Input $invalid={error} type="text" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onIntegerChange(property, e.target.value, true) } onChange={(e)=>this.onIntegerChange(property, e.target.value)}/>
                 )
             case CyclingModeProperyType.String:
                 
                 return (
-                    <input style={{ color: error? 'red' : 'black' }}type="text" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onTextChange(property, e.target.value, true) } onChange={(e)=>this.onTextChange(property, e.target.value)}/>
+                    <Input $invalid={error} type="text" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onTextChange(property, e.target.value, true) } onChange={(e)=>this.onTextChange(property, e.target.value)}/>
                 )
             case 'password':
                 
                 return (
-                    <input style={{ color: error? 'red' : 'black' }} type="password" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onTextChange(property, e.target.value, true) } onChange={(e)=>this.onTextChange(property, e.target.value)}/>
+                    <Input $invalid={error} type="password" disabled={disabled} size={size} value={value} onBlur={ (e)=>this.onTextChange(property, e.target.value, true) } onChange={(e)=>this.onTextChange(property, e.target.value)}/>
                 )
             default:
             return value;

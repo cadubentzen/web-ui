@@ -1,27 +1,28 @@
 import React from 'react'
 import { Row, Text } from '../../../atoms'
 import styled from 'styled-components'
-import { AppThemeProvider } from '../../../../theme'
+import { AppThemeProvider, kitTokens } from '../../../../theme'
 
-const Container = styled(Row) `
-    color: ${props => props.theme.list.normal.text};
-    background: ${props => props.theme.list.normal.background};
-
+const Container = styled.button`
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
     width: 10vw;
     height: 3vw;
-    padding: 0.5vh 0.5vw 0.5vh 0.5vw;
-    
+    margin: 0 1vw 1vh 0;
+    padding: 0.5vh 0.8vw;
+    background: ${props => kitTokens(props.theme).panel.fill};
+    border: ${props => kitTokens(props.theme).panel.border};
+    border-radius: 999px;
 
     &:hover {
-        color: ${props => props.theme.list.hover.text};
-        background: ${props => props.theme.list.hover.background};
-        border-style: solid;
-        border-width: 1px;
-        border-color: white;
-        padding: calc(0.5vh - 1px) calc(0.5vw - 1px) calc(0.5vh - 1px) calc(0.5vw - 1px);
-
+        background: ${props => kitTokens(props.theme).pillHover};
     }
-
 `
 
 export const Image = styled.img`
@@ -37,9 +38,9 @@ export const Image = styled.img`
 export const AppsItem = ( {name, iconUrl, isConnected,onClick}) => {
 
     return <AppThemeProvider>
-        <Container onClick={onClick}>
+        <Container type='button' aria-label={name} onClick={onClick}>
             
-            {iconUrl? <Image src={iconUrl} width='100%'/> :
+            {iconUrl? <Image src={iconUrl} alt={name} width='100%' height='100%' style={{objectFit:'contain'}}/> :
              <Text text={name}/>}
         </Container>
     </AppThemeProvider>

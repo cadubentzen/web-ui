@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import styled from "styled-components"
-import { Button, Row, Text, View } from "../../../../atoms"
-import { ArrowLeftIcon } from '@primer/octicons-react'
+import { Button, Row } from "../../../../atoms"
+import { AppSettingsFrame } from '../AppSettingsFrame'
 import { AppThemeProvider } from '../../../../../theme'
 import { EventLogger } from 'gd-eventlog'
 import { hasFeature } from '../../../../../utils/electron/integration'
@@ -66,61 +65,19 @@ export const StravaSettings = ({onBack})=> {
 
 }
 
-const Container = styled(View)`
-  position: relative;
-`
-
-const BackRow = styled(Row)`
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 1vw
-
-    color: ${props => props.theme.list.normal.text};
-    background: ${props => props.theme.list.normal.background};
-
-    &:hover {
-        color: ${props => props.theme.list.hover.text};
-        background: ${props => props.theme.list.hover.background};
-        border-style: solid;
-        border-width: 1px;
-        border-color: white;
-    }
-
-`
-
-const Icon = styled(ArrowLeftIcon)`
-`
-
-const Title = styled(Row)`
-    height: 32px;
-    font-size: 2.2vh;
-    padding: 1vw;
-    text-transform: uppercase;
-    
-    user-select: none;
-    pointer-events: none;
-    color: ${props => props.theme.title.text};
-    background: ${props => props.theme.title.background};
-    
-`
-
 export const StravaSettingsView = ( {isConnected, isConnecting, operations, onBack, onConnect, onDisconnect,onOperationsChanged}) => {
 
     return <AppThemeProvider>
-        <Container>
-            <Title className='title' align='center' justify='center'>
-                Strava Settings
-            </Title>
+        <AppSettingsFrame title='Strava Settings' onBack={onBack}>
 
             <Row className='buttons'>
                 {isConnected ?  
                     <div>
-                        <Button primary={true} text={'Disconnect from Strava'} onClick={onDisconnect}></Button> 
+                        <Button secondary={true} text={'Disconnect from Strava'} onClick={onDisconnect}></Button> 
                     </div>
                 : 
                     <div>
-                        <Button disabled={isConnecting} primary={true} padding={0} noBorder onClick={onConnect}
+                        <Button disabled={isConnecting} variant='text' padding={0} noBorder onClick={onConnect}
                             id='Connect With Strava'
                             >
                             <img src='images/btn_strava_connectwith_orange.svg' alt='Connect With Strava'></img>
@@ -133,13 +90,7 @@ export const StravaSettingsView = ( {isConnected, isConnecting, operations, onBa
                 <OperationsSelector operations={operations} onChanged={onOperationsChanged}/>
 
             </Row>:null}
-
-            <BackRow className='back' onClick={onBack}>
-                <Icon size={32} /> 
-                <Text text='Apps' height='32px' align='center' />
-            </BackRow>
-
-        </Container>
+        </AppSettingsFrame>
     </AppThemeProvider>
 
 }

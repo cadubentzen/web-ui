@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import {EventLogger} from 'gd-eventlog'
 import { getCoachesService, useRideDisplay, useRouteList, useUserSettings } from 'incyclist-services';
 
@@ -8,36 +7,13 @@ import { EditNumber,Button,SegmentedControl, Row, CheckBox, EditText, Column} fr
 import { DynamicCoachList,DynamicCoachEdit } from '../../Coaches';
 import { RIDE_MODES, RIDEVIEW } from './consts';
 import { isValidGoogleMapsKeyFormat } from './validations';
+import { SettingsContent, SectionHeader } from '../layout';
 
-export const ContentArea = styled.div`
-    position:relative;
-    width: calc(100% - 2vw);
-    // height: calc(100% - 2vh);
-    text-align: left;
-    margin:auto;
-    display: flex;
-    flex-direction:column;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
-    padding:1vw;
-    top:0;
-    left:0;
-    background: ${props => props.theme?.dialogContent?.background || 'white'};
-    color: ${props => props.theme?.dialogContent?.text };
-`;
+export const ContentArea = SettingsContent
 
+export const Header = SectionHeader
 
-
-
-export const Header = styled.h2`
-    font-size: 2vh;
-`
-
-export const Input = styled.input`
-    height: 1.5vh;
-`
+const LABEL_WIDTH = '22ch'
 
 export class RideSettings extends React.Component {
 
@@ -231,7 +207,7 @@ export const RideSettingsView = ( props)=> {
                    || (rideMode==='Free-Ride' || rideMode==='GPX')
                    || !isRide  ? 
                 <Row>
-                    <SegmentedControl label='View Preference' labelWidth='15ch' fontSize='1.8vh' value={rideView}
+                    <SegmentedControl label='View Preference' labelWidth={LABEL_WIDTH} fontSize='1.8vh' value={rideView}
                         options={[
                             {value:RIDEVIEW.STREETVIEW, label:'Street View'},
                             {value:RIDEVIEW.SATTELITE, label:'Satellite'},
@@ -243,7 +219,7 @@ export const RideSettingsView = ( props)=> {
                 }
                 { !isRide  ? 
                     <Row> 
-                        <EditText label='Maps API Key'  labelPosition='before' labelWidth='15ch' maxLength={39}
+                        <EditText label='Maps API Key'  labelPosition='before' labelWidth={LABEL_WIDTH} maxLength={39}
                             validate={validateMapsApiKey} value={mapsApiKey} noLog onValueChange={onMapsApiKeyChanged} />
                     </Row>
                     : null }
@@ -253,7 +229,7 @@ export const RideSettingsView = ( props)=> {
                         <Row> 
                             <Header>Current Ride Preferences</Header> 
                         </Row>
-                            <EditNumber label='Reality Factor' labelPosition='before' labelWidth='15ch' unit='%'
+                            <EditNumber label='Reality Factor' labelPosition='before' labelWidth={LABEL_WIDTH} unit='%'
                                     value={reality} min={0} max={100} digits={0}
                                     onValueChange={ onChangeRealityFactor} />
                         </>                            
@@ -264,7 +240,7 @@ export const RideSettingsView = ( props)=> {
                         <Row> 
                             <Header>Video</Header> 
                         </Row>
-                        <CheckBox label='Play video sound' value={videoSound} onValueChange={onVideoSoundChanged} />
+                        <CheckBox label='Play video sound' labelPosition='before' labelWidth={LABEL_WIDTH} fontSize='1.8vh' value={videoSound} onValueChange={onVideoSoundChanged} />
                     </>
                     : null }
 
@@ -273,7 +249,7 @@ export const RideSettingsView = ( props)=> {
                 { coachSupported ? 
                     <div style={{width:'50vw' }}> 
                         <DynamicCoachList  onUpdate={onCoachEditDone} /> 
-                        <Button fontSize='1.6vh' height='3.2vh' onClick={onAddCoach}>Add Coach</Button>
+                        <Button fontSize='1.6vh' height='3.2vh' secondary={true} onClick={onAddCoach}>Add Coach</Button>
                     </div>
                     : 
                     null

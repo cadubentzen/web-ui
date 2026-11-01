@@ -2,26 +2,15 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { AppThemeProvider } from '../../../../theme';
 import { EditNumber, EditText, SingleSelect } from '../../../atoms';
+import { SettingsContent } from '../layout';
 import { ImgField } from './ImgField';
 import { useUserSettings, useUserSettingsDisplay } from 'incyclist-services';
 import { useUnmountEffect } from '../../../../hooks';
 
-export const ContentArea = styled.div`
-    position:relative;
-    width: ${props=> props.width || 'calc(100% - 2vw)'};
-    height: ${props=>props.height || 'calc(100% - 2vh)'};
-    text-align: left ;
-    margin:auto;
-    display: flex;
-    flex-direction:column;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
-    padding:1vw;
-    top:0;
-    left:0;
-    background: ${props => props.background || props.theme.dialogContent.background || 'white'};
+export const ContentArea = styled(SettingsContent)`
+    width: ${props=> props.width || '100%'};
+    height: ${props=>props.height || 'auto'};
+    overflow: auto;
 `;
 
 export const UserSettings = ( {width, height,onChange  })=>{
@@ -141,7 +130,7 @@ export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, unit
     }
     
     
-    const common = {labelPosition:'before', labelWidth:'10ch' }
+    const common = {labelPosition:'before', labelWidth:'14ch' }
 
     
 

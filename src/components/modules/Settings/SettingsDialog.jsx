@@ -53,7 +53,7 @@ export const SettingsDialogView = ({onOK, onCoachesChanged, onSettingsChanged, n
             </Tabs>
 
             <ButtonBar justify='center'>
-                <Button height={'5vh'} primary={false} text='OK' onClick={onOK} />
+                <Button height={'5vh'} primary={true} text='OK' onClick={onOK} />
             </ButtonBar> 
         </Dialog>
         </AppThemeProvider>

@@ -1,10 +1,9 @@
 import React from 'react'
+import styled from 'styled-components'
+import { kitTokens } from '../../../../theme'
 
-export const Label = (props) => {
-    return (
-        <div style={{ width:'20%', }}>
-            {props.children}
-        </div>
-    )
-}
-    
+const Text = styled.div`
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+export const Label = (props) => <Text>{props.children}</Text>
