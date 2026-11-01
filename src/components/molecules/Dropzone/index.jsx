@@ -2,7 +2,7 @@ import React,{useRef,useState} from 'react';
 import styled from 'styled-components';
 import { EventLogger } from 'gd-eventlog';
 import { api, hasFeature, isElectron } from '../../../utils/electron/integration';
-import { AppThemeProvider } from '../../../theme';
+import { AppThemeProvider, kitTokens } from '../../../theme';
 import { getBindings } from 'incyclist-services';
 import { isReactNative } from '../../../utils';
 import NativeUiService from '../../../bindings/native-ui';
@@ -32,6 +32,17 @@ const ErrorContainer = styled.div`
 `
 
 
+// glass: the kit's glass-card look (translucent fill, solid hairline) instead of the dashed light box
+const glassStyle = (props) => {
+    const kit = kitTokens(props.theme)
+    return `
+        background-color: ${kit.panel.fill};
+        border: ${kit.panel.border};
+        border-radius: ${kit.panel.radius};
+        &:hover, &:focus-visible { border-color: ${kit.accent}; }
+    `
+}
+
 const DropzoneContainer = styled.div`
     background-color: ${props => getBackgroundColor(props)} ;
     position: relative;
@@ -53,7 +64,8 @@ const DropzoneContainer = styled.div`
     color: ${props => props.disabled ? '#bdbdbd' : props.textColor||props.theme?.dialog?.text };
     outline: none;
     transition: border .24s ease-in-out;    
-    opacity: ${props => props.disabled ? 0.5 : props.opacity||1 }
+    opacity: ${props => props.disabled ? 0.5 : props.opacity||1 };
+    ${props => props.$glass ? glassStyle(props) : ''}
 `
 let dragCounter = 0;
 
@@ -63,7 +75,9 @@ export const deleteProps = ( props, names) => {
 
 export const createContainerProps = (props,scheme) => {
     const containerProps = { ...props};
-    deleteProps(containerProps,['electron','onClick','children','onClearError'])
+    deleteProps(containerProps,['electron','onClick','children','onClearError','glass'])
+    if (props.glass)
+        containerProps.$glass = true
     containerProps.scheme = scheme;    
     return containerProps;
 }

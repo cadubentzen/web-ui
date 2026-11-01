@@ -3,7 +3,7 @@ import { Card } from "../../routeSelection/base/Card";
 import { RouteTileSummary } from "../RouteTileSummary";
 import { useFoldWindow } from "../../../../hooks";
 import { useRouteList } from "incyclist-services";
-import { RouteTilesView, TILE_WIDTH, TILE_HEIGHT } from './component'
+import { RouteTilesView, TILE_HEIGHT } from './component'
 
 const cardKey = (card, index) =>
   card?.id ?? card?.getId?.() ?? `route-${index}`;
@@ -44,7 +44,7 @@ export const RouteTiles = ({ cards, onSelect, onDelete }) => {
     const id = cardKey(card, index)
     return { id, props: {
       ...card.getDisplayProperties(), card, id,
-      width: TILE_WIDTH, height: TILE_HEIGHT, Summary: RouteTileSummary,
+      width: '100%', height: TILE_HEIGHT, Summary: RouteTileSummary,
       onOK: () => select(id),
       onDelete: event => { event?.stopPropagation?.(); onDelete?.(id) }
     }}

@@ -38,9 +38,9 @@ const ToolbarButton = styled.button`
     gap: 0.6ch;
     height: 3.6vh;
     padding: 0 1ch;
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 4px;
-    background: ${props => props.$active ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'};
+    border: 1.5px solid ${props => kitTokens(props.theme).pillOutline};
+    border-radius: 999px;
+    background: ${props => props.$active ? kitTokens(props.theme).pillSelected : 'transparent'};
     color: white;
     font-size: 1.8vh;
     font-family: inherit;
@@ -48,7 +48,7 @@ const ToolbarButton = styled.button`
     white-space: nowrap;
 
     &:hover {
-        background: ${props => props.theme?.button?.hover?.background || '#8dc100'};
+        background: ${props => kitTokens(props.theme).pillHover};
     }
 `
 
@@ -57,8 +57,8 @@ const Badge = styled.span`
     min-width: 1.2em;
     padding: 0 0.5ch;
     border-radius: 16px;
-    background: #dd9933;
-    color: white;
+    background: ${props => kitTokens(props.theme).accent};
+    color: ${props => kitTokens(props.theme).accentText};
     font-size: 1.5vh;
     text-align: center;
 `
@@ -119,7 +119,13 @@ const SortAndDisplay = styled.div`
 const Select = styled.select`
     font-size: 1.6vh;
     font-family: inherit;
-    height: 3.2vh;
+    height: 3.4vh;
+    color: inherit;
+    color-scheme: dark;
+    background: ${props => kitTokens(props.theme).field.fill};
+    border: ${props => kitTokens(props.theme).field.border};
+    border-radius: ${props => kitTokens(props.theme).field.radius};
+    padding: 0 0.6em;
 `
 
 const log = (message, props) => {

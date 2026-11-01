@@ -91,6 +91,7 @@ export const LandingView = ({ onAddRoute, onSelectFolder, onClose }) => {
                 <TileWrapper>
                     <Dropzone
                         id="add-route-tile"
+                        glass
                         width="100%"
                         height="100%"
                         multiple={true}

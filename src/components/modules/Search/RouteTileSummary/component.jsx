@@ -4,6 +4,8 @@ import Flag from 'react-world-flags'
 import { ArrowRightIcon, TrashIcon, PeopleIcon, PlayIcon } from '@primer/octicons-react'
 import { FreeMap } from '../../../molecules/Maps'
 import { Button, ErrorBoundary, Loader } from '../../../atoms'
+import { Panel } from '../../../atoms/Panel'
+import { kitTokens } from '../../../../theme'
 import { CardSkeleton } from '../../routeSelection/base/skeleton'
 import { EventLogger } from 'gd-eventlog'
 
@@ -19,19 +21,21 @@ const countryLabel = country => {
 }
 const videoPillLabels = { 'in-icloud': 'In iCloud', downloading: 'Downloading…' }
 
-const Surface = styled.article`
-    position: relative; display: flex; flex-direction: column; box-sizing: border-box;
-    width: 100%; height: 100%; overflow: hidden; border-radius: 12px;
-    background: ${p => p.theme?.pageLists?.background}; border: 1px solid #3a3248;
+const Surface = styled(Panel).attrs({ as: 'article' })`
+    position: relative; display: flex; flex-direction: column;
+    width: 100%; height: 100%; overflow: hidden;
     color: ${p => p.theme?.dialog?.text ?? '#f7f5fa'}; text-align: left;
     font-family: inherit; cursor: pointer; isolation: isolate;
-    &:hover, &:focus-within { border-color: ${p => p.theme?.button?.primary?.background}; }
+    &:hover, &:focus-within { border-color: ${p => kitTokens(p.theme).accent}; }
     &:focus-visible { outline: 3px solid ${p => p.theme?.button?.hover?.background}; outline-offset: -3px; }
     button { font-family: inherit; cursor: pointer; }
     button:focus-visible { outline: 3px solid ${p => p.theme?.button?.hover?.background}; outline-offset: 2px; }
     button:disabled { cursor: default; opacity: .5; }
     ${p => p.$list && css`
         flex-direction: row;
+        align-items: stretch;
+        padding: .5em 1em .5em .5em;
+        gap: .6em;
         height: 84px;
         min-height: 84px;
         @media (max-width: 1100px) { height: 112px; min-height: 112px; }
@@ -46,6 +50,7 @@ const Preview = styled.div`
         width: 148px;
         height: 100%;
         flex: 0 0 148px;
+        border-radius: .55em;
         @media (max-width: 900px) { width: 124px; flex-basis: 124px; }
     `}
 `
@@ -77,7 +82,7 @@ const Body = styled.div`
         grid-template-columns: minmax(0, 1.6fr) 220px minmax(150px, 1fr) 142px;
         align-items: center;
         gap: 12px;
-        padding: 6px 10px;
+        padding: 0;
         min-width: 0;
         @media (max-width: 1100px) {
             grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);

@@ -38,6 +38,9 @@ const Track = styled.button`
 const Label = styled.label`
     display: inline-block;
     align-items: center;
+    vertical-align: middle;
+    width: ${props => props.$width};
+    margin-right: ${props => props.$before ? (props.$innerMargin||'0.4vw') : undefined};
 `
 
 const Container = styled.div`
@@ -88,10 +91,10 @@ export const CheckBox = (props) => {
     const onKeyUp = (e) => { if (e.key===' ') e.preventDefault() }
 
     return  <Container {...childProps}> 
-        { (labelPosition ==='before') ? <Label labelPosition={labelPosition} labelWidth={labelWidth} innerMargin={innerMargin} htmlFor={id} >{label}</Label>:null }
+        { (labelPosition ==='before') ? <Label $before $width={labelWidth} $innerMargin={innerMargin} htmlFor={id} >{label}</Label>:null }
         <Track type="button" role="switch" id={id} aria-checked={state} aria-label={props['aria-label']} disabled={disabled} $on={state} $innerMargin={innerMargin}
             onClick={toggle} onKeyDown={onKeyDown} onKeyUp={onKeyUp} /> 
-        { (labelPosition ==='after') ? <Label labelPosition={labelPosition} labelWidth={labelWidth} innerMargin={innerMargin}  htmlFor={id} >{label}</Label>:null }
+        { (labelPosition ==='after') ? <Label $width={labelWidth} htmlFor={id} >{label}</Label>:null }
 
     </Container>
 }

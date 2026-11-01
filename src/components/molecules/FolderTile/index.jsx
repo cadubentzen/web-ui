@@ -2,6 +2,7 @@ import React, { useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import { EventLogger } from 'gd-eventlog';
 import { useAppUI } from '../../../bindings/native-ui';
+import { kitTokens } from '../../../theme';
 
 const Tile = styled.div`
     box-sizing: border-box;
@@ -14,8 +15,9 @@ const Tile = styled.div`
     gap: 1vh;
     padding: 2vh;
     text-align: center;
-    border: 2px dashed ${props => props.$disabled ? '#eeeeee' : '#dcdcdc'};
-    border-radius: 10px;
+    background: ${props => kitTokens(props.theme).panel.fill};
+    border: ${props => kitTokens(props.theme).panel.border};
+    border-radius: ${props => kitTokens(props.theme).panel.radius};
     color: ${props => props.$disabled ? '#bdbdbd' : undefined};
     opacity: ${props => props.$disabled ? 0.5 : 1};
     cursor: ${props => props.$disabled ? 'default' : 'pointer'};
@@ -23,7 +25,7 @@ const Tile = styled.div`
     transition: border .24s ease-in-out;
 
     &:hover, &:focus-visible {
-        border-color: ${props => props.$disabled ? '#eeeeee' : 'white'};
+        border-color: ${props => props.$disabled ? kitTokens(props.theme).hairline : kitTokens(props.theme).accent};
     }
 `;
 

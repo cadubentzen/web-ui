@@ -2,6 +2,7 @@ import React, { forwardRef, useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 import { SearchIcon, XIcon } from "@primer/octicons-react"
 import { EventLogger } from "gd-eventlog"
+import { kitTokens } from "../../../../theme"
 
 export const SEARCH_TIMEOUT = 500
 
@@ -15,9 +16,10 @@ const Container = styled.div`
     width: ${props => props.width || '32ch'};
     max-width: 100%;
     padding: 0 0.6ch;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.9);
-    color: #333;
+    border: ${props => kitTokens(props.theme).field.border};
+    border-radius: ${props => kitTokens(props.theme).field.radius};
+    background: ${props => kitTokens(props.theme).field.fill};
+    color: inherit;
     box-sizing: border-box;
 `
 
@@ -30,7 +32,8 @@ const Input = styled.input`
     font-size: 1.8vh;
     font-family: inherit;
     padding: 0 0.6ch;
-    color: #333;
+    color: inherit;
+    &::placeholder { color: ${props => kitTokens(props.theme).muted}; }
 `
 
 const ClearButton = styled.button`
@@ -40,7 +43,7 @@ const ClearButton = styled.button`
     padding: 0;
     display: flex;
     align-items: center;
-    color: #666;
+    color: ${props => kitTokens(props.theme).muted};
 `
 
 /**

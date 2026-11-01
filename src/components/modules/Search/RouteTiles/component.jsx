@@ -9,9 +9,10 @@ export const TILE_HEIGHT = 388
 
 const Container = styled(View)`
   box-sizing: border-box;
-  display: flex;
-  flex-flow: row wrap;
-  align-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(${TILE_WIDTH}px, 1fr));
+  grid-auto-rows: ${TILE_HEIGHT}px;
+  align-content: start;
   gap: 1.5vh 1vw;
   padding: 1.5vh 0;
   overflow-x: hidden;
@@ -20,9 +21,8 @@ const Container = styled(View)`
 
 const Tile = styled.div`
   position: relative;
-  width: ${TILE_WIDTH}px;
+  width: 100%;
   height: ${TILE_HEIGHT}px;
-  flex: none;
   z-index: 0;
   &:hover, &:focus-within { z-index: 1; }
 `

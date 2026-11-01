@@ -218,7 +218,7 @@ export const newUITheme = {
     },
     dialog: {
         background1: 'rgb(33,33,33,0.975)',
-        background: 'linear-gradient(rgb(56,1,31,0.975),rgb(26,4,86,0.975))',
+        background: 'linear-gradient(rgb(56,1,31),rgb(26,4,86))',
         background2: 'linear-gradient(#38011f,#180457)',
         
         

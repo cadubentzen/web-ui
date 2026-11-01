@@ -3,19 +3,23 @@ import styled from 'styled-components'
 import { scrollbar } from '../../../../utils/scrollbar'
 import {FileDirectoryIcon } from '@primer/octicons-react'
 
-import {Button,ButtonBar, Divider, EditNumber, SingleSelect,Column, Overlay, Row,
+import {Button,ButtonBar, EditNumber, SingleSelect,Column, Overlay, Row,
         Text, Loader, EditText,ErrorBoundary, CheckBox, Image, Center, ErrorText, SegmentedControl } from '../../../atoms'
 import {  Dialog, Dropzone, FreeMap,ElevationGraph, VideoProbe } from '../../../molecules'
 import {VideoPreview } from '../../video'
 import { useUnitConverter } from 'incyclist-services'
+import { kitTokens } from '../../../../theme'
 import { EventLogger } from 'gd-eventlog'
 
 const ContentArea = styled(Column)`
     height: calc(100% - 7.7vh);
     width: calc(100% - 0.8vw);
-    padding-left:0.4vw;
-    padding-right:0.4vw;
+    padding-left:1.4vw;
+    padding-right:1.4vw;
+    box-sizing: border-box;
     ${scrollbar}
+    /* labels of the settings rows are secondary to their fields */
+    label { color: ${props => kitTokens(props.theme).muted}; }
 `
 
 // never yields its height to the rows the smoothing control adds below it - those absorb their
@@ -23,17 +27,85 @@ const ContentArea = styled(Column)`
 const PreviewRow = styled(Row)`
     width: 100%;
     flex-shrink: 0;
+    gap: 1vw;
+    margin-bottom: 1.4vh;
 `
 
+// map / video still live in rounded glass frames
 const Preview = styled(Column)`
     position: relative;
-    width: calc(50% - 0.25vw);
-    height: 30vh;
+    box-sizing: border-box;
+    width: calc(50% - 0.5vw);
+    height: 27vh;
     flex-shrink: 0;
-    padding-right: ${props => props?.position==='left'? '0.25vw' :undefined};
-    padding-left: ${props => props?.position==='right'? '0.25vw' :undefined};
-    margin-bottom: 1vh;
+    overflow: hidden;
+    background: ${props => kitTokens(props.theme).panel.fill};
+    border: ${props => kitTokens(props.theme).panel.border};
+    border-radius: ${props => kitTokens(props.theme).panel.radius};
+`
 
+// facts block: large value, muted label below, hairline above and below
+const FactsRow = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1vw;
+    padding: 1.2vh 0;
+    margin-bottom: 1vh;
+    border-top: 1px solid ${props => kitTokens(props.theme).hairline};
+    border-bottom: 1px solid ${props => kitTokens(props.theme).hairline};
+`
+
+const FactValue = styled.div`
+    font-size: 2.6vh;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`
+
+const FactUnit = styled.span`
+    font-size: 1.6vh;
+    font-weight: 400;
+    margin-left: 0.3em;
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+const FactLabel = styled.div`
+    font-size: 1.5vh;
+    color: ${props => kitTokens(props.theme).muted};
+`
+
+const FactExtra = styled.div`
+    font-size: 1.2vh;
+    color: ${props => kitTokens(props.theme).muted};
+    min-height: 1.5em;
+    margin-top: 0.3vh;
+`
+
+const Fact = ({label, value, unit, children}) => (
+    <div>
+        <FactValue id={label}>{value}{unit ? <FactUnit>{unit}</FactUnit> : null}</FactValue>
+        <FactLabel>{label}</FactLabel>
+        {children}
+    </div>
+)
+
+const Footer = styled(ButtonBar)`
+    gap: 0.8vw;
+    padding: 0 1.4vw;
+    box-sizing: border-box;
+    background: transparent;
+    border-top: 1px solid ${props => kitTokens(props.theme).hairline};
+
+    /* buttons size to their labels - never squeezed into an ellipsis by their siblings */
+    & > *, & > button { flex: none; max-width: none; margin: 0; }
+    & button { overflow: visible; max-width: none; margin: 0; }
+`
+
+// Cancel sits at the far right while Start stays first in the focus/DOM order
+const CancelSlot = styled.div`
+    order: 2;
+    margin-left: auto;
 `
 // height is fixed per route type (video vs GPX), never toggled by the smoothing level - nothing
 // in this container may change size or position as a consequence of the level a user picks
@@ -55,20 +127,23 @@ const GraphSlot = styled.div`
     position: relative;
 `
 
-// aligns the copy with the chips rather than with the label column (10vw label + 0.4vw margin)
+// spans the full width below both settings columns so the note stays on one line
+// narrower than the 13vw column of the other rows so the pills fit on one line in the half-width column
+const SMOOTHING_LABEL_WIDTH = '10.5vw'
+
 const SmoothingCopy = styled.div`
-    padding: 0 0 1vh 10.4vw;
+    padding: 0 0 1vh 0;
     opacity: ${props => props.dimmed ? 0.6 : 1};
 `
 
 const SmoothingNote = styled.div`
     font-size: 1.2vh;
-    color: #EEEEEE;
+    color: ${props => kitTokens(props.theme).pillSelectedText};
 `
 
 const SmoothingDetail = styled.div`
     font-size: 1.1vh;
-    color: #9fa4a8;
+    color: ${props => kitTokens(props.theme).muted};
     padding: 0.3vh 0 0 0;
 `
 
@@ -78,7 +153,6 @@ const ErrorRow = styled.div`
     overflow: hidden;
 `
 
-const ROUTE_LINE_COLOR = '#9fa4a8'
 const PROFILE_LINE = { color: 'white' }
 
 const buildSmoothingOptions = (maxLevel) => {
@@ -394,7 +468,7 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
         }
     }
    
-    const common= { labelWidth:'10vw', labelPosition:'before', align:'right'}
+    const common= { labelWidth:'13vw', labelPosition:'before', align:'right'}
 
     
     const distance = routeDescr?.distance ? (routeDescr.distance/1000).toFixed(1) : undefined
@@ -560,26 +634,19 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
 
                 </Preview>
                 </PreviewRow>
-                <Row>
-                    <Column width='50%'>
-                        <Text {...common} label='Distance' text={totalDistance?.value??distance} unit={totalDistance?.unit??'km'} />
-                        <Text {...common} noPadding label='Elevation' text={totalElevation?.value??elevation} unit={totalElevation?.unit??'m'} />
-                        {/* the row's height is reserved even at Off (an empty line, not a collapsed
+                <FactsRow>
+                    <Fact label='Distance' value={totalDistance?.value??distance} unit={totalDistance?.unit??'km'} />
+                    <Fact label='Elevation' value={totalElevation?.value??elevation} unit={totalElevation?.unit??'m'}>
+                        {/* the line's height is reserved even at Off (an empty line, not a collapsed
                             one) so switching a level in or out never reflows anything below it -
-                            omitting the label keeps document.getElementById('Smoothed') null, as
-                            it was before, while the row itself still occupies its line */}
-                        <Text {...common} size='1.2vh' color={ROUTE_LINE_COLOR} style={{opacity: smoothingComputing? 0.6:1}}
-                              label={showSmoothedElevation ? 'Smoothed' : undefined}
-                              text={showSmoothedElevation ? `${smoothedElevationValue} ${elevationUnit} (${formatDelta(smoothedElevationValue,routeElevation)} ${elevationUnit})` : ' '} />
-                    </Column>
-                    <Column width='50%'>
-                        {videoFormat ? <Text {...common} label='Video Format' text={videoFormat.toUpperCase()}  /> : null}
-                        <Text {...common} label='Route Type' text={getRouteType()}  /> 
-                    </Column>
-
-                </Row>
-                <Divider width='90%' />
-                
+                            the id exists only while a smoothed figure is shown, as before */}
+                        <FactExtra style={{opacity: smoothingComputing? 0.6:1}}>
+                            {showSmoothedElevation ? <>Smoothed <span id='Smoothed'>{`${smoothedElevationValue} ${elevationUnit} (${formatDelta(smoothedElevationValue,routeElevation)} ${elevationUnit})`}</span></> : ' '}
+                        </FactExtra>
+                    </Fact>
+                    {videoFormat ? <Fact label='Video Format' value={videoFormat.toUpperCase()} /> : null}
+                    <Fact label='Route Type' value={getRouteType()} />
+                </FactsRow>
                 {showSettings && routeDescr?.segments?.length ? 
                     <SingleSelect label='Segment' disabled={videoFormat==='avi'} selected={data.segment??null} options={segments} 
                         onValueChange={onSegmentChanged} {...common} align='left'/>
@@ -597,6 +664,7 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
                     the smoothing copy below needs, keeping the checkboxes after it clear of the
                     fold instead of pushed past it. */}
                 {showSettings && smoothingAvailable ?
+                    <>
                     <Row>
                         <Column width='50%'>
                             <EditNumber unit='%' label='Reality Factor' min={0} max={100} digits={0} value={data.realityFactor} maxLength={5}
@@ -604,7 +672,9 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
                         </Column>
                         <Column width='50%'>
                             <SegmentedControl label='Terrain Smoothing' options={smoothingOptions} value={selectedSmoothingLevel}
-                                onValueChange={onSmoothingLevelChanged} {...common} />
+                                onValueChange={onSmoothingLevelChanged} {...common} labelWidth={SMOOTHING_LABEL_WIDTH} />
+                        </Column>
+                    </Row>
                             {/* both lines are always rendered, sized to the tallest (two-line)
                                 state, so the block occupies the same height whether it is Off, On,
                                 or On but barely doing anything on this route - nothing below it
@@ -615,8 +685,7 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
                                 :   <SmoothingNote>Softens sharp gradient changes for steadier trainer resistance.</SmoothingNote>}
                                 <SmoothingDetail>{buildSmoothingDetail()}</SmoothingDetail>
                             </SmoothingCopy>
-                        </Column>
-                    </Row>
+                    </>
                 : null}
 
                 {showLoopOverwrite ?
@@ -668,13 +737,13 @@ export const RouteDetails = ( {route, markers,segment, startPos,endPos,realityFa
 
 
             </ContentArea>
-            <ButtonBar justify='center'>
+            <Footer justify='start'>
                 {showStart ? <Button primary={canStart} text='Start' disabled={!canStart} onClick = { onStartClicked}/> : null}
-                <Button text='Cancel' primary={!canStart && !isOnline} onClick = { onCancelClicked}/>
+                <CancelSlot><Button text='Cancel' primary={!canStart && !isOnline} onClick = { onCancelClicked}/></CancelSlot>
                 {showStart && showWorkout ? <Button primary={false} disabled={!canStart} secondary={true} text='Start With Workout' onClick = { onAddWorkoutClicked}/>: null}
                 {showDownloadButton ? <Button primary={!showStart && isOnline} disabled={!isOnline} secondary={showStart} text='Download' onClick = { onDownloadClicked}/> : null}
                 {showConvert ? <Button primary={false} secondary={true} text='Convert' onClick = { onConvertClicked}/> : null}
-            </ButtonBar>
+            </Footer>
             
         </Dialog>
         </ErrorBoundary>

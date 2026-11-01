@@ -1,23 +1,21 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Panel } from '../../../atoms/Panel'
 import { RouteTileSummaryView } from '../RouteTileSummary/component'
 
-const Skeleton = styled.div`
+const Skeleton = styled(Panel)`
     position: relative;
     box-sizing: border-box;
     width: 100%;
     height: 84px;
     flex: 0 0 84px;
     overflow: hidden;
-    border: 1px solid #3a3248;
-    border-radius: 12px;
-    background: ${props => props.theme?.pageLists?.background};
     &::before {
         content: '';
         position: absolute;
         inset: 0 auto 0 0;
         width: 148px;
-        background: #292432;
+        background: rgba(255,255,255,.08);
     }
     &::after {
         content: '';
@@ -27,8 +25,8 @@ const Skeleton = styled.div`
         width: min(36%, 280px);
         height: 15px;
         border-radius: 4px;
-        background: #393244;
-        box-shadow: 0 25px 0 -3px #393244;
+        background: rgba(255,255,255,.12);
+        box-shadow: 0 25px 0 -3px rgba(255,255,255,.12);
     }
     @media (max-width: 1100px) { height: 112px; flex-basis: 112px; }
     @media (max-width: 900px) { &::before { width: 124px; } &::after { left: 140px; } }

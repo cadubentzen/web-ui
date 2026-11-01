@@ -112,7 +112,7 @@ export const FreeRideSettingsView = ({
                         </TabContentArea>
 
                         <ButtonBar justify="center" className="button-bar">
-                            {onCancel ? <Button text={'Cancel'} onClick={handleBack} /> : null}
+                            {onCancel ? <Button text={'Cancel'} variant='text' onClick={handleBack} /> : null}
 
                             {options?.length > 0
                                 ? options.map((option, index) => (
@@ -120,7 +120,7 @@ export const FreeRideSettingsView = ({
                                           key={index}
                                           onClick={() => handleOptionSelected(option)}
                                           text={option.text}
-                                          background={option.color || 'blue'}
+                                          primary
                                       />
                                   ))
                                 : null}
