@@ -6,7 +6,7 @@ import { Panel } from "../../../atoms/Panel"
 import { AppThemeProvider } from "../../../../theme"
 import styled from "styled-components";
 import { FreeMap } from "../../../molecules/Maps";
-import { ActivityGraph,ActivityStats,ScreenshotPopup } from "../../../molecules/Activity";
+import { ActivityGraph,ActivityStats,ScreenshotGallery,ScreenshotPopup } from "../../../molecules/Activity";
 import { MessageBox } from "../../../molecules";
 import { SummaryTiles } from "./SummaryTiles";
 
@@ -184,6 +184,8 @@ export const ActivitySummaryView = ( {activity,position,preview, units, xScale,
                             </ErrorBoundary>
                         </StatsPanel>
                     </DetailsRow>
+
+                    { screenshots.length>0 ? <ScreenshotGallery screenshots={screenshots} /> : null }
 
                     { showDonate && donateText ? 
                         <ErrorBoundary>

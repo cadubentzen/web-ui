@@ -5,7 +5,7 @@ import { Panel } from '../../../atoms/Panel'
 import { kitTokens } from '../../../../theme'
 import { Dialog, FreeMap } from '../../../molecules'
 import { formatDateTime, useActivityList} from 'incyclist-services'
-import { ActivityGraph,FilePill,UploadPill,ScreenshotPopup} from '../../../molecules/Activity'
+import { ActivityGraph,FilePill,UploadPill,ScreenshotGallery,ScreenshotPopup} from '../../../molecules/Activity'
 import { EventLogger } from 'gd-eventlog'
 import { useAppUI } from '../../../../bindings/native-ui'
 
@@ -374,6 +374,8 @@ export const ActivityDetails = ({activity, units, title,started,duration, distan
                         <ActivityGraph activity={activity} units={units} dialog={this}/>
                     </GraphSlot>
                 </GraphPanel>
+
+                { screenshots.length>0 ? <ScreenshotGallery screenshots={screenshots} /> : null }
 
             </ContentArea>
             <Footer justify='flex-end'>
