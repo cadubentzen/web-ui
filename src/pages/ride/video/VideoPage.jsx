@@ -84,7 +84,7 @@ export const VideoRidePage = ( { route, state,initialized,startOverlayProps= {},
                             <RideProgressPanel visible={showDashboard} transparent fold='top-right' foldId='video-progress' opacity={1.0} {...css.progress} />
                             <RideMetricsPanel visible={showDashboard} transparent fold='top-right' foldId='video-metrics' opacity={1.0} {...css.metrics} />
                             <ShiftingControl opacity={1.0} visible={showShiftingButtons && !screenshotRequested} background='none' justify='center' onToggleMode={ onToggleCyclingMode} {...css.shifting} />
-                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={!screenshotRequested} opacity={1.0} {...css.workoutPanel} /> : null}
+                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={true} opacity={1.0} {...css.workoutPanel} /> : null}
                             {layout.workoutControl ? <WorkoutControl visible={!screenshotRequested} background='none' onToggleMode={ onToggleCyclingMode} {...css.workoutControl} /> : null}
                             <RouteOptions visible={!isStarting && !screenshotRequested} {...css.routeOptions}
                                 transparent={true} pinned={false} settings={true} screenshot={true}

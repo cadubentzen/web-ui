@@ -68,7 +68,7 @@ export const FreeRideRidePage = ( { workout, activity, route, state,initialized,
                             <RideMetricsPanel visible={showDashboard} transparent fold='top-right' foldId='free-metrics' opacity={1.0} {...css.metrics} />
                             <ShiftingControl opacity={1.0} visible={showShiftingButtons&& !screenshotRequested} background='none' justify='center' onToggleMode={ onToggleCyclingMode} {...css.shifting} />
 
-                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={!screenshotRequested} opacity={1.0} {...css.workoutPanel} /> : null}
+                            {layout.workoutPanel ? <DynamicWorkoutDashboard transparent visible={true} opacity={1.0} {...css.workoutPanel} /> : null}
                             {layout.workoutControl ? <WorkoutControl visible={!screenshotRequested} background='none' onToggleMode={ onToggleCyclingMode} {...css.workoutControl} /> : null}
                             <RouteOptions visible={!isStarting && !screenshotRequested} {...css.routeOptions}
                                 options={options}  settings={true} screenshot={true}                                 
