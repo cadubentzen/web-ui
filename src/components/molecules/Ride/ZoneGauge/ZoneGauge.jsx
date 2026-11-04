@@ -45,8 +45,11 @@ const Unit = styled.span`
     font-weight: 400;
     color: ${p => hudTokens(p.theme).muted};
 `
+// zone names up to this length fit inside the arc at full size; longer ones shrink
+const ZONE_NAME_FIT_CHARS = 12
 const ZoneName = styled.span`
-    font-size: 0.1em;
+    font-size: ${p => 0.1 * Math.min(1, ZONE_NAME_FIT_CHARS / p.$length)}em;
+    white-space: nowrap;
     font-weight: 600;
     color: ${p => p.$color};
 `
@@ -124,7 +127,7 @@ export const ZoneGauge = ({ metric, value, unit, gauge, state, size = '13vw' }) 
                     {unit ? <Unit>{unit}</Unit> : null}
                 </Value>
                 {zoneItem ? (
-                    <ZoneName data-testid="zone-name" $color={zoneItem.color}>
+                    <ZoneName data-testid="zone-name" $color={zoneItem.color} $length={zoneItem.name?.length ?? 0}>
                         {zoneItem.name}
                     </ZoneName>
                 ) : null}

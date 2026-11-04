@@ -80,4 +80,18 @@ describe('ZoneGauge', () => {
         renderView(<ZoneGauge metric="heartrate" value="100" unit="bpm" gauge={gauge} state="amber" />)
         expect(screen.getByLabelText('heartrate').style.color).toBe('rgb(255, 191, 0)')
     })
+
+    test('a long zone name shrinks to stay inside the arc, on one line', () => {
+        const fontSize = name => {
+            const g = { ...gauge, zones: zones.map((z, i) => i === 2 ? { ...z, name } : z) }
+            const el = renderView(<ZoneGauge metric="power" value="100" unit="W" gauge={g} />).getByText(name)
+            expect(getComputedStyle(el).whiteSpace).toBe('nowrap')
+            return parseFloat(getComputedStyle(el).fontSize)
+        }
+        const short = fontSize('Z3 Tempo')
+        const long = fontSize('Z6 Aerobic Capacity')
+        expect(short).toBe(0.1)
+        expect(long).toBeLessThan(short)
+        expect(long).toBeGreaterThan(0.05)
+    })
 })
