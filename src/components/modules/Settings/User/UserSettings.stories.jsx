@@ -10,6 +10,7 @@ export default {
     onChangeWeight: { action: 'weight changed' },
     onChangeFtp: { action: 'ftp changed' },
     onChangeMaxHr: { action: 'max hr changed' },
+    onChangeThresholdHr: { action: 'threshold hr changed' },
     onChangeName: { action: 'name changed'},
     onChangeUnits: { action: 'units changed'}
 
@@ -29,6 +30,7 @@ Metric.args = {
   username: 'Test',
   ftp: 200,
   maxHr: 185,
+  thresholdHr: 170,
   weight: { value: 75, unit:'kg'},
   units:'Metric',
   unitsOptions: ['Metric','Imperial']

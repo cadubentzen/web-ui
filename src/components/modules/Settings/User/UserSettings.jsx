@@ -48,8 +48,8 @@ export const UserSettings = ( {width, height,onChange  })=>{
 }
 
 
-export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, units, unitsOptions, width,height, 
-        onChangeWeight,onChangeFtp,onChangeMaxHr,onChangeName,onChangeUnits }) => {
+export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, thresholdHr, units, unitsOptions, width,height, 
+        onChangeWeight,onChangeFtp,onChangeMaxHr,onChangeThresholdHr,onChangeName,onChangeUnits }) => {
 
 
     const setFtp = (newFtp) => {
@@ -73,20 +73,22 @@ export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, unit
         change(newFtp??null)
     }
 
-    const setMaxHr = (newMaxHr) => {
-        if (!onChangeMaxHr || typeof onChangeMaxHr!=='function')
+    const setHeartRate = (onChange) => (newValue) => {
+        if (!onChange || typeof onChange!=='function')
             return
 
-        if (newMaxHr===null || newMaxHr===undefined || newMaxHr==='') {
-            onChangeMaxHr(null)
+        if (newValue===null || newValue===undefined || newValue==='') {
+            onChange(null)
             return
         }
 
-        if (isNaN(newMaxHr))
+        if (isNaN(newValue))
             return;
 
-        onChangeMaxHr(newMaxHr)
+        onChange(newValue)
     }
+    const setMaxHr = setHeartRate(onChangeMaxHr)
+    const setThresholdHr = setHeartRate(onChangeThresholdHr)
 
     const setWeight = (newWeight) => {
 
@@ -141,6 +143,7 @@ export const UserSettingsView = ( { imageUrl, username, weight, ftp, maxHr, unit
                 <EditText label='Name' onValueChange={ setName} value={username} allowEmpty {...common} />
                 <EditNumber label='FTP' onValueChange={ setFtp} digits={0} max={999} value={ftp} unit='W' {...common} allowEmpty />
                 <EditNumber label='Max HR' onValueChange={ setMaxHr} digits={0} min={100} max={230} value={maxHr} unit='bpm' {...common} allowEmpty />
+                <EditNumber label='Threshold HR' onValueChange={ setThresholdHr} digits={0} min={80} max={230} value={thresholdHr} unit='bpm' {...common} allowEmpty />
                 <EditNumber label='Weight' onValueChange={ setWeight} digits={1} max={999} allowEmpty value={weight?.value} unit={weight?.unit??'kg'} {...common} />            
                 {units? <SingleSelect label='Units' onValueChange={setUnits} options={unitsOptions} selected={units} {...common} /> : null}
             </ContentArea>
